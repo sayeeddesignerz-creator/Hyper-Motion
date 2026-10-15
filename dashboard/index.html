@@ -4021,12 +4021,6 @@
           <div id="audienceContainer"></div>
         </div>
 
-        <!-- TAB 7: AI PROVIDERS -->
-        <div id="tab-providers" class="view-panel">
-          <div class="page-title-row">
-            <div>
-              <h1 class="page-title">Provider Connections</h1>
-              <p class="page-subtitle">Manage API keys, pooling, and custom endpoints.</p>
         <!-- MERGED TAB: DAVINCI & BLENDER NODE SYSTEM STUDIO -->
         <div id="tab-providers" class="view-panel">
           <div class="page-title-row">
@@ -6388,17 +6382,6 @@
     }
 
     function attemptCloseFbModal() {
-      if (!isFacebookConfigured) {
-        const statusMsg = document.getElementById('fbConfigStatusMsg');
-        if (statusMsg) {
-          statusMsg.style.display = 'block';
-          statusMsg.style.background = 'rgba(239, 68, 68, 0.15)';
-          statusMsg.style.color = '#f87171';
-          statusMsg.style.border = '1px solid rgba(239, 68, 68, 0.3)';
-          statusMsg.innerHTML = '⚠️ Access Token required! Provide and configure the token to activate the studio.';
-        }
-        return;
-      }
       closeModal('facebookModal');
     }
 
@@ -6434,12 +6417,8 @@
             if (headerMeta) {
               headerMeta.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg><span style="font-size:0.78rem;font-weight:700;color:#1d4ed8;">Meta: Sandbox</span>`;
             }
-            // Auto popup Facebook modal and keep it open until token is configured
-            openModal('facebookModal');
-            const tokenInput = document.getElementById('fbConfigToken');
-            if (tokenInput) tokenInput.focus();
             const closeBtn = document.getElementById('fbModalCloseBtn');
-            if (closeBtn) closeBtn.style.display = 'none';
+            if (closeBtn) closeBtn.style.display = 'inline-block';
           } else {
             badge.innerHTML = '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#10b981;margin-right:5px;"></span>CONNECTED LIVE';
             badge.className = 'badge badge-emerald';
@@ -8308,6 +8287,7 @@
     loadYouTubeStudio();
     loadRecentOutputsDashboard();
     connectBrainSSE();
+    reloadNodeStudio();
   </script>
 </body>
 
