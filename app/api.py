@@ -6,6 +6,7 @@ from __future__ import annotations
 import logging
 import os
 from typing import Any, Dict, List, Optional
+from uuid import uuid4
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Query
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
@@ -170,10 +171,11 @@ class SaveProviderRequest(BaseModel):
     enabled: bool = True
 
 class TestProviderRequest(BaseModel):
-    provider_type: str
-    api_key: str
+    provider_type: str = "custom"
+    api_key: str = ""
     base_url: Optional[str] = ""
-    model: str
+    model: str = ""
+    provider_id: Optional[str] = ""
 
 class SaveRouteRequest(BaseModel):
     route_name: str
@@ -186,6 +188,12 @@ class SaveRouteRequest(BaseModel):
 class TestRouteRequest(BaseModel):
     route_name: Optional[str] = "default"
     prompt: str = "Test prompt for latency and routing."
+
+class SaveEngineRequest(BaseModel):
+    id: Optional[str] = None
+    provider_id: str
+    model: str
+    name: Optional[str] = ""
 
 @router.get("/api/omniroute/providers")
 async def list_omniroute_providers() -> List[Dict[str, Any]]:
@@ -256,13 +264,23 @@ async def list_omniroute_providers() -> List[Dict[str, Any]]:
 
 @router.post("/api/omniroute/providers")
 async def save_omniroute_provider(req: SaveProviderRequest) -> Dict[str, str]:
+    # Blank api_key / empty models on an edit = "keep existing values"
+    api_key = req.api_key or ""
+    base_url = req.base_url or ""
+    models = req.models or []
+    if not api_key or not models:
+        raw = await db.get_omni_provider_raw(req.id)
+        if raw:
+            api_key = api_key or (raw.get("api_key") or "")
+            base_url = base_url or (raw.get("base_url") or "")
+            models = models or (raw.get("models") or [])
     await db.save_omni_provider(
         provider_id=req.id,
         provider_type=req.provider_type,
         name=req.name,
-        api_key=req.api_key,
-        base_url=req.base_url,
-        models=req.models,
+        api_key=api_key,
+        base_url=base_url,
+        models=models,
         enabled=req.enabled
     )
     # Push the updated provider set into the live gateway routing handles
@@ -281,21 +299,99 @@ async def delete_omniroute_provider(provider_id: str) -> Dict[str, str]:
 @router.post("/api/omniroute/test-provider")
 async def test_omniroute_provider(req: TestProviderRequest) -> Dict[str, Any]:
     import time
+    api_key = req.api_key or ""
+    base_url = req.base_url or ""
+    model = req.model or ""
+    # Node pings arrive with a provider_id and no key — resolve stored credentials
+    if req.provider_id:
+        raw = await db.get_omni_provider_raw(req.provider_id)
+        if raw:
+            api_key = api_key or (raw.get("api_key") or "")
+            base_url = base_url or (raw.get("base_url") or "")
+            model = model or ((raw.get("models") or [""])[0])
+    if not model:
+        model = "gpt-4o-mini"
     start = time.time()
     try:
         if req.provider_type == "gemini":
             from app.llm.gemini_provider import GeminiProvider
-            p = GeminiProvider(api_key=req.api_key, model_name=req.model)
+            p = GeminiProvider(api_key=api_key, model_name=model)
             res = await p.generate_text("Reply with 'pong'")
         else:
             from app.llm.openai_provider import OpenAIProvider
-            p = OpenAIProvider(api_key=req.api_key, model_name=req.model, base_url=req.base_url or None)
+            p = OpenAIProvider(api_key=api_key, model_name=model, base_url=base_url or None)
             res = await p.generate_text("Reply with 'pong'")
         latency_ms = int((time.time() - start) * 1000)
         return {"status": "success", "latency_ms": latency_ms, "response": res[:100]}
     except Exception as e:
         latency_ms = int((time.time() - start) * 1000)
         return {"status": "error", "latency_ms": latency_ms, "error": str(e)}
+
+# ----------------------------------------------------------------------------
+# Engine nodes — provider+model pairs; connect them to routes in the node graph
+# ----------------------------------------------------------------------------
+
+@router.get("/api/omniroute/engines")
+async def list_omniroute_engines() -> List[Dict[str, Any]]:
+    return await db.get_omni_engines()
+
+@router.post("/api/omniroute/engines")
+async def save_omniroute_engine(req: SaveEngineRequest) -> Dict[str, str]:
+    if not req.provider_id or not req.model:
+        raise HTTPException(status_code=400, detail="provider_id and model are required")
+    engine_id = (req.id or "").strip() or f"eng_{uuid4().hex[:8]}"
+    await db.save_omni_engine(
+        engine_id=engine_id,
+        provider_id=req.provider_id,
+        model=req.model,
+        name=req.name or req.model,
+    )
+    # Notify dashboards to re-render (engine list is part of the node graph)
+    await _sync_routes_to_gateway(action="engine_saved", route_name=engine_id)
+    return {"message": f"Engine '{req.model}' saved", "id": engine_id}
+
+@router.delete("/api/omniroute/engines/{engine_id}")
+async def delete_omniroute_engine(engine_id: str) -> Dict[str, str]:
+    await db.delete_omni_engine(engine_id)
+    await _sync_routes_to_gateway(action="engine_deleted", route_name=engine_id)
+    return {"message": f"Engine '{engine_id}' deleted"}
+
+# ----------------------------------------------------------------------------
+# Agent roster — powers the "Add Agent Node" menu in the node graph
+# ----------------------------------------------------------------------------
+
+AGENT_ROSTER_LABELS: Dict[str, str] = {
+    "trend_hunter":     "Trend Hunter",
+    "fact_checker":     "Fact Checker",
+    "strategist":       "Strategist",
+    "script_forge":     "Script Forge",
+    "seo_optimizer":    "SEO Optimizer",
+    "audience_miner":   "Audience Miner",
+    "learner":          "Knowledge Learner",
+    "facebook_growth":  "Facebook Growth",
+    "facebook_content": "Facebook Content",
+    "engagement_agent": "Engagement Agent",
+}
+
+@router.get("/api/agents")
+async def list_agent_roster() -> List[Dict[str, Any]]:
+    """Known orchestrator agents with their current static/live routing state."""
+    from app.llm.gateway import FACT_CRITICAL_AGENTS
+    live = orchestrator.gateway.get_live_routes()
+    roster = []
+    for name, label in AGENT_ROSTER_LABELS.items():
+        routing = orchestrator.gateway.get_agent_routing(name)
+        roster.append({
+            "name": name,
+            "label": label,
+            "fact_critical": name in FACT_CRITICAL_AGENTS,
+            "primary": routing.get("primary", "gemini"),
+            "policy": routing.get("fallback_policy", "allow"),
+            "source": routing.get("_source", "static"),
+            "has_route": name in live,
+            "cooldown_seconds": routing.get("cooldown_seconds", 300),
+        })
+    return roster
 
 @router.get("/api/omniroute/routes")
 async def list_omniroute_routes() -> List[Dict[str, Any]]:

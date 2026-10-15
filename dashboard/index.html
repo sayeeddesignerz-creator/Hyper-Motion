@@ -2851,8 +2851,8 @@
     .node-system-viewport {
       position: relative;
       width: 100%;
-      height: 760px;
-      min-height: 600px;
+      height: 100%;
+      min-height: 0; /* was 600px — overflowed the fixed-height section and overlapped the brain panel */
       background: #0d1117;
       border: 1px solid #21262d;
       border-radius: 16px;
@@ -3123,6 +3123,84 @@
     .brain-subtab.active-subtab {
       color: #58a6ff !important;
       border-bottom-color: #58a6ff !important;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       NODE GRAPH — INTERACTIVITY (wires, sockets, context menu)
+       ══════════════════════════════════════════════════════════════ */
+    #nodeSvgWires path.node-wire {
+      pointer-events: stroke;
+      cursor: pointer;
+    }
+    #nodeSvgWires path.node-wire:hover {
+      stroke-width: 5;
+      filter: drop-shadow(0 0 8px rgba(88, 166, 255, 0.7));
+    }
+    #nodeSvgWires path.node-wire.preview {
+      pointer-events: none;
+      stroke-dasharray: 7 5;
+      animation: wireDash 0.6s linear infinite;
+    }
+    .node-color-engine {
+      background: linear-gradient(180deg, #0e7490 0%, #155e75 100%);
+      color: #ffffff;
+    }
+    .dv-node.engine {
+      width: 210px;
+    }
+    .dv-socket.drag-target {
+      transform: scale(1.7);
+      box-shadow: 0 0 12px 2px currentColor, 0 0 0 3px rgba(63, 185, 80, 0.35);
+      background: #3fb950;
+    }
+    body.hm-wire-dragging, body.hm-wire-dragging * {
+      cursor: crosshair !important;
+    }
+    .node-ctx-menu {
+      position: fixed;
+      z-index: 9000;
+      min-width: 224px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.65);
+      padding: 6px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .node-ctx-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      color: #c9d1d9;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .node-ctx-item:hover {
+      background: #21262d;
+      color: #ffffff;
+    }
+    .node-ctx-item.danger {
+      color: #f85149;
+    }
+    .node-ctx-item.danger:hover {
+      background: rgba(248, 81, 73, 0.12);
+    }
+    .node-ctx-sep {
+      height: 1px;
+      background: #21262d;
+      margin: 5px 6px;
+    }
+    .node-ctx-title {
+      padding: 6px 10px 4px;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #8b949e;
+      font-weight: 700;
     }
   </style>
 </head>
@@ -5240,17 +5318,21 @@
             </div>
             <div style="display:flex;align-items:center;gap:8px;">
               <button class="btn-pill-secondary" onclick="openAddProviderModal()">+ Provider Node</button>
+              <button class="btn-pill-secondary" onclick="openAddAgentModal()">+ Agent Node</button>
+              <button class="btn-pill-secondary" onclick="openAddEngineModal()">+ Engine Node</button>
               <button class="btn-pill-primary" onclick="openAddRouteModal()">+ Route Node</button>
               <button class="btn-pill-secondary" onclick="handleBrainCmd('pipeline')" style="border-color:#0ea5e9;color:#0ea5e9;">▶ Run Pipeline</button>
             </div>
           </div>
 
-          <!-- ── Main layout (natural flow, scroll with content-area) ── -->
+          <!-- ── Main layout (natural flow, scroll with content-area)
+               Visual order: 1) AI Brain + Console (top)  2) Node Graph Studio (bottom)
+               via flex `order` — brain section has order:1, node section order:2  ── -->
           <div style="display:flex;flex-direction:column;gap:0;">
 
-            <!-- ── TOP: Node Graph Studio ── -->
-            <div id="cmdCenterNodeSection" style="flex:none;height:460px;position:relative;">
-              <div class="node-system-viewport" id="nodeViewport" style="height:100%;border-radius:14px 14px 0 0;">
+            <!-- ── BOTTOM (visual): Node Graph Studio ── -->
+            <div id="cmdCenterNodeSection" style="flex:none;height:560px;position:relative;order:2;">
+              <div class="node-system-viewport" id="nodeViewport" style="height:calc(100% - 12px);border-radius:0;">
                 <div class="node-canvas-grid"></div>
                 <svg id="nodeSvgWires">
                   <defs>
@@ -5268,6 +5350,9 @@
                   <div class="node-toolbar-left">
                     <span style="font-size:11px;font-weight:700;color:#58a6ff;letter-spacing:0.5px;">NODE GRAPH</span>
                     <div style="width:1px;height:14px;background:#30363d;"></div>
+                    <button class="node-pill-btn" onclick="openAddProviderModal()">+ Provider</button>
+                    <button class="node-pill-btn" onclick="openAddAgentModal()">+ Agent</button>
+                    <button class="node-pill-btn" onclick="openAddEngineModal()">+ Engine</button>
                     <button class="node-pill-btn" onclick="autoLayoutNodes()">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                       Clean Layout
@@ -5280,7 +5365,10 @@
                   <div class="node-toolbar-right">
                     <div class="node-legend-item"><span class="node-legend-dot" style="background:#58a6ff;"></span><span>Provider Out</span></div>
                     <div class="node-legend-item"><span class="node-legend-dot" style="background:#2ea043;"></span><span>Primary Route</span></div>
-                    <div class="node-legend-item"><span class="node-legend-dot" style="background:#bc8cff;"></span><span>Fallback</span></div>
+                    <div class="node-legend-item"><span class="node-legend-dot" style="background:#a371f7;"></span><span>Fallback</span></div>
+                    <div class="node-legend-item"><span class="node-legend-dot" style="background:#39c5cf;"></span><span>Engine</span></div>
+                    <div style="width:1px;height:14px;background:#30363d;"></div>
+                    <span style="font-size:10px;color:#8b949e;max-width:220px;line-height:1.35;">Right-click canvas = add menu · drag socket = connect · click wire = disconnect</span>
                     <div style="width:1px;height:14px;background:#30363d;"></div>
                     <button class="node-pill-btn" onclick="toggleNodeHeight()" title="Expand/Collapse" id="nodeResizeBtn">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 15 12 20 17 15"/><polyline points="7 9 12 4 17 9"/></svg>
@@ -5289,15 +5377,20 @@
                   </div>
                 </div>
                 <div id="nodesContainer" style="position:absolute;inset:0;pointer-events:none;"></div>
+                <!-- Guided "Add Fallback Link" mode hint -->
+                <div id="nodeLinkHint" style="display:none;position:absolute;top:58px;left:50%;transform:translateX(-50%);z-index:30;background:rgba(31,111,235,0.94);border:1px solid #388bfd;border-radius:8px;padding:8px 14px;font-size:11.5px;font-weight:600;color:#fff;align-items:center;gap:12px;backdrop-filter:blur(8px);">
+                  <span>ADD FALLBACK: click a Provider or Engine node…</span>
+                  <button class="dv-node-btn" onclick="cancelFallbackLinkMode()">Cancel</button>
+                </div>
               </div>
               <!-- Drag resize divider -->
-              <div id="nodeResizeHandle" onclick="toggleNodeHeight()" style="height:10px;background:linear-gradient(90deg,#1f6feb22,#8957e544,#1f6feb22);cursor:ns-resize;display:flex;align-items:center;justify-content:center;border:1px solid #21262d;border-top:none;border-radius:0 0 10px 10px;" title="Click to collapse / expand node graph">
+              <div id="nodeResizeHandle" onclick="toggleNodeHeight()" style="height:12px;background:linear-gradient(90deg,#1f6feb22,#8957e544,#1f6feb22);cursor:ns-resize;display:flex;align-items:center;justify-content:center;border:1px solid #21262d;border-top:none;border-radius:0 0 10px 10px;" title="Click to collapse / expand node graph">
                 <svg width="20" height="8" viewBox="0 0 20 8" fill="none"><path d="M2 2.5h16M2 5.5h16" stroke="#8b949e" stroke-width="1.5" stroke-linecap="round"/></svg>
               </div>
             </div>
 
-            <!-- ── BOTTOM: AI Brain + Console ── -->
-            <div style="display:flex;flex-direction:column;background:#f5f6fa;border:1px solid #21262d;border-top:none;border-radius:0 0 14px 14px;overflow:hidden;min-height:380px;">
+            <!-- ── TOP (visual): AI Brain + Console ── -->
+            <div id="cmdCenterBrainSection" style="display:flex;flex-direction:column;background:#f5f6fa;border:1px solid #21262d;border-bottom:none;border-radius:14px 14px 0 0;overflow:hidden;min-height:380px;order:1;">
 
               <!-- Sub-tab bar (dark, Blender-style) -->
               <div id="brainSubTabBar" style="display:flex;align-items:center;gap:0;background:#161b22;border-bottom:1px solid #30363d;padding:0 16px;flex-shrink:0;">
@@ -5590,6 +5683,67 @@
     </div>
   </div>
 
+  <!-- Agent Node Modal -->
+  <div id="agentModal" class="modal-backdrop">
+    <div class="modal-box">
+      <h3 class="modal-title" style="margin-bottom: 6px;">Add Agent Node</h3>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5;">
+        Creates a live <strong>route node</strong> for an orchestrator agent — saved to the database and synced to the gateway instantly.
+      </p>
+      <div class="form-group">
+        <label class="form-label">Orchestrator Agent</label>
+        <select id="agentSelect" class="form-select"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Primary Provider</label>
+        <select id="agentProviderSelect" class="form-select" onchange="onAgentProviderChange()"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Primary Model</label>
+        <input type="text" id="agentModelInput" class="form-input" list="agentModelHints" placeholder="model name">
+        <datalist id="agentModelHints"></datalist>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cooldown on 429 Rate Limit (Seconds)</label>
+        <input type="number" id="agentCooldownInput" class="form-input" value="300">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button class="btn-pill-secondary" onclick="closeModal('agentModal')">Cancel</button>
+        <button class="btn-pill-primary" onclick="submitAgentForm()">Save Agent Node</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Engine Node Modal -->
+  <div id="engineModal" class="modal-backdrop">
+    <div class="modal-box">
+      <h3 class="modal-title" style="margin-bottom: 6px;">Add Engine Node</h3>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5;">
+        Engine nodes represent a model (provider + model pair). Connect one to a route node to pin which model that route uses.
+      </p>
+      <div class="form-group">
+        <label class="form-label">Parent Provider</label>
+        <select id="engineProviderSelect" class="form-select" onchange="updateEngineModelHints()"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Model / Engine</label>
+        <input type="text" id="engineModelInput" class="form-input" list="engineModelHints" placeholder="e.g. llama-3.3-70b-versatile">
+        <datalist id="engineModelHints"></datalist>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Display Label (optional)</label>
+        <input type="text" id="engineNameInput" class="form-input" placeholder="Fast Llama Engine">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button class="btn-pill-secondary" onclick="closeModal('engineModal')">Cancel</button>
+        <button class="btn-pill-primary" onclick="submitEngineForm()">Save Engine Node</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Node graph right-click context menu -->
+  <div id="nodeCtxMenu" class="node-ctx-menu" style="display:none;"></div>
+
   <script>
     // Tab switching
     function switchTab(tabId) {
@@ -5658,8 +5812,8 @@
       const sec = document.getElementById('cmdCenterNodeSection');
       if (!sec) return;
       _nodeExpanded = !_nodeExpanded;
-      sec.style.height = _nodeExpanded ? '420px' : '56px';
-      sec.style.minHeight = _nodeExpanded ? '220px' : '56px';
+      sec.style.height = _nodeExpanded ? '560px' : '56px';
+      sec.style.minHeight = _nodeExpanded ? '280px' : '56px';
       const btn = document.getElementById('nodeResizeBtn');
       if (btn) btn.title = _nodeExpanded ? 'Collapse node graph' : 'Expand node graph';
       if (_nodeExpanded) setTimeout(drawNodeWires, 80);
@@ -5988,13 +6142,51 @@
     // DAVINCI RESOLVE / BLENDER NODE GRAPH ENGINE & STUDIO INTERACTIVITY
     // ═══════════════════════════════════════════════════════════════════════════
 
-    let _nodeGraphData = { providers: [], routes: [] };
+    let _nodeGraphData = { providers: [], routes: [], engines: [] };
     let _nodePositions = {};
     let _activeDragNode = null;
     let _dragOffset = { x: 0, y: 0 };
+    let _wireDrag = null;      // socket → socket connection drag state
+    let _linkMode = null;      // guided "Add Fallback Link" mode
+    let _agentRoster = [];
+
+    // ── Node graph helpers ──────────────────────────────────────────────
+
+    function findProvider(id) { return (_nodeGraphData.providers || []).find(p => p.id === id); }
+    function findRoute(name) { return (_nodeGraphData.routes || []).find(r => r.route_name === name); }
+    function findEngineByNodeId(nodeId) {
+      return (_nodeGraphData.engines || []).find(e => engineNodeId(e.provider_id, e.model) === nodeId);
+    }
+    function firstModelOf(p) {
+      return (p && p.models && p.models.length) ? p.models[0] : 'default';
+    }
+    function engineNodeId(providerId, model) {
+      const s = String(providerId) + '::' + String(model);
+      let h = 5381;
+      for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+      return 'engine_' + h.toString(36);
+    }
+    // Safe string for inline JS inside double-quoted attributes
+    function jsStr(str) {
+      return String(str)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+    function loadNodePositions() {
+      try {
+        const raw = localStorage.getItem('hm_node_positions_v1');
+        _nodePositions = raw ? (JSON.parse(raw) || {}) : {};
+      } catch (_) { _nodePositions = {}; }
+    }
+    function saveNodePositions() {
+      try { localStorage.setItem('hm_node_positions_v1', JSON.stringify(_nodePositions)); } catch (_) { }
+    }
 
     async function reloadNodeStudio() {
-      await Promise.all([loadProviders(), loadRoutes()]);
+      await Promise.all([loadProviders(), loadRoutes(), loadEngines()]);
       renderNodeGraph();
     }
 
@@ -6009,12 +6201,51 @@
       renderNodeGraph();
     }
 
+    // ENGINES (provider + model pairs)
+    async function loadEngines() {
+      try {
+        const res = await fetch('/api/omniroute/engines');
+        _nodeGraphData.engines = await res.json();
+      } catch (e) {
+        _nodeGraphData.engines = [];
+      }
+    }
+
     function openAddProviderModal() {
-      document.getElementById('provIdInput').value = 'prov_' + Math.random().toString(36).substring(2, 7);
+      const idEl = document.getElementById('provIdInput');
+      idEl.value = 'prov_' + Math.random().toString(36).substring(2, 7);
+      idEl.removeAttribute('readonly');
+      idEl.style.opacity = '';
       document.getElementById('provNameInput').value = '';
       document.getElementById('provKeyInput').value = '';
+      document.getElementById('provKeyInput').placeholder = 'AIzaSy... or sk-or-...';
       document.getElementById('provUrlInput').value = '';
       document.getElementById('provModelsInput').value = '';
+      const sel = document.getElementById('provTypeSelect');
+      sel.value = 'gemini';
+      document.getElementById('providerModal').classList.add('active');
+    }
+
+    function openEditProviderModal(providerId) {
+      const p = findProvider(providerId);
+      if (!p) return;
+      const idEl = document.getElementById('provIdInput');
+      idEl.value = p.id;
+      idEl.setAttribute('readonly', 'readonly');
+      idEl.style.opacity = '0.7';
+      const sel = document.getElementById('provTypeSelect');
+      if (![...sel.options].some(o => o.value === p.provider_type)) {
+        const opt = document.createElement('option');
+        opt.value = p.provider_type;
+        opt.textContent = p.provider_type;
+        sel.appendChild(opt);
+      }
+      sel.value = p.provider_type;
+      document.getElementById('provNameInput').value = p.name || '';
+      document.getElementById('provKeyInput').value = '';   // blank = keep existing key
+      document.getElementById('provKeyInput').placeholder = p.has_key ? 'Leave blank to keep current key' : 'No key stored — paste one';
+      document.getElementById('provUrlInput').value = p.base_url || '';
+      document.getElementById('provModelsInput').value = (p.models || []).join(', ');
       document.getElementById('providerModal').classList.add('active');
     }
 
@@ -6025,32 +6256,141 @@
       const key = document.getElementById('provKeyInput').value.trim();
       const url = document.getElementById('provUrlInput').value.trim();
       const models = document.getElementById('provModelsInput').value.split(',').map(m => m.trim()).filter(Boolean);
+      if (!id) { showToast('Provider Node', 'Provider ID is required.', 'warning'); return; }
 
-      await fetch('/api/omniroute/providers', {
+      const res = await fetch('/api/omniroute/providers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, provider_type: type, name, api_key: key, base_url: url, models, enabled: true })
       });
+      if (res.ok) {
+        showToast('Provider Synced', `'${name}' saved & loaded into the live gateway.`, 'success');
+      } else {
+        showToast('Provider Save Failed', 'Server rejected the provider update.', 'error');
+      }
       closeModal('providerModal');
       await reloadNodeStudio();
+      setTimeout(drawNodeWires, 100);
     }
 
     async function deleteProvider(id) {
-      if (confirm(`Delete provider node "${id}"?`)) {
+      if (confirm(`Delete provider node "${id}"?\nAll routes pointing at it fall back to the next available provider.`)) {
         await fetch(`/api/omniroute/providers/${id}`, { method: 'DELETE' });
         delete _nodePositions['prov_' + id];
+        saveNodePositions();
+        showToast('Provider Deleted', `'${id}' removed from the live gateway.`, 'info');
         await reloadNodeStudio();
+        setTimeout(drawNodeWires, 100);
       }
     }
 
-    async function testProviderLatency(type, model) {
+    async function testProviderLatency(type, model, providerId) {
       const res = await fetch('/api/omniroute/test-provider', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider_type: type, api_key: '', model: model })
+        body: JSON.stringify({ provider_type: type || 'custom', api_key: '', model: model || '', provider_id: providerId || '' })
       });
       const data = await res.json();
-      alert(`Node Ping [${type}]:\nStatus: ${data.status}\nLatency: ${data.latency_ms}ms\nMessage: ${data.response || data.error || ''}`);
+      alert(`Node Ping [${providerId || type}]:\nStatus: ${data.status}\nLatency: ${data.latency_ms}ms\nMessage: ${data.response || data.error || ''}`);
+    }
+
+    // ── Agent nodes (route nodes bound to a real orchestrator agent) ────
+
+    async function openAddAgentModal() {
+      try {
+        const r = await fetch('/api/agents');
+        _agentRoster = r.ok ? await r.json() : [];
+      } catch (_) { _agentRoster = []; }
+      const sel = document.getElementById('agentSelect');
+      sel.innerHTML = _agentRoster.map(a =>
+        `<option value="${a.name}">${a.label}${a.fact_critical ? ' — ⚠ fact-critical' : ''}${a.has_route ? ' — custom route active' : ''}</option>`
+      ).join('') || '<option value="">No agents available</option>';
+      const provSel = document.getElementById('agentProviderSelect');
+      provSel.innerHTML = (_nodeGraphData.providers || []).map(p =>
+        `<option value="${p.id}">${p.name} (${p.provider_type})</option>`
+      ).join('');
+      document.getElementById('agentCooldownInput').value = 300;
+      onAgentProviderChange();
+      document.getElementById('agentModal').classList.add('active');
+    }
+
+    function onAgentProviderChange() {
+      const pid = document.getElementById('agentProviderSelect').value;
+      const p = findProvider(pid);
+      const dl = document.getElementById('agentModelHints');
+      if (dl) dl.innerHTML = (p && p.models ? p.models : []).map(m => `<option value="${m}"></option>`).join('');
+      const mi = document.getElementById('agentModelInput');
+      if (mi) mi.value = firstModelOf(p);
+    }
+
+    async function submitAgentForm() {
+      const name = document.getElementById('agentSelect').value;
+      const primary_provider_id = document.getElementById('agentProviderSelect').value;
+      const primary_model = document.getElementById('agentModelInput').value.trim() || 'default';
+      const cooldown = parseInt(document.getElementById('agentCooldownInput').value) || 300;
+      if (!name || !primary_provider_id) {
+        showToast('Agent Node', 'Select an agent and a primary provider.', 'warning');
+        return;
+      }
+      const existing = findRoute(name);
+      const chain = existing ? (existing.fallback_chain || []).slice() : [];
+      await persistRoute(name, primary_provider_id, primary_model, chain, cooldown, existing ? existing.max_retries : 3);
+      closeModal('agentModal');
+    }
+
+    // ── Engine nodes (provider + model pairs) ───────────────────────────
+
+    function openAddEngineModal(preselectProviderId) {
+      const provSel = document.getElementById('engineProviderSelect');
+      provSel.innerHTML = (_nodeGraphData.providers || []).map(p =>
+        `<option value="${p.id}">${p.name} (${p.provider_type})</option>`
+      ).join('');
+      if (preselectProviderId) provSel.value = preselectProviderId;
+      document.getElementById('engineModelInput').value = '';
+      document.getElementById('engineNameInput').value = '';
+      updateEngineModelHints();
+      document.getElementById('engineModal').classList.add('active');
+    }
+
+    function updateEngineModelHints() {
+      const pid = document.getElementById('engineProviderSelect').value;
+      const p = findProvider(pid);
+      const dl = document.getElementById('engineModelHints');
+      if (dl) dl.innerHTML = (p && p.models ? p.models : []).map(m => `<option value="${m}"></option>`).join('');
+    }
+
+    async function submitEngineForm() {
+      const provider_id = document.getElementById('engineProviderSelect').value;
+      const model = document.getElementById('engineModelInput').value.trim();
+      const name = document.getElementById('engineNameInput').value.trim();
+      if (!provider_id || !model) {
+        showToast('Engine Node', 'Pick a provider and enter a model name.', 'warning');
+        return;
+      }
+      const res = await fetch('/api/omniroute/engines', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider_id, model, name })
+      });
+      if (res.ok) {
+        showToast('Engine Node Created', `${model} linked to provider '${provider_id}'.`, 'success');
+      } else {
+        showToast('Engine Save Failed', 'Server rejected the engine node.', 'error');
+      }
+      closeModal('engineModal');
+      await reloadNodeStudio();
+      setTimeout(drawNodeWires, 100);
+    }
+
+    async function deleteEngineNode(engineId, label) {
+      if (!confirm(`Delete engine node "${label}"?`)) return;
+      const eng = (_nodeGraphData.engines || []).find(e => e.id === engineId);
+      if (eng) delete _nodePositions[engineNodeId(eng.provider_id, eng.model)];
+      await fetch(`/api/omniroute/engines/${engineId}`, { method: 'DELETE' });
+      saveNodePositions();
+      showToast('Engine Deleted', `'${label}' removed.`, 'info');
+      await reloadNodeStudio();
+      setTimeout(drawNodeWires, 100);
     }
 
     // ROUTES & FALLBACKS
@@ -6088,7 +6428,7 @@
               const cnt = document.getElementById('liveRouteCount');
               if (cnt && msg.payload && msg.payload.total !== undefined)
                 cnt.textContent = `${msg.payload.total} active`;
-              loadRoutes();
+              reloadNodeStudio();
             }
           } catch (_) {}
         };
@@ -6131,6 +6471,28 @@
     }
 
     function openAddRouteModal() {
+      const nameEl = document.getElementById('routeNameInput');
+      nameEl.value = '';
+      nameEl.removeAttribute('readonly');
+      nameEl.style.opacity = '';
+      document.getElementById('routePrimaryProvInput').value = 'gemini_primary';
+      document.getElementById('routePrimaryModelInput').value = 'gemini-3.8-flash';
+      document.getElementById('routeCooldownInput').value = 300;
+      document.getElementById('routeFallbackInput').value = '[]';
+      document.getElementById('routeModal').classList.add('active');
+    }
+
+    function openEditRouteModal(name) {
+      const r = findRoute(name);
+      if (!r) return;
+      const nameEl = document.getElementById('routeNameInput');
+      nameEl.value = r.route_name;
+      nameEl.setAttribute('readonly', 'readonly');
+      nameEl.style.opacity = '0.7';
+      document.getElementById('routePrimaryProvInput').value = r.primary_provider_id || '';
+      document.getElementById('routePrimaryModelInput').value = r.primary_model || '';
+      document.getElementById('routeCooldownInput').value = r.cooldown_seconds || 300;
+      document.getElementById('routeFallbackInput').value = JSON.stringify(r.fallback_chain || [], null, 2);
       document.getElementById('routeModal').classList.add('active');
     }
 
@@ -6146,28 +6508,194 @@
         alert("Invalid JSON format in fallback chain");
         return;
       }
+      if (!routeName || !primaryProv) {
+        showToast('Route Node', 'Route name and primary provider are required.', 'warning');
+        return;
+      }
 
-      await fetch('/api/omniroute/routes', {
+      await persistRoute(routeName, primaryProv, primaryModel || 'default', chain, cooldown, 3, true);
+      closeModal('routeModal');
+    }
+
+    // Core persistence helper — every node-graph mutation flows through here
+    async function persistRoute(route_name, primary_provider_id, primary_model, fallback_chain, cooldown_seconds = 300, max_retries = 3, quiet = false) {
+      const res = await fetch('/api/omniroute/routes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          route_name: routeName,
-          primary_provider_id: primaryProv,
-          primary_model: primaryModel,
-          fallback_chain: chain,
-          cooldown_seconds: cooldown,
-          max_retries: 3
+          route_name,
+          primary_provider_id,
+          primary_model,
+          fallback_chain: fallback_chain || [],
+          cooldown_seconds,
+          max_retries
         })
       });
-      closeModal('routeModal');
+      if (res.ok) {
+        if (!quiet) showToast('Route Synced', `'${route_name}' pushed to the live gateway.`, 'success');
+      } else {
+        showToast('Route Sync Failed', `Server rejected the update of '${route_name}'.`, 'error');
+      }
       await reloadNodeStudio();
+      setTimeout(drawNodeWires, 100);
+      return res.ok;
     }
 
     async function deleteRoute(name) {
-      if (confirm(`Delete route node "${name}"?\nThis removes it immediately from the live engine.`)) {
+      if (confirm(`Delete route node "${name}"?\nThe agent falls back to its static routing immediately.`)) {
         await fetch(`/api/omniroute/routes/${name}`, { method: 'DELETE' });
         delete _nodePositions['route_' + name];
+        saveNodePositions();
+        showToast('Route Deleted', `'${name}' removed from the live routing table.`, 'info');
         await reloadNodeStudio();
+        setTimeout(drawNodeWires, 100);
+      }
+    }
+
+    async function clearRouteFallbacks(name) {
+      const r = findRoute(name);
+      if (!r) return;
+      if (!confirm(`Clear the fallback chain of route '${name}'?`)) return;
+      await persistRoute(name, r.primary_provider_id, r.primary_model, [], r.cooldown_seconds, r.max_retries, true);
+      showToast('Fallbacks Cleared', `'${name}' now routes through its primary provider only.`, 'info');
+    }
+
+    function testRouteQuick(name) {
+      switchBrainSubTab('routes');
+      setTimeout(() => {
+        const sel = document.getElementById('testRouteSelect');
+        if (sel) {
+          if (![...sel.options].some(o => o.value === name)) {
+            const opt = document.createElement('option');
+            opt.value = name; opt.textContent = `Route: ${name}`;
+            sel.appendChild(opt);
+          }
+          sel.value = name;
+        }
+        const out = document.getElementById('testRouteOutput');
+        if (out) out.textContent = `⚡ Running '${name}'…`;
+        runRouteTest();
+      }, 60);
+    }
+
+    // ── Connection engine: connect / disconnect (all persisted) ─────────
+
+    async function connectSourceToRoute(source, routeName) {
+      const route = findRoute(routeName);
+      if (!route) { showToast('Connection Failed', `Route '${routeName}' not found.`, 'error'); return; }
+      const model = source.model || 'default';
+      const chain = (route.fallback_chain || []).slice();
+
+      const isSameAsPrimary = route.primary_provider_id === source.provider_id;
+      const chainStep = chain.find(fb => fb.provider_id === source.provider_id);
+
+      if (isSameAsPrimary) {
+        if (route.primary_model !== model) {
+          // Re-pin the primary model via this engine node
+          await persistRoute(routeName, route.primary_provider_id, model, chain, route.cooldown_seconds, route.max_retries, true);
+          showToast('Primary Model Pinned', `'${routeName}' primary now uses ${model}.`, 'success');
+        } else {
+          showToast('Already Connected', `${source.provider_id} is already the primary of '${routeName}'.`, 'info');
+        }
+        return;
+      }
+      if (chainStep) {
+        if (chainStep.model !== model) {
+          chainStep.model = model;
+          await persistRoute(routeName, route.primary_provider_id, route.primary_model, chain, route.cooldown_seconds, route.max_retries, true);
+          showToast('Fallback Model Pinned', `'${routeName}' fallback now uses ${model}.`, 'success');
+        } else {
+          showToast('Already Connected', `${source.provider_id} is already in the fallback chain of '${routeName}'.`, 'info');
+        }
+        return;
+      }
+      if (!route.primary_provider_id) {
+        await persistRoute(routeName, source.provider_id, model, chain, route.cooldown_seconds, route.max_retries, true);
+        showToast('Primary Connected', `${source.provider_id} set as primary of '${routeName}'.`, 'success');
+        return;
+      }
+      chain.push({ provider_id: source.provider_id, model });
+      await persistRoute(routeName, route.primary_provider_id, route.primary_model, chain, route.cooldown_seconds, route.max_retries, true);
+      showToast('Fallback Linked', `${source.provider_id} appended to '${routeName}' failover chain.`, 'success');
+    }
+
+    async function disconnectEdgeFromRoute(edge) {
+      const route = findRoute(edge.route_name);
+      if (!route) return;
+      const who = edge.role === 'primary' ? 'primary provider' : 'fallback link';
+      if (!confirm(`Disconnect ${edge.provider_id} (${who}) from route '${edge.route_name}'?`)) return;
+
+      let chain = (route.fallback_chain || []).slice();
+      let primary_provider_id = route.primary_provider_id;
+      let primary_model = route.primary_model;
+
+      if (edge.role === 'primary') {
+        if (chain.length) {
+          const next = chain.shift();
+          primary_provider_id = next.provider_id;
+          primary_model = next.model || firstModelOf(findProvider(next.provider_id));
+          showToast('Primary Promoted', `${primary_provider_id} promoted to primary of '${edge.route_name}'.`, 'info');
+        } else {
+          const alt = (_nodeGraphData.providers || []).find(p => p.id !== edge.provider_id && p.enabled !== false);
+          if (!alt) {
+            showToast('Disconnect Blocked', 'A route needs at least one provider — add another provider node first.', 'warning');
+            return;
+          }
+          primary_provider_id = alt.id;
+          primary_model = firstModelOf(alt);
+          showToast('Primary Replaced', `Switched to ${alt.id} (last remaining provider).`, 'info');
+        }
+      } else {
+        chain = chain.filter(fb => fb.provider_id !== edge.provider_id);
+      }
+      await persistRoute(edge.route_name, primary_provider_id, primary_model, chain, route.cooldown_seconds, route.max_retries, true);
+    }
+
+    // ── Guided link mode (context menu → "Add Fallback Link") ───────────
+
+    function startFallbackLinkMode() {
+      _linkMode = { stage: 0, source: null, sourceNodeId: null };
+      const hint = document.getElementById('nodeLinkHint');
+      if (hint) {
+        hint.style.display = 'flex';
+        const span = hint.querySelector('span');
+        if (span) span.textContent = 'ADD FALLBACK: click a Provider or Engine node…';
+      }
+    }
+    function cancelFallbackLinkMode() {
+      _linkMode = null;
+      const hint = document.getElementById('nodeLinkHint');
+      if (hint) hint.style.display = 'none';
+      document.querySelectorAll('.dv-node.link-source').forEach(n => n.classList.remove('link-source'));
+    }
+    function handleLinkModeClick(nodeEl) {
+      if (!_linkMode) return;
+      const nt = nodeEl.dataset.nodetype;
+      const hint = document.getElementById('nodeLinkHint');
+      const span = hint ? hint.querySelector('span') : null;
+      if (_linkMode.stage === 0) {
+        if (nt === 'provider') {
+          _linkMode.source = { provider_id: nodeEl.dataset.nodeRef, model: firstModelOf(findProvider(nodeEl.dataset.nodeRef)) };
+        } else if (nt === 'engine') {
+          const eng = findEngineByNodeId(nodeEl.dataset.nodeRef);
+          if (!eng) return;
+          _linkMode.source = { provider_id: eng.provider_id, model: eng.model };
+        } else {
+          showToast('Add Fallback Link', 'First click a Provider or Engine node.', 'warning');
+          return;
+        }
+        _linkMode.stage = 1;
+        _linkMode.sourceNodeId = nodeEl.dataset.nodeRef;
+        nodeEl.classList.add('link-source');
+        if (span) span.textContent = `ADD FALLBACK: now click the Route node to receive '${_linkMode.source.provider_id}'…`;
+      } else if (_linkMode.stage === 1) {
+        if (nt !== 'route') {
+          showToast('Add Fallback Link', 'Now click a Route node to complete the link.', 'warning');
+          return;
+        }
+        const src = _linkMode.source;
+        cancelFallbackLinkMode();
+        connectSourceToRoute(src, nodeEl.dataset.nodeRef);
       }
     }
 
@@ -6198,22 +6726,45 @@
     // ─────────────────────────────────────────────────────────────────────────
 
     function autoLayoutNodes() {
+      const vp = document.getElementById('nodeViewport');
+      const vh = vp ? vp.clientHeight : 560;
+      const vw = vp ? vp.clientWidth : 1200;
       const provs = _nodeGraphData.providers || [];
+      const engines = _nodeGraphData.engines || [];
       const routes = _nodeGraphData.routes || [];
 
+      const colProv = 40;
+      const colEng = 300;
+      const colRoute = Math.min(600, Math.max(540, colEng + 240));
+      const colOut = Math.min(Math.max(colRoute + 240, vw - 250), 840);
+
+      const fitSpacing = (count, startY) => Math.max(86, Math.min(150, (vh - startY - 30) / Math.max(count, 1)));
+
       // Left column: Providers
+      const provSp = fitSpacing(provs.length, 70);
       provs.forEach((p, idx) => {
-        _nodePositions['prov_' + p.id] = { x: 50, y: 70 + (idx * 160) };
+        _nodePositions['prov_' + p.id] = { x: colProv, y: 70 + (idx * provSp) };
       });
 
-      // Center column: Routes
+      // Engine column: engines grouped under their provider, orphans appended
+      const engList = [];
+      provs.forEach(p => engines.forEach(e => { if (e.provider_id === p.id && !engList.includes(e)) engList.push(e); }));
+      engines.forEach(e => { if (!engList.includes(e)) engList.push(e); });
+      const engSp = fitSpacing(engList.length, 70);
+      engList.forEach((e, idx) => {
+        _nodePositions[engineNodeId(e.provider_id, e.model)] = { x: colEng, y: 70 + (idx * engSp) };
+      });
+
+      // Middle column: Routes (bound to orchestrator agents)
+      const routeSp = fitSpacing(routes.length, 80);
       routes.forEach((r, idx) => {
-        _nodePositions['route_' + r.route_name] = { x: 380, y: 80 + (idx * 170) };
+        _nodePositions['route_' + r.route_name] = { x: colRoute, y: 80 + (idx * routeSp) };
       });
 
-      // Right column: Final Output Nodes
-      _nodePositions['out_pipeline'] = { x: 740, y: 160 };
+      // Right column: Final Output Node
+      _nodePositions['out_pipeline'] = { x: colOut, y: Math.max(80, (vh / 2) - 60) };
 
+      saveNodePositions();
       renderNodeGraph();
     }
 
@@ -6226,9 +6777,10 @@
 
       const provs = _nodeGraphData.providers || [];
       const routes = _nodeGraphData.routes || [];
+      const engines = _nodeGraphData.engines || [];
 
       if (summaryEl) {
-        summaryEl.textContent = `${provs.length} Providers · ${routes.length} Dynamic Routes`;
+        summaryEl.textContent = `${provs.length} Providers · ${engines.length} Engines · ${routes.length} Routes`;
       }
 
       // Populate quick inventory list below viewport
@@ -6239,10 +6791,22 @@
             <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#161b22;border:1px solid #30363d;border-radius:6px;font-size:11px;">
               <div style="display:flex;align-items:center;gap:6px;">
                 <span class="node-legend-dot" style="background:#58a6ff;"></span>
-                <strong style="color:#e6edf3;">${p.name}</strong>
-                <span class="dv-node-meta-tag">${p.provider_type}</span>
+                <strong style="color:#e6edf3;">${escapeHtml(p.name)}</strong>
+                <span class="dv-node-meta-tag">${escapeHtml(p.provider_type)}</span>
               </div>
-              <button class="dv-node-btn" onclick="testProviderLatency('${p.provider_type}', '${(p.models || [])[0] || ''}')">Ping</button>
+              <button class="dv-node-btn" onclick="testProviderLatency('${jsStr(p.provider_type)}', '${jsStr((p.models || [])[0] || '')}', '${jsStr(p.id)}')">Ping</button>
+            </div>
+          `;
+        });
+        engines.forEach(e => {
+          itemsHtml += `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#161b22;border:1px solid #30363d;border-radius:6px;font-size:11px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="node-legend-dot" style="background:#39c5cf;"></span>
+                <strong style="color:#e6edf3;">Engine: ${escapeHtml(e.model)}</strong>
+                <span class="dv-node-meta-tag">${escapeHtml(e.provider_id)}</span>
+              </div>
+              <button class="dv-node-btn danger" onclick="deleteEngineNode('${jsStr(e.id)}', '${jsStr(e.model)}')">Remove</button>
             </div>
           `;
         });
@@ -6251,29 +6815,35 @@
             <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#161b22;border:1px solid #30363d;border-radius:6px;font-size:11px;">
               <div style="display:flex;align-items:center;gap:6px;">
                 <span class="node-legend-dot" style="background:#2ea043;"></span>
-                <strong style="color:#e6edf3;">Route: ${r.route_name}</strong>
-                <span class="dv-node-meta-tag">${r.primary_model}</span>
+                <strong style="color:#e6edf3;">Route: ${escapeHtml(r.route_name)}</strong>
+                <span class="dv-node-meta-tag">${escapeHtml(r.primary_model)}</span>
               </div>
-              <button class="dv-node-btn danger" onclick="deleteRoute('${r.route_name}')">Remove</button>
+              <button class="dv-node-btn danger" onclick="deleteRoute('${jsStr(r.route_name)}')">Remove</button>
             </div>
           `;
         });
-        listEl.innerHTML = itemsHtml || '<div style="color:#8b949e;font-size:11px;">No nodes created yet. Click "+ Add Provider Node" or "+ Add Route Node" to begin.</div>';
+        listEl.innerHTML = itemsHtml || '<div style="color:#8b949e;font-size:11px;">No nodes created yet. Right-click the canvas or use the + buttons to begin.</div>';
       }
 
       // Default layout if not initialized
       provs.forEach((p, idx) => {
         if (!_nodePositions['prov_' + p.id]) {
-          _nodePositions['prov_' + p.id] = { x: 50, y: 70 + (idx * 160) };
+          _nodePositions['prov_' + p.id] = { x: 40, y: 70 + (idx * 140) };
+        }
+      });
+      engines.forEach((e, idx) => {
+        const eid = engineNodeId(e.provider_id, e.model);
+        if (!_nodePositions[eid]) {
+          _nodePositions[eid] = { x: 300, y: 70 + (idx * 130) };
         }
       });
       routes.forEach((r, idx) => {
         if (!_nodePositions['route_' + r.route_name]) {
-          _nodePositions['route_' + r.route_name] = { x: 380, y: 80 + (idx * 170) };
+          _nodePositions['route_' + r.route_name] = { x: 540, y: 80 + (idx * 150) };
         }
       });
       if (!_nodePositions['out_pipeline']) {
-        _nodePositions['out_pipeline'] = { x: 740, y: 160 };
+        _nodePositions['out_pipeline'] = { x: 800, y: 160 };
       }
 
       // Build HTML nodes
@@ -6281,53 +6851,86 @@
 
       // 1. Provider Nodes (Source Nodes like DaVinci MediaIn / Blender Texture)
       provs.forEach(p => {
-        const pos = _nodePositions['prov_' + p.id] || { x: 50, y: 70 };
+        const pos = _nodePositions['prov_' + p.id] || { x: 40, y: 70 };
         const modelStr = (p.models && p.models.length) ? p.models[0] : 'default';
         nodesHtml += `
-          <div class="dv-node" id="dv_node_prov_${p.id}" data-node-id="prov_${p.id}" style="left:${pos.x}px;top:${pos.y}px;pointer-events:auto;">
-            <div class="dv-node-header node-color-provider" onmousedown="startNodeDrag(event, 'prov_${p.id}')">
-              <span>● ${p.provider_type.toUpperCase()} NODE</span>
+          <div class="dv-node" id="dv_node_prov_${p.id}" data-node-id="prov_${p.id}" data-nodetype="provider" data-node-ref="${p.id}" style="left:${pos.x}px;top:${pos.y}px;pointer-events:auto;">
+            <div class="dv-node-header node-color-provider" onmousedown="startNodeDrag(event, 'prov_${jsStr(p.id)}')">
+              <span>● ${escapeHtml((p.provider_type || '').toUpperCase())} NODE</span>
               <span style="font-size:9px;opacity:0.85;">${p.enabled ? 'ACTIVE' : 'OFF'}</span>
             </div>
             <div class="dv-node-body">
               <div class="dv-node-row">
-                <strong style="color:#ffffff;font-size:12px;">${p.name}</strong>
+                <strong style="color:#ffffff;font-size:12px;">${escapeHtml(p.name)}</strong>
               </div>
               <div class="dv-node-row">
-                <span style="color:#8b949e;font-size:10px;">ID: ${p.id}</span>
-                <span class="dv-node-meta-tag">${p.key_masked}</span>
+                <span style="color:#8b949e;font-size:10px;">ID: ${escapeHtml(p.id)}</span>
+                <span class="dv-node-meta-tag">${escapeHtml(p.key_masked)}</span>
               </div>
               <div class="dv-node-row" style="margin-top:6px;border-top:1px solid #21262d;padding-top:6px;">
-                <span style="color:#8b949e;font-size:10px;">Engine: ${modelStr}</span>
+                <span style="color:#8b949e;font-size:10px;">Engine: ${escapeHtml(modelStr)}</span>
                 <div style="display:flex;gap:4px;">
-                  <button class="dv-node-btn" onclick="testProviderLatency('${p.provider_type}', '${modelStr}')">Ping</button>
-                  <button class="dv-node-btn danger" onclick="deleteProvider('${p.id}')">✕</button>
+                  <button class="dv-node-btn" onclick="testProviderLatency('${jsStr(p.provider_type)}', '${jsStr(modelStr)}', '${jsStr(p.id)}')">Ping</button>
+                  <button class="dv-node-btn danger" onclick="deleteProvider('${jsStr(p.id)}')">✕</button>
                 </div>
               </div>
             </div>
             <!-- Output Socket (DaVinci Cyan) -->
-            <div class="dv-socket output" id="socket_out_prov_${p.id}" style="top:50%;" title="Provider Output Socket"></div>
+            <div class="dv-socket output" id="socket_out_prov_${p.id}" data-socket="output" data-nodetype="provider" data-node="prov_${p.id}" data-provider="${escapeHtml(p.id)}" style="top:50%;" title="Provider Output — drag to a Route input" onmousedown="startSocketDrag(event, this)"></div>
           </div>
         `;
       });
 
-      // 2. Route Nodes (Transform/Grade Nodes like DaVinci Corrector / Blender Shader)
+      // 2. Engine Nodes (provider + model pairs / DaVinci LUT / Blender Value nodes)
+      engines.forEach(e => {
+        const eid = engineNodeId(e.provider_id, e.model);
+        const pos = _nodePositions[eid] || { x: 300, y: 70 };
+        const parent = findProvider(e.provider_id);
+        const ptype = parent ? parent.provider_type : 'orphan';
+        nodesHtml += `
+          <div class="dv-node engine" id="dv_node_${eid}" data-node-id="${eid}" data-nodetype="engine" data-node-ref="${eid}" style="left:${pos.x}px;top:${pos.y}px;pointer-events:auto;">
+            <div class="dv-node-header node-color-engine" onmousedown="startNodeDrag(event, '${eid}')">
+              <span>⚙ ENGINE · ${escapeHtml((ptype || '').toUpperCase())}</span>
+              <span style="font-size:9px;opacity:0.85;">MODEL</span>
+            </div>
+            <div class="dv-node-body">
+              <div class="dv-node-row">
+                <strong style="color:#ffffff;font-size:11px;word-break:break-all;">${escapeHtml(e.model)}</strong>
+              </div>
+              <div class="dv-node-row">
+                <span style="color:#8b949e;font-size:10px;">Provider: ${escapeHtml(e.provider_id)}</span>
+              </div>
+              <div class="dv-node-row" style="margin-top:6px;border-top:1px solid #21262d;padding-top:6px;">
+                <span style="color:#8b949e;font-size:10px;">${escapeHtml(e.name || e.model)}</span>
+                <div style="display:flex;gap:4px;">
+                  <button class="dv-node-btn" onclick="testProviderLatency('${jsStr(parent ? parent.provider_type : 'custom')}', '${jsStr(e.model)}', '${jsStr(e.provider_id)}')">Ping</button>
+                  <button class="dv-node-btn danger" onclick="deleteEngineNode('${jsStr(e.id)}', '${jsStr(e.model)}')">✕</button>
+                </div>
+              </div>
+            </div>
+            <!-- Output Socket (Teal) -->
+            <div class="dv-socket output" id="socket_out_${eid}" data-socket="output" data-nodetype="engine" data-node="${eid}" data-provider="${escapeHtml(e.provider_id)}" data-model="${escapeHtml(e.model)}" style="top:50%;" title="Engine Output — drag to a Route input" onmousedown="startSocketDrag(event, this)"></div>
+          </div>
+        `;
+      });
+
+      // 3. Route Nodes (Transform/Grade Nodes like DaVinci Corrector / Blender Shader)
       routes.forEach(r => {
-        const pos = _nodePositions['route_' + r.route_name] || { x: 380, y: 80 };
+        const pos = _nodePositions['route_' + r.route_name] || { x: 540, y: 80 };
         const fbCount = (r.fallback_chain || []).length;
         nodesHtml += `
-          <div class="dv-node" id="dv_node_route_${r.route_name}" data-node-id="route_${r.route_name}" style="left:${pos.x}px;top:${pos.y}px;pointer-events:auto;">
-            <!-- Input Socket (Blender Orange) -->
-            <div class="dv-socket input" id="socket_in_route_${r.route_name}" style="top:50%;" title="Input Stream Socket"></div>
+          <div class="dv-node" id="dv_node_route_${r.route_name}" data-node-id="route_${r.route_name}" data-nodetype="route" data-node-ref="${escapeHtml(r.route_name)}" style="left:${pos.x}px;top:${pos.y}px;pointer-events:auto;">
+            <!-- Input Socket (Blender Orange) — drop a provider/engine wire here -->
+            <div class="dv-socket input" id="socket_in_route_${r.route_name}" data-socket="input" data-nodetype="route" data-node="route_${r.route_name}" data-route="${escapeHtml(r.route_name)}" style="top:50%;" title="Route Input — drag from a Provider/Engine output" onmousedown="startSocketDrag(event, this)"></div>
 
-            <div class="dv-node-header node-color-route" onmousedown="startNodeDrag(event, 'route_${r.route_name}')">
-              <span>⚡ ROUTE: ${r.route_name.toUpperCase()}</span>
+            <div class="dv-node-header node-color-route" onmousedown="startNodeDrag(event, 'route_${jsStr(r.route_name)}')">
+              <span>⚡ ROUTE: ${escapeHtml((r.route_name || '').toUpperCase())}</span>
               <span style="font-size:9px;opacity:0.85;">CASCADE</span>
             </div>
             <div class="dv-node-body">
               <div class="dv-node-row">
-                <span style="color:#8b949e;font-size:10px;">Primary Engine:</span>
-                <span class="dv-node-meta-tag" style="color:#3fb950;border-color:rgba(46,160,67,0.4);">${r.primary_model}</span>
+                <span style="color:#8b949e;font-size:10px;">Primary:</span>
+                <span class="dv-node-meta-tag" style="color:#3fb950;border-color:rgba(46,160,67,0.4);">${escapeHtml(r.primary_provider_id)} → ${escapeHtml(r.primary_model)}</span>
               </div>
               <div class="dv-node-row">
                 <span style="color:#8b949e;font-size:10px;">Fallback Chain:</span>
@@ -6335,7 +6938,10 @@
               </div>
               <div class="dv-node-row" style="margin-top:6px;border-top:1px solid #21262d;padding-top:6px;">
                 <span style="color:#8b949e;font-size:10px;">Cooldown: ${r.cooldown_seconds}s</span>
-                <button class="dv-node-btn danger" onclick="deleteRoute('${r.route_name}')">Delete</button>
+                <div style="display:flex;gap:4px;">
+                  <button class="dv-node-btn" onclick="testRouteQuick('${jsStr(r.route_name)}')">Test</button>
+                  <button class="dv-node-btn danger" onclick="deleteRoute('${jsStr(r.route_name)}')">Delete</button>
+                </div>
               </div>
             </div>
 
@@ -6345,10 +6951,10 @@
         `;
       });
 
-      // 3. Final Master Engine Node (DaVinci MediaOut / Blender Material Output)
-      const outPos = _nodePositions['out_pipeline'] || { x: 740, y: 160 };
+      // 4. Final Master Engine Node (DaVinci MediaOut / Blender Material Output)
+      const outPos = _nodePositions['out_pipeline'] || { x: 800, y: 160 };
       nodesHtml += `
-        <div class="dv-node" id="dv_node_out_pipeline" data-node-id="out_pipeline" style="left:${outPos.x}px;top:${outPos.y}px;pointer-events:auto;width:220px;">
+        <div class="dv-node" id="dv_node_out_pipeline" data-node-id="out_pipeline" data-nodetype="output" data-node-ref="out_pipeline" style="left:${outPos.x}px;top:${outPos.y}px;pointer-events:auto;width:220px;">
           <!-- Input Socket -->
           <div class="dv-socket input" id="socket_in_out_pipeline" style="top:50%;" title="Engine Ingest Socket"></div>
 
@@ -6370,6 +6976,42 @@
       drawNodeWires();
     }
 
+    function socketPos(el) {
+      const viewport = document.getElementById('nodeViewport');
+      if (!el || !viewport) return null;
+      const r = el.getBoundingClientRect();
+      const v = viewport.getBoundingClientRect();
+      return { x: r.left - v.left + (r.width / 2), y: r.top - v.top + (r.height / 2) };
+    }
+
+    // Resolve the visual source of a route step: prefer the engine node for
+    // (provider, model) when it exists, otherwise the provider node itself.
+    function resolveEndpointPos(providerId, model) {
+      if (model) {
+        const eid = engineNodeId(providerId, model);
+        const engPos = socketPos(document.getElementById('socket_out_' + eid));
+        if (engPos) return { pos: engPos, kind: 'engine' };
+      }
+      const provPos = socketPos(document.getElementById('socket_out_prov_' + providerId));
+      return provPos ? { pos: provPos, kind: 'provider' } : null;
+    }
+
+    function mkWirePath(p1, p2, strokeStyle, isActive, edgeMeta) {
+      const dx = Math.abs(p2.x - p1.x) * 0.55;
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M ${p1.x} ${p1.y} C ${p1.x + dx} ${p1.y}, ${p2.x - dx} ${p2.y}, ${p2.x} ${p2.y}`);
+      path.setAttribute('class', `node-wire ${isActive ? 'active' : ''}`);
+      path.setAttribute('stroke', strokeStyle);
+      path.setAttribute('fill', 'none');
+      if (edgeMeta) {
+        path.dataset.edge = JSON.stringify(edgeMeta);
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        t.textContent = `Click to disconnect ${edgeMeta.provider_id} (${edgeMeta.role}) from '${edgeMeta.route_name}'`;
+        path.appendChild(t);
+      }
+      return path;
+    }
+
     function drawNodeWires() {
       const svg = document.getElementById('nodeSvgWires');
       const viewport = document.getElementById('nodeViewport');
@@ -6382,71 +7024,42 @@
         return;
       }
 
-      const provs = _nodeGraphData.providers || [];
       const routes = _nodeGraphData.routes || [];
 
-      // Preserve defs
+      // Preserve defs (wire gradients); drop previous wire paths
       const defs = svg.querySelector('defs');
       svg.innerHTML = '';
       if (defs) svg.appendChild(defs);
+      // A redraw detaches the in-flight connection preview — recreate lazily
+      if (_wireDrag) _wireDrag.preview = null;
 
-      // Helper to compute socket center relative to viewport
-      function getSocketPos(el) {
-        if (!el) return null;
-        const rect = el.getBoundingClientRect();
-        return {
-          x: rect.left - vRect.left + (rect.width / 2),
-          y: rect.top - vRect.top + (rect.height / 2)
-        };
-      }
-
-      // Draw cubic bezier wire (DaVinci / Blender style)
-      function drawWire(p1, p2, strokeStyle, isActive = false) {
-        if (!p1 || !p2) return;
-        const dx = Math.abs(p2.x - p1.x) * 0.55;
-        const cp1x = p1.x + dx;
-        const cp1y = p1.y;
-        const cp2x = p2.x - dx;
-        const cp2y = p2.y;
-
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', `M ${p1.x} ${p1.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`);
-        path.setAttribute('class', `node-wire ${isActive ? 'active' : ''}`);
-        path.setAttribute('stroke', strokeStyle);
-        svg.appendChild(path);
-      }
-
-      // 1. Connect Providers to Routes
+      // 1. Provider/Engine → Route (primary + fallback edges, each clickable)
       routes.forEach(r => {
-        const inSocket = document.getElementById(`socket_in_route_${r.route_name}`);
-        const inPos = getSocketPos(inSocket);
+        const inPos = socketPos(document.getElementById(`socket_in_route_${r.route_name}`));
+        if (!inPos) return;
 
-        // Find primary provider
-        const primaryProv = provs.find(p => p.id === r.primary_provider_id) || provs[0];
-        if (primaryProv) {
-          const outSocket = document.getElementById(`socket_out_prov_${primaryProv.id}`);
-          const outPos = getSocketPos(outSocket);
-          drawWire(outPos, inPos, 'url(#primaryWireGrad)', true);
+        const primary = resolveEndpointPos(r.primary_provider_id, r.primary_model);
+        if (primary) {
+          svg.appendChild(mkWirePath(primary.pos, inPos, 'url(#primaryWireGrad)', true,
+            { route_name: r.route_name, role: 'primary', provider_id: r.primary_provider_id, model: r.primary_model }));
         }
 
-        // Draw fallback connections
         (r.fallback_chain || []).forEach(fb => {
-          const fbProv = provs.find(p => p.id === fb.provider_id);
-          if (fbProv && fbProv !== primaryProv) {
-            const outSocket = document.getElementById(`socket_out_prov_${fbProv.id}`);
-            const outPos = getSocketPos(outSocket);
-            drawWire(outPos, inPos, 'url(#fallbackWireGrad)', false);
+          const ep = resolveEndpointPos(fb.provider_id, fb.model);
+          if (ep) {
+            svg.appendChild(mkWirePath(ep.pos, inPos, 'url(#fallbackWireGrad)', false,
+              { route_name: r.route_name, role: 'fallback', provider_id: fb.provider_id, model: fb.model }));
           }
         });
       });
 
-      // 2. Connect Routes to Master Pipeline Output
-      const masterIn = document.getElementById('socket_in_out_pipeline');
-      const masterPos = getSocketPos(masterIn);
+      // 2. Routes → Master Pipeline Output
+      const masterPos = socketPos(document.getElementById('socket_in_out_pipeline'));
       routes.forEach(r => {
-        const routeOut = document.getElementById(`socket_out_route_${r.route_name}`);
-        const routePos = getSocketPos(routeOut);
-        drawWire(routePos, masterPos, '#3fb950', true);
+        const routePos = socketPos(document.getElementById(`socket_out_route_${r.route_name}`));
+        if (routePos && masterPos) {
+          svg.appendChild(mkWirePath(routePos, masterPos, '#3fb950', true, null));
+        }
       });
     }
 
@@ -6455,12 +7068,12 @@
     // ─────────────────────────────────────────────────────────────────────────
 
     function startNodeDrag(e, nodeId) {
+      if (e.button === 2) return; // right-click opens the context menu instead
       _activeDragNode = nodeId;
       const nodeEl = document.getElementById('dv_node_' + nodeId);
       const viewport = document.getElementById('nodeViewport');
       if (!nodeEl || !viewport) return;
 
-      const vRect = viewport.getBoundingClientRect();
       const nRect = nodeEl.getBoundingClientRect();
 
       _dragOffset.x = e.clientX - nRect.left;
@@ -6501,6 +7114,258 @@
       _activeDragNode = null;
       window.removeEventListener('mousemove', handleNodeDrag);
       window.removeEventListener('mouseup', endNodeDrag);
+      saveNodePositions();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Socket → Socket connection dragging (mutations persist via routes API)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    function startSocketDrag(e, sockEl) {
+      if (e.button === 2) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      _wireDrag = {
+        fromSocket: sockEl,
+        fromKind: sockEl.dataset.socket,   // 'output' | 'input'
+        hoverSocket: null,
+        moved: false,
+        preview: null
+      };
+      document.body.classList.add('hm-wire-dragging');
+      window.addEventListener('mousemove', moveSocketDrag);
+      window.addEventListener('mouseup', endSocketDrag);
+    }
+
+    function isValidConnectionPair(drag, sock) {
+      if (!sock || sock === drag.fromSocket) return false;
+      const targetKind = sock.dataset.socket;
+      if (!targetKind || targetKind === drag.fromKind) return false;
+      // One end must be a route input, the other a provider/engine output
+      const outSock = drag.fromKind === 'output' ? drag.fromSocket : sock;
+      const inSock = drag.fromKind === 'input' ? drag.fromSocket : sock;
+      return Boolean(outSock.dataset.provider && inSock.dataset.route);
+    }
+
+    function resolveConnection(drag, target) {
+      const outSock = drag.fromKind === 'output' ? drag.fromSocket : target;
+      const inSock = drag.fromKind === 'input' ? drag.fromSocket : target;
+      if (!outSock.dataset.provider || !inSock.dataset.route) return null;
+      let model = outSock.dataset.model || '';
+      if (!model) model = firstModelOf(findProvider(outSock.dataset.provider));
+      return {
+        provider_id: outSock.dataset.provider,
+        model: model,
+        route_name: inSock.dataset.route
+      };
+    }
+
+    function moveSocketDrag(e) {
+      if (!_wireDrag) return;
+      _wireDrag.moved = true;
+      const svg = document.getElementById('nodeSvgWires');
+      const viewport = document.getElementById('nodeViewport');
+      if (!svg || !viewport) return;
+
+      let prev = _wireDrag.preview;
+      if (!prev || !prev.parentNode) {
+        prev = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        prev.setAttribute('class', 'node-wire preview');
+        prev.setAttribute('stroke', _wireDrag.fromKind === 'output' ? '#58a6ff' : '#f0883e');
+        prev.setAttribute('fill', 'none');
+        svg.appendChild(prev);
+        _wireDrag.preview = prev;
+      }
+      const a = socketPos(_wireDrag.fromSocket);
+      if (!a) return;
+      const v = viewport.getBoundingClientRect();
+      const b = { x: e.clientX - v.left, y: e.clientY - v.top };
+      const dx = Math.abs(b.x - a.x) * 0.55;
+      prev.setAttribute('d', `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`);
+
+      // Highlight the hovered compatible socket
+      document.querySelectorAll('.dv-socket.drag-target').forEach(s => s.classList.remove('drag-target'));
+      _wireDrag.hoverSocket = null;
+      const hover = document.elementFromPoint(e.clientX, e.clientY);
+      const sock = hover && hover.closest ? hover.closest('.dv-socket') : null;
+      if (sock && isValidConnectionPair(_wireDrag, sock)) {
+        sock.classList.add('drag-target');
+        _wireDrag.hoverSocket = sock;
+      }
+    }
+
+    function endSocketDrag() {
+      if (!_wireDrag) return;
+      window.removeEventListener('mousemove', moveSocketDrag);
+      window.removeEventListener('mouseup', endSocketDrag);
+      const drag = _wireDrag;
+      _wireDrag = null;
+      document.body.classList.remove('hm-wire-dragging');
+      if (drag.preview && drag.preview.parentNode) drag.preview.remove();
+      document.querySelectorAll('.dv-socket.drag-target').forEach(s => s.classList.remove('drag-target'));
+
+      if (!drag.moved || !drag.hoverSocket) return;
+      const conn = resolveConnection(drag, drag.hoverSocket);
+      if (!conn) {
+        showToast('Invalid Connection', 'Wires go from Provider/Engine outputs to Route inputs.', 'warning');
+        return;
+      }
+      connectSourceToRoute({ provider_id: conn.provider_id, model: conn.model }, conn.route_name);
+    }
+
+    function cancelSocketDrag() {
+      if (!_wireDrag) return;
+      window.removeEventListener('mousemove', moveSocketDrag);
+      window.removeEventListener('mouseup', endSocketDrag);
+      if (_wireDrag.preview && _wireDrag.preview.parentNode) _wireDrag.preview.remove();
+      _wireDrag = null;
+      document.body.classList.remove('hm-wire-dragging');
+      document.querySelectorAll('.dv-socket.drag-target').forEach(s => s.classList.remove('drag-target'));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Right-click context menu (canvas / nodes / wires)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    function hideNodeContextMenu() {
+      const m = document.getElementById('nodeCtxMenu');
+      if (m) m.style.display = 'none';
+    }
+
+    function openNodeContextMenu(x, y, pathEl, nodeEl) {
+      const menu = document.getElementById('nodeCtxMenu');
+      if (!menu) return;
+      let items = [];
+
+      if (pathEl && pathEl.dataset.edge) {
+        let edge = null;
+        try { edge = JSON.parse(pathEl.dataset.edge); } catch (_) { }
+        if (edge) {
+          items.push({ title: 'Connection' });
+          items.push({ label: `✂ Disconnect ${edge.provider_id} (${edge.role})`, danger: true, action: () => disconnectEdgeFromRoute(edge) });
+          items.push({ label: `▶ Test route '${edge.route_name}'`, action: () => testRouteQuick(edge.route_name) });
+        }
+      } else if (nodeEl) {
+        const nt = nodeEl.dataset.nodetype;
+        const ref = nodeEl.dataset.nodeRef || '';
+        if (nt === 'provider') {
+          const p = findProvider(ref);
+          if (p) {
+            items.push({ title: `Provider · ${p.id}` });
+            items.push({ label: '📡 Ping Provider Node', action: () => testProviderLatency(p.provider_type, firstModelOf(p), p.id) });
+            items.push({ label: '✏ Edit Provider Node…', action: () => openEditProviderModal(p.id) });
+            items.push({ label: '⚙ Add Engine For This Provider…', action: () => openAddEngineModal(p.id) });
+            items.push({ sep: true });
+            items.push({ label: '🗑 Delete Provider Node', danger: true, action: () => deleteProvider(p.id) });
+          }
+        } else if (nt === 'engine') {
+          const eng = findEngineByNodeId(ref);
+          if (eng) {
+            const parent = findProvider(eng.provider_id);
+            items.push({ title: `Engine · ${eng.model}` });
+            items.push({ label: '📡 Ping Engine', action: () => testProviderLatency(parent ? parent.provider_type : 'custom', eng.model, eng.provider_id) });
+            items.push({ sep: true });
+            items.push({ label: '🗑 Delete Engine Node', danger: true, action: () => deleteEngineNode(eng.id, eng.model) });
+          }
+        } else if (nt === 'route') {
+          items.push({ title: `Route · ${ref}` });
+          items.push({ label: '▶ Test Route…', action: () => testRouteQuick(ref) });
+          items.push({ label: '✏ Edit Route…', action: () => openEditRouteModal(ref) });
+          items.push({ label: '🧹 Clear Fallback Chain', action: () => clearRouteFallbacks(ref) });
+          items.push({ sep: true });
+          items.push({ label: '🗑 Delete Route Node', danger: true, action: () => deleteRoute(ref) });
+        } else if (nt === 'output') {
+          items.push({ title: 'Master Pipeline' });
+          items.push({ label: '✨ Clean Layout', action: () => autoLayoutNodes() });
+          items.push({ label: '🔄 Refresh Graph', action: () => reloadNodeStudio() });
+        }
+      } else {
+        // Empty canvas → node creation menu
+        items.push({ title: 'Add Node' });
+        items.push({ label: '➕ Add Provider Node', action: () => openAddProviderModal() });
+        items.push({ label: '🤖 Add Agent Node', action: () => openAddAgentModal() });
+        items.push({ label: '⚙ Add Engine Node', action: () => openAddEngineModal() });
+        items.push({ sep: true });
+        items.push({ label: '🔗 Add Fallback Link (guided)', action: () => startFallbackLinkMode() });
+        items.push({ sep: true });
+        items.push({ label: '✨ Clean Layout', action: () => autoLayoutNodes() });
+        items.push({ label: '🔄 Refresh Graph', action: () => reloadNodeStudio() });
+      }
+
+      if (!items.length) return;
+      menu.innerHTML = items.map((it, i) => {
+        if (it.sep) return '<div class="node-ctx-sep"></div>';
+        if (it.title !== undefined) return `<div class="node-ctx-title">${escapeHtml(it.title)}</div>`;
+        return `<div class="node-ctx-item ${it.danger ? 'danger' : ''}" data-idx="${i}">${escapeHtml(it.label)}</div>`;
+      }).join('');
+      menu.querySelectorAll('.node-ctx-item').forEach(el => {
+        el.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const it = items[parseInt(el.dataset.idx, 10)];
+          hideNodeContextMenu();
+          if (it && it.action) it.action();
+        });
+      });
+      menu.style.display = 'block';
+      const mw = menu.offsetWidth, mh = menu.offsetHeight;
+      menu.style.left = Math.min(x, window.innerWidth - mw - 8) + 'px';
+      menu.style.top = Math.min(y, window.innerHeight - mh - 8) + 'px';
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Node studio interaction wiring (called once on startup)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    function initNodeStudioInteractions() {
+      loadNodePositions();
+
+      const viewport = document.getElementById('nodeViewport');
+      const container = document.getElementById('nodesContainer');
+
+      // Right-click → custom context menu (canvas, nodes, wires)
+      if (viewport) {
+        viewport.addEventListener('contextmenu', (e) => {
+          const pathEl = e.target.closest ? e.target.closest('path.node-wire') : null;
+          const nodeEl = e.target.closest ? e.target.closest('.dv-node') : null;
+          e.preventDefault();
+          e.stopPropagation();
+          openNodeContextMenu(e.clientX, e.clientY, pathEl, nodeEl);
+        });
+      }
+
+      // Click a wire → confirm disconnect
+      const svg = document.getElementById('nodeSvgWires');
+      if (svg) {
+        svg.addEventListener('click', (e) => {
+          const pathEl = e.target.closest ? e.target.closest('path.node-wire') : null;
+          if (!pathEl || !pathEl.dataset.edge) return;
+          e.stopPropagation();
+          try {
+            disconnectEdgeFromRoute(JSON.parse(pathEl.dataset.edge));
+          } catch (_) { }
+        });
+      }
+
+      // Guided fallback-link mode: click provider/engine → then a route
+      if (container) {
+        container.addEventListener('click', (e) => {
+          if (!_linkMode) return;
+          if (e.target.closest('.dv-node-btn') || e.target.closest('.dv-socket')) return;
+          const nodeEl = e.target.closest('.dv-node');
+          if (!nodeEl) return;
+          handleLinkModeClick(nodeEl);
+        });
+      }
+
+      document.addEventListener('click', (e) => {
+        const menu = document.getElementById('nodeCtxMenu');
+        if (menu && menu.style.display !== 'none' && !e.target.closest('#nodeCtxMenu')) hideNodeContextMenu();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { hideNodeContextMenu(); cancelSocketDrag(); cancelFallbackLinkMode(); }
+      });
+      window.addEventListener('scroll', hideNodeContextMenu, true);
     }
 
     window.addEventListener('resize', () => {
@@ -8428,6 +9293,7 @@
     loadYouTubeStudio();
     loadRecentOutputsDashboard();
     connectBrainSSE();
+    initNodeStudioInteractions();
     reloadNodeStudio();
   </script>
 </body>

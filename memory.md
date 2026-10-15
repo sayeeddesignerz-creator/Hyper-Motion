@@ -101,7 +101,8 @@ Hyper-Motion/
 | 1 | 🔴 **SECURITY** | **Facebook credential rotation — USER ACTION REQUIRED.** `exchange_token.py` (hardcoded user token + app secret) was purged from git history on 2026-10-15 with `git filter-repo` — all commit hashes rewritten locally. **Force-push still pending** (`git push --force-with-lease origin main`). Rotate the FB app secret, user token and page token; regenerate `FACEBOOK_PAGE_ACCESS_TOKEN` in `.env`. |
 | 2 | 🟡 | **YouTube Studio endpoints return mock data** (`/api/youtube/*` in `api.py`) — static numbers, not wired to the real YouTube Data API. Deferred by choice on 2026-10-15. |
 | 3 | 🟢 | The on-PATH `hypermotion` command is an npm-folder shim (runs `python -m app.main`), not the pip console script. |
-| 4 | 🟢 | `OmniRoute` API endpoints (`/api/omniroute/*`) still exist for provider management — kept intentionally; providers saved there now register as **live gateway handles** (incl. Groq) via `LLMGateway.sync_providers_from_db()`. |
+| 4 | 🟢 | `OmniRoute` API endpoints (`/api/omniroute/*`) power the dashboard **node graph** — providers saved there register as **live gateway handles** (incl. Groq) via `LLMGateway.sync_providers_from_db()`; routes saved there swap the gateway's live routing table (SSE `routes_changed`). |
+| 5 | 🟢 | **Route/engine model values are configuration, not per-call overrides** — `primary_model`/fallback `model` are persisted + shown in the graph/route tester, but the gateway still calls each provider with its own configured model (`GEMINI_MODEL`, `OPENAI_MODEL`, …). Wiring per-route models into live calls is a possible future enhancement. |
 
 ---
 
@@ -118,13 +119,28 @@ Hyper-Motion/
 
 - Branch: `main` (tracks `origin/main`). All commits so far dated 2026-10-15.
 - ⚠️ **History rewritten 2026-10-15** with `git filter-repo` to purge `exchange_token.py` from all commits — local commit hashes changed; the `origin` remote was re-added but **NOT force-pushed yet**.
-- Recent work direction: unifying dashboard into "AI Command Center" (node-graph studio + AI Brain), LLM router resilience, Facebook growth engine, backlog completion session.
+- Recent work direction: unifying dashboard into "AI Command Center" — brain orchestration (top) + fully interactive node-graph studio (bottom, connect/disconnect/right-click, every change synced to the backend), LLM router resilience, Facebook growth engine, backlog completion session.
 
 ---
 
 ## 8. Task Log
 
 > Newest first. Format: `### YYYY-MM-DD — title ✅` + bullets (what changed, follow-ups).
+
+### 2026-10-15 — AI Command Center: brain on top + fully interactive node graph ✅
+**Goal:** fix brain/node overlap, put the brain system above the node system, and make the node graph behave like a real node editor whose every change reconfigures the backend.
+- 🧩 **Overlap fixed:** root cause was `.node-system-viewport` CSS (`height:760px; min-height:600px`) overflowing the fixed-height (`460px`) section into the brain panel → changed to `height:100%; min-height:0`; section is now `560px` with `height:calc(100% - 12px)` viewport + resize divider.
+- 🔀 **Brain on top / nodes below:** the AI Command Center now renders brain sub-tabs (Orchestration · Agent Console · Route Tester) first, node graph second — via flex `order:1/2` (brain section id `cmdCenterBrainSection`), radii/borders flipped to match.
+- 🖱️ **Right-click context menu** (`#nodeCtxMenu`) on canvas / nodes / wires:
+  - Canvas: **Add Provider Node · Add Agent Node · Add Engine Node · Add Fallback Link (guided) · Clean Layout · Refresh Graph**.
+  - Provider node: Ping · Edit · Add Engine For This Provider · Delete. Route node: Test · Edit · Clear Fallback Chain · Delete. Engine node: Ping · Delete. Wire: Disconnect · Test route.
+- ⚡ **Connect / disconnect (real editor behavior):** drag socket→socket (provider/engine output → route input, both directions) with live bezier preview + valid-target highlighting; wires are clickable (click → confirm disconnect) and right-clickable; all mutations POST/DELETE to `/api/omniroute/*` then re-render from the API (never local-only state).
+- 🧠 **Agent nodes:** new `GET /api/agents` roster (10 orchestrator agents with live/static routing info); "Add Agent Node" creates/updates the agent's **live route** (`route_name` = agent key) with chosen primary provider + model + cooldown.
+- ⚙️ **Engine nodes (new backend entity):** `omni_engines` table (`id, provider_id, model, name`, unique provider+model) + `GET/POST/DELETE /api/omniroute/engines`; deleting a provider cascades to its engines. Connecting an engine to a route pins `primary_model` / fallback step model; rendering prefers the engine node's socket when a matching pair exists.
+- 🔒 **Provider edits no longer wipe API keys:** `SaveProviderRequest` with blank `api_key`/`models` now keeps stored values (new `db.get_omni_provider_raw`); `/api/omniroute/test-provider` accepts `provider_id` and resolves stored credentials so node **Ping** actually works.
+- 🧷 **Layout/persistence extras:** node positions persisted to `localStorage` (`hm_node_positions_v1`), graph auto-layout is viewport-aware with a new engine column, SSE `routes_changed` now refreshes providers+routes+engines across dashboards.
+- 🧪 **Tests:** 16/16 pass — CRUD test extended with provider-raw/engine upsert/cascade-delete assertions. Smoke-tested live server: engine create→list→delete, route create→live-gateway sync→delete, `/api/agents` all verified against `data/ultimate.db` (clean afterwards); dashboard HTML served contains all new UI blocks; inline JS passes `node --check`.
+- ⏭️ **Follow-ups (user):** rotate FB credentials; `git push --force-with-lease origin main`; note §5 #5 (route models are config-level today).
 
 ### 2026-10-15 — Backlog completion (report items 1–13, YouTube skipped) ✅
 **Goal:** finish every item in the unfinished-work report except YouTube Studio (deferred by choice).

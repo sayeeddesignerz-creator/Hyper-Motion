@@ -80,6 +80,34 @@ async def test_database_crud(tmp_path):
     assert bundles[0]["script_title"] == "The Truth About Quantum"
     assert bundles[0]["ab_test_titles"] == ["Why Quantum is Not Ready", "Quantum Secrets Revealed"]
 
+    # OmniRoute providers / engine nodes (node graph persistence)
+    await db.save_omni_provider(
+        provider_id="prov_test", provider_type="groq", name="Test Groq",
+        api_key="gsk_secret", base_url="", models=["llama-3.3-70b-versatile"], enabled=True
+    )
+    prov = await db.get_omni_provider_raw("prov_test")
+    assert prov is not None
+    assert prov["api_key"] == "gsk_secret"  # raw getter must NOT mask the key
+    assert prov["models"] == ["llama-3.3-70b-versatile"]
+
+    await db.save_omni_engine("eng_test1", "prov_test", "llama-3.3-70b-versatile", "Fast Llama")
+    engines = await db.get_omni_engines()
+    assert len(engines) == 1
+    assert engines[0]["model"] == "llama-3.3-70b-versatile"
+    assert engines[0]["name"] == "Fast Llama"
+
+    # Upsert semantics: same provider+model replaces instead of duplicating
+    await db.save_omni_engine("eng_test2", "prov_test", "llama-3.3-70b-versatile", "Renamed Llama")
+    engines = await db.get_omni_engines()
+    assert len(engines) == 1
+    assert engines[0]["id"] == "eng_test2"
+    assert engines[0]["name"] == "Renamed Llama"
+
+    # Deleting the provider cascades to its engine nodes
+    await db.delete_omni_provider("prov_test")
+    assert await db.get_omni_engines() == []
+    assert await db.get_omni_provider_raw("prov_test") is None
+
     # Verify stats
     stats = await db.get_stats()
     assert stats["trends"] == 1

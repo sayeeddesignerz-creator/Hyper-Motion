@@ -136,6 +136,17 @@ class Database:
                 )
             """)
 
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS omni_engines (
+                    id TEXT PRIMARY KEY,
+                    provider_id TEXT NOT NULL,
+                    model TEXT NOT NULL,
+                    name TEXT DEFAULT '',
+                    created_at TEXT NOT NULL,
+                    UNIQUE(provider_id, model)
+                )
+            """)
+
             # Facebook Integration Tables
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS facebook_posts (
@@ -434,7 +445,22 @@ class Database:
     async def delete_omni_provider(self, provider_id: str) -> None:
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute("DELETE FROM omni_providers WHERE id = ?", (provider_id,))
+            # Cascade: engine nodes belonging to this provider are removed too
+            await db.execute("DELETE FROM omni_engines WHERE provider_id = ?", (provider_id,))
             await db.commit()
+
+    async def get_omni_provider_raw(self, provider_id: str) -> Optional[Dict[str, Any]]:
+        """Unmasked provider row — internal use only (key preservation, ping tests)."""
+        async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row
+            cursor = await db.execute("SELECT * FROM omni_providers WHERE id = ?", (provider_id,))
+            row = await cursor.fetchone()
+            if not row:
+                return None
+            d = dict(row)
+            d["models"] = json.loads(d.get("models") or "[]")
+            d["enabled"] = bool(d.get("enabled"))
+            return d
 
     async def save_omni_route(
         self,
@@ -468,6 +494,28 @@ class Database:
     async def delete_omni_route(self, route_name: str) -> None:
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute("DELETE FROM omni_routes WHERE route_name = ?", (route_name,))
+            await db.commit()
+
+    # --- Engine nodes (provider + model pairs used by the node graph) ---
+
+    async def save_omni_engine(self, engine_id: str, provider_id: str, model: str, name: str = "") -> None:
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute("""
+                INSERT OR REPLACE INTO omni_engines (id, provider_id, model, name, created_at)
+                VALUES (?, ?, ?, ?, ?)
+            """, (engine_id, provider_id, model, name or model, utc_now()))
+            await db.commit()
+
+    async def get_omni_engines(self) -> List[Dict[str, Any]]:
+        async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row
+            cursor = await db.execute("SELECT * FROM omni_engines ORDER BY created_at ASC")
+            rows = await cursor.fetchall()
+            return [dict(r) for r in rows]
+
+    async def delete_omni_engine(self, engine_id: str) -> None:
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute("DELETE FROM omni_engines WHERE id = ?", (engine_id,))
             await db.commit()
 
     # =========================================================================
