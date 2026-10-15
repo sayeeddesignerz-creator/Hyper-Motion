@@ -123,6 +123,96 @@
       letter-spacing: -0.02em;
     }
 
+    /* ----------------------------------------------------------------------- */
+    /* Sidebar minimize (icons-only rail)                                      */
+    /* ----------------------------------------------------------------------- */
+    .app-frame {
+      transition: grid-template-columns 0.25s ease;
+    }
+
+    .app-frame.sidebar-mini {
+      grid-template-columns: 80px 1fr;
+    }
+
+    .sidebar-toggle {
+      margin-left: auto;
+      flex: none;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--card-border);
+      background: #ffffff;
+      color: var(--text-muted);
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .sidebar-toggle:hover {
+      background: #f1f5f9;
+      color: var(--text-main);
+      border-color: #cbd5e1;
+    }
+
+    .sidebar-toggle svg {
+      transition: transform 0.25s ease;
+    }
+
+    aside.sidebar {
+      transition: padding 0.25s ease;
+    }
+
+    .app-frame.sidebar-mini aside.sidebar {
+      padding: 1.25rem 0.6rem 1rem 0.6rem;
+    }
+
+    .app-frame.sidebar-mini .brand {
+      flex-direction: column;
+      gap: 0.6rem;
+      padding: 0;
+      margin-bottom: 1.4rem;
+    }
+
+    .app-frame.sidebar-mini .brand-text {
+      display: none;
+    }
+
+    .app-frame.sidebar-mini .sidebar-toggle svg {
+      transform: rotate(180deg);
+    }
+
+    .app-frame.sidebar-mini .nav-section {
+      margin-bottom: 1rem;
+    }
+
+    .app-frame.sidebar-mini .nav-section-title {
+      display: none;
+    }
+
+    .app-frame.sidebar-mini .nav-item button {
+      justify-content: center;
+      padding: 0.7rem 0.4rem;
+    }
+
+    .app-frame.sidebar-mini .nav-item-content {
+      gap: 0;
+      justify-content: center;
+    }
+
+    .app-frame.sidebar-mini .nav-item-content span {
+      display: none;
+    }
+
+    .app-frame.sidebar-mini .nav-badge {
+      display: none;
+    }
+
+    .app-frame.sidebar-mini .sidebar-engine {
+      display: none;
+    }
+
     .nav-section {
       margin-bottom: 1.5rem;
     }
@@ -3774,11 +3864,14 @@
               stroke="#0f5132" stroke-width="2.8" stroke-linecap="round" />
             <circle cx="18" cy="18" r="2.8" fill="#0f5132" />
           </svg>
-          <div>
+          <div class="brand-text">
             <div class="brand-title" style="font-size:1rem;">Hyper Motion</div>
             <div style="font-size:0.68rem;font-weight:700;color:var(--emerald-accent);letter-spacing:0.08em;">PRO ·
               AUTONOMOUS</div>
           </div>
+          <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebarMini()" title="Minimize sidebar" aria-label="Minimize sidebar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
         </div>
 
         <!-- Section: MISSION -->
@@ -3942,7 +4035,7 @@
       </div>
 
       <!-- Sidebar Bottom Status -->
-      <div style="margin-top: auto; padding: 1rem 0.75rem;">
+      <div class="sidebar-engine" style="margin-top: auto; padding: 1rem 0.75rem;">
         <div
           style="background: linear-gradient(135deg, #0a3d28 0%, #0f5132 100%); border-radius: 14px; padding: 14px; color: #fff;">
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
@@ -6334,6 +6427,30 @@
   <div id="nodeCtxMenu" class="node-ctx-menu" style="display:none;"></div>
 
   <script>
+    /* ── Sidebar minimize (icons-only rail, persisted) ── */
+    function toggleSidebarMini(force) {
+      const frame = document.querySelector('.app-frame');
+      if (!frame) return;
+      const mini = typeof force === 'boolean' ? force : !frame.classList.contains('sidebar-mini');
+      frame.classList.toggle('sidebar-mini', mini);
+      const btn = document.getElementById('sidebarToggle');
+      if (btn) {
+        btn.title = mini ? 'Expand sidebar' : 'Minimize sidebar';
+        btn.setAttribute('aria-label', btn.title);
+      }
+      try { localStorage.setItem('hm_sidebar_mini', mini ? '1' : '0'); } catch (_) {}
+    }
+    (function initSidebarMini() {
+      let mini = false;
+      try { mini = localStorage.getItem('hm_sidebar_mini') === '1'; } catch (_) {}
+      if (mini) toggleSidebarMini(true);
+      // Tooltips so the collapsed rail stays usable
+      document.querySelectorAll('.nav-item button').forEach(btn => {
+        const label = btn.querySelector('.nav-item-content span');
+        if (label && !btn.title) btn.title = label.textContent.trim();
+      });
+    })();
+
     // Tab switching
     function switchTab(tabId) {
       // Redirect providers/routes to the unified brain panel

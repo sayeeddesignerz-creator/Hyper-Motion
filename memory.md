@@ -127,6 +127,16 @@ Hyper-Motion/
 
 > Newest first. Format: `### YYYY-MM-DD — title ✅` + bullets (what changed, follow-ups).
 
+### 2026-10-15 — Sidebar minimize (icons-only rail) ✅
+**Goal:** add a minimize function to the left sidebar — when minimized only the icons show.
+- 🎚️ **Toggle:** round chevron button in the brand row (`#sidebarToggle` → `toggleSidebarMini()`); icon flips via CSS rotate when collapsed; title/aria toggles Minimize ↔ Expand.
+- 🧩 **Mini mode (`.app-frame.sidebar-mini`):** grid column 260px → **80px**, brand text hidden (logo + button stacked & centered), nav section titles hidden, nav buttons centered icons-only, badges hidden, bottom "Engine Active" card hidden. Smooth `grid-template-columns`/padding transitions.
+- 💾 **Persisted:** choice stored in `localStorage.hm_sidebar_mini`, applied synchronously at script start (no flash) and restored on reload.
+- 🖱️ **Usable when collapsed:** every nav button gets a native `title` tooltip from its label (set once in the init IIFE).
+- CSS scoped to `.app-frame.sidebar-mini …` so expanded layout, mobile and the dark Brain panels are untouched.
+- ✅ Verified: `node --check` OK; served page contains toggle/mode/persistence blocks.
+- ⏭️ **Follow-ups (user):** rotate FB credentials (§5 #1).
+
 ### 2026-10-15 — Orchestration polish 2: dark canvas + functional wires + node-graph mirror ✅
 **Goal:** fix "everything white / nothing visible / no wires", add wires with functional flow, bigger centered chip, and mirror the node graph (providers + connections) in the flow.
 - 🌑 **Dark premium canvas:** the Orchestration stage is now a dark board (`#0d1117` + violet/cyan glows + dot grid) with fully dark-themed cards, chip, labels and results — the washed-out white look is gone and wires are clearly visible. `#brainPanelOrch` bg forced dark too.
