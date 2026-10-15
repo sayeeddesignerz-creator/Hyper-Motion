@@ -177,6 +177,11 @@ class TestProviderRequest(BaseModel):
     model: str = ""
     provider_id: Optional[str] = ""
 
+class DetectKeyRequest(BaseModel):
+    """Add-Provider wizard: paste a key, we detect + verify + list models."""
+    api_key: str
+    provider_type: Optional[str] = ""
+
 class SaveRouteRequest(BaseModel):
     route_name: str
     primary_provider_id: str
@@ -332,6 +337,52 @@ async def test_omniroute_provider(req: TestProviderRequest) -> Dict[str, Any]:
     except Exception as e:
         latency_ms = int((time.time() - start) * 1000)
         return {"status": "error", "latency_ms": latency_ms, "error": str(e)}
+
+@router.post("/api/omniroute/detect-key")
+async def detect_omniroute_key(req: DetectKeyRequest) -> Dict[str, Any]:
+    """Verify a pasted API key, auto-detect its provider and list its models.
+
+    The Add-Provider wizard calls this first: the provider *name* is derived from
+    the key, the key is checked live, and every reachable model is returned split
+    into free / paid tiers.
+    """
+    import asyncio
+    from app.llm import model_catalog
+
+    key = (req.api_key or "").strip()
+    if not key:
+        return {"ok": False, "error": "Paste an API key first."}
+
+    ptype = (req.provider_type or "").strip().lower() or model_catalog.detect_provider_from_key(key)
+    if not ptype:
+        return {
+            "ok": False,
+            "error": "Couldn't recognise this key format — choose the provider type manually below.",
+        }
+
+    # Verification must never hang the wizard — bound the live call
+    try:
+        info = await asyncio.wait_for(model_catalog.verify_and_list_models(ptype, key), timeout=20)
+    except asyncio.TimeoutError:
+        vendor = model_catalog.DISPLAY_NAMES.get(ptype, ptype)
+        return {"ok": False, "error": f"{vendor} did not respond within 20s — try again."}
+    except model_catalog.KeyVerificationError as e:
+        return {"ok": False, "error": str(e)}
+    except Exception as e:
+        return {"ok": False, "error": f"Verification failed: {e}"}
+
+    return {
+        "ok": True,
+        "detected": True,
+        "provider_type": info["provider_type"],
+        "display_name": info["display_name"],
+        "masked_key": info["masked_key"],
+        "models": info["models"],
+        "free_count": info["free_count"],
+        "paid_count": info["paid_count"],
+        "notes": info["notes"],
+    }
+
 
 # ----------------------------------------------------------------------------
 # Engine nodes — provider+model pairs; connect them to routes in the node graph

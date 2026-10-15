@@ -3595,10 +3595,10 @@
         radial-gradient(900px 400px at 50% 45%, rgba(124, 58, 237, 0.14), transparent 62%),
         radial-gradient(700px 320px at 50% 48%, rgba(14, 165, 233, 0.10), transparent 60%),
         #0d1117;
-      border: 1px solid #21262d;
+      border: none;
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 30px 80px -50px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 30px 80px -50px rgba(0, 0, 0, 0.9);
     }
     #tab-brain .stage::before {
       content: '';
@@ -3788,7 +3788,7 @@
       background: #3fb950;
       animation: bl 1s infinite;
     }
-    /* Wires — base plumbing + animated flow (agents → chip, providers → chip) */
+    /* Wires — base plumbing + natural particle flow (agents → chip, providers → chip) */
     #tab-brain .w {
       fill: none;
       stroke: #55606e;
@@ -3809,38 +3809,550 @@
     }
     #tab-brain .f {
       fill: none;
-      stroke-width: 2;
+      stroke-width: 2.2;
       stroke-linecap: round;
       opacity: 0.95;
       transition: opacity 0.3s;
     }
+    /* Flow colours are pulled straight from the canvas palette
+       (violet → sky → cyan, the same hues as the chip gradient & glows) */
     #tab-brain .f.prov {
-      stroke: #22d3ee;
-      filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.5));
+      stroke: #8b5cf6;
+      filter: drop-shadow(0 0 5px rgba(139, 92, 246, 0.55));
     }
     #tab-brain .f.agent {
-      stroke: #34d399;
-      filter: drop-shadow(0 0 4px rgba(52, 211, 153, 0.45));
+      stroke: #38bdf8;
+      filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.5));
     }
     #tab-brain .f.res {
-      stroke: #a78bfa;
-      filter: drop-shadow(0 0 4px rgba(167, 139, 250, 0.45));
+      stroke: #22d3ee;
+      filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.5));
     }
     #tab-brain .f.dim {
       opacity: 0.15;
     }
+    /* Soft particles: long gaps + rounded caps + eased travel = organic energy flow */
     @media (prefers-reduced-motion: no-preference) {
       #tab-brain .f {
-        stroke-dasharray: 5 13;
-        animation: brainflow 1.25s linear infinite;
+        stroke-dasharray: 0.6 12.4;
+        animation: brainflow 2.6s ease-in-out infinite;
       }
       #tab-brain .f.res {
-        animation-name: brainflowback;
-        animation-duration: 1.6s;
+        stroke-dasharray: 0.6 12.4;
+        animation: brainflowback 3.2s ease-in-out infinite;
       }
     }
-    @keyframes brainflow { to { stroke-dashoffset: -18; } }
-    @keyframes brainflowback { to { stroke-dashoffset: 18; } }
+    @keyframes brainflow { to { stroke-dashoffset: -26; } }
+    @keyframes brainflowback { to { stroke-dashoffset: 26; } }
+
+    /* ══════════════════════════════════════════════════════════════
+       NODE GRAPH v2 — premium canvas, new node types & wiring lanes
+       ══════════════════════════════════════════════════════════════ */
+
+    /* Canvas column labels (painted onto the board like Blender annotations) */
+    .dv-col-label {
+      position: absolute;
+      top: 52px;
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      color: #3d4653;
+      pointer-events: none;
+      user-select: none;
+      z-index: 2;
+    }
+
+    /* Node cards v2 */
+    .dv-node {
+      border-radius: 12px;
+      background: linear-gradient(180deg, #171e27 0%, #10151c 100%);
+      border: 1px solid #2b3542;
+      box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.75), 0 2px 6px rgba(0, 0, 0, 0.45);
+    }
+    .dv-node:hover, .dv-node.selected {
+      border-color: #58a6ff;
+      box-shadow: 0 18px 40px -14px rgba(0, 0, 0, 0.85), 0 0 0 1px #58a6ff, 0 0 22px rgba(88, 166, 255, 0.28);
+    }
+    .dv-node .dv-node-body {
+      background: transparent;
+      border-radius: 0 0 11px 11px;
+    }
+    .dv-node .dv-node-header {
+      border-radius: 11px 11px 0 0;
+    }
+
+    /* Small nodes: fallback links (lighter, compact) */
+    .dv-node.small {
+      width: 178px;
+      border-radius: 11px;
+    }
+    .dv-node.small .dv-node-body {
+      padding: 8px 10px;
+      font-size: 10.5px;
+    }
+    .node-color-fallback {
+      background: linear-gradient(180deg, #9e6a03 0%, #7a5203 100%);
+      color: #ffffff;
+    }
+    .dv-node.fallback-node {
+      border-color: #4a3a12;
+    }
+    .dv-node.fallback-node:hover {
+      border-color: #d29922;
+      box-shadow: 0 16px 34px -14px rgba(0, 0, 0, 0.85), 0 0 0 1px #d29922, 0 0 18px rgba(210, 153, 34, 0.3);
+    }
+
+    /* Agent nodes */
+    .dv-node.agent-node {
+      width: 226px;
+    }
+    .dv-node.agent-node .dv-agent-role {
+      font-size: 10px;
+      color: #7d8b9d;
+    }
+    .dv-node.agent-node.unwired {
+      border-color: #5b4a17;
+      box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(210, 153, 34, 0.25);
+    }
+
+    /* Hyper Motion chip node — premium gradient border & glow */
+    .dv-node.chip-node {
+      width: 264px;
+      border: 1.5px solid transparent;
+      background: linear-gradient(#151c26, #0d1218) padding-box, linear-gradient(135deg, #8b5cf6, #0ea5e9) border-box;
+      box-shadow: 0 26px 80px -28px rgba(139, 92, 246, 0.6), 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+    .dv-node.chip-node:hover, .dv-node.chip-node.selected {
+      box-shadow: 0 30px 90px -26px rgba(139, 92, 246, 0.75), 0 0 0 1px rgba(139, 92, 246, 0.5);
+      border-color: transparent;
+    }
+    .dv-chip-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+    .dv-chip-status.ok {
+      background: rgba(63, 185, 80, 0.14);
+      border: 1px solid rgba(63, 185, 80, 0.4);
+      color: #3fb950;
+    }
+    .dv-chip-status.warn {
+      background: rgba(210, 153, 34, 0.12);
+      border: 1px solid rgba(210, 153, 34, 0.42);
+      color: #d29922;
+    }
+    .dv-chip-status.err {
+      background: rgba(248, 81, 73, 0.12);
+      border: 1px solid rgba(248, 81, 73, 0.42);
+      color: #f85149;
+    }
+
+    /* Socket labels (⚡Direct / ⟳Fallback / 🤖Agent inputs) */
+    .dv-sock-label {
+      position: absolute;
+      font-size: 8.5px;
+      font-weight: 800;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      color: #7d8b9d;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .dv-sock-label.right { left: calc(100% + 10px); transform: translateY(-50%); }
+    .dv-sock-label.left { right: calc(100% + 10px); transform: translateY(-50%); }
+
+    /* Colored socket variants */
+    .dv-socket.direct-sock {
+      background: #58a6ff;
+      color: #58a6ff;
+    }
+    .dv-socket.fallback-sock {
+      background: #d29922;
+      color: #d29922;
+    }
+    .dv-socket.agent-sock {
+      background: #39c5cf;
+      color: #39c5cf;
+    }
+    .dv-socket.chip-in {
+      width: 13px;
+      height: 13px;
+      left: -7px;
+    }
+    .dv-socket.chip-in.direct-sock { background: #58a6ff; color: #58a6ff; }
+    .dv-socket.chip-in.fallback-sock { background: #d29922; color: #d29922; }
+    .dv-socket.chip-in.agent-sock { background: #39c5cf; color: #39c5cf; }
+    .dv-socket.static-sock {
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* Toolbar health chip */
+    .node-health-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 20px;
+      font-size: 10.5px;
+      font-weight: 700;
+      border: 1px solid rgba(63, 185, 80, 0.35);
+      background: rgba(63, 185, 80, 0.1);
+      color: #3fb950;
+      white-space: nowrap;
+    }
+    .node-health-chip.warn {
+      border-color: rgba(210, 153, 34, 0.4);
+      background: rgba(210, 153, 34, 0.1);
+      color: #d29922;
+    }
+    .node-health-chip i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 6px currentColor;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       PROVIDER / FALLBACK / AGENT WIZARD MODALS
+       ══════════════════════════════════════════════════════════════ */
+    .modal-box.modal-box-lg {
+      max-width: 660px;
+      width: 94vw;
+    }
+    .wiz-steps {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .wiz-step {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: #f8fafc;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+    .wiz-step .n {
+      flex: none;
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #e2e8f0;
+      color: #475569;
+      font-size: 10.5px;
+      font-weight: 800;
+    }
+    .wiz-step.active {
+      border-color: #10b981;
+      background: #ecfdf5;
+      color: #065f46;
+      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.25);
+    }
+    .wiz-step.active .n {
+      background: #10b981;
+      color: #fff;
+    }
+    .wiz-step.done {
+      border-color: #bbf7d0;
+      background: #f0fdf4;
+      color: #15803d;
+    }
+    .wiz-step.done .n {
+      background: #15803d;
+      color: #fff;
+    }
+
+    .wiz-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 10px;
+    }
+    .wiz-status {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 600;
+      display: none;
+      line-height: 1.5;
+    }
+    .wiz-status.ok { display: block; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+    .wiz-status.err { display: block; background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
+    .wiz-status.busy { display: block; background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+
+    .detected-provider {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 13px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #f0fdf4, #eff6ff);
+      border: 1px solid #d1fae5;
+      margin-bottom: 12px;
+    }
+    .detected-provider .dp-ico {
+      flex: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      background: #ffffff;
+      border: 1px solid #d1fae5;
+      box-shadow: 0 4px 12px -6px rgba(16, 185, 129, 0.4);
+    }
+    .detected-provider .dp-main { min-width: 0; }
+    .detected-provider .dp-main b { display: block; font-size: 13.5px; color: var(--text-main); }
+    .detected-provider .dp-main small { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+    .detected-provider .dp-badge {
+      margin-left: auto;
+      flex: none;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: #dcfce7;
+      color: #15803d;
+      letter-spacing: 0.3px;
+    }
+
+    .tier-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 10px 0 8px;
+    }
+    .tier-tab {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      border: 1px solid var(--card-border);
+      background: #ffffff;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tier-tab:hover { border-color: #94a3b8; }
+    .tier-tab.active.free { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+    .tier-tab.active.paid { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
+    .tier-tab .cnt {
+      background: rgba(15, 23, 42, 0.07);
+      border-radius: 20px;
+      padding: 1px 8px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .model-list {
+      max-height: 235px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 3px 2px;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      background: #fbfcfe;
+      min-height: 74px;
+    }
+    .model-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 6px;
+      padding: 8px 10px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: border-color 0.12s ease, background 0.12s ease;
+    }
+    .model-row:hover { border-color: #cbd5e1; background: #f8fafc; }
+    .model-row.sel { border-color: #10b981; background: #f0fdf4; }
+    .model-row .cb {
+      flex: none;
+      width: 17px;
+      height: 17px;
+      border-radius: 5px;
+      border: 1.5px solid #cbd5e1;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      background: #ffffff;
+      transition: all 0.12s ease;
+    }
+    .model-row.sel .cb { background: #10b981; border-color: #10b981; }
+    .model-row .cb svg { display: none; }
+    .model-row.sel .cb svg { display: block; }
+    .model-row .mi { min-width: 0; flex: 1; }
+    .model-row .mi b {
+      display: block;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .model-row .mi small { font-size: 10.5px; color: var(--text-muted); }
+    .tier-pill {
+      flex: none;
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2.5px 9px;
+      border-radius: 20px;
+      letter-spacing: 0.4px;
+    }
+    .tier-pill.free { background: #dcfce7; color: #15803d; }
+    .tier-pill.paid { background: #fef3c7; color: #92400e; }
+
+    .model-empty {
+      padding: 22px 14px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .wiz-foot {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .wiz-sel-count {
+      margin-right: auto;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    /* Provider / agent picker rows (fallback + agent modals) */
+    .prov-pick-list {
+      max-height: 300px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 3px;
+    }
+    .prov-pick {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+    .prov-pick:hover { border-color: #94a3b8; background: #f8fafc; transform: translateX(2px); }
+    .prov-pick .pi {
+      flex: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      background: #f1f5f9;
+    }
+    .prov-pick .pm { min-width: 0; }
+    .prov-pick .pm b { display: block; font-size: 12.5px; color: var(--text-main); }
+    .prov-pick .pm small { font-size: 10.5px; color: var(--text-muted); }
+    .prov-pick .tags { margin-left: auto; display: flex; gap: 5px; align-items: center; flex: none; }
+    .mini-tag {
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2.5px 8px;
+      border-radius: 20px;
+      background: #f1f5f9;
+      color: #475569;
+      letter-spacing: 0.3px;
+    }
+    .mini-tag.green { background: #dcfce7; color: #15803d; }
+    .mini-tag.amber { background: #fef3c7; color: #92400e; }
+
+    .agent-pick-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      max-height: 330px;
+      overflow-y: auto;
+      padding-right: 3px;
+    }
+    .agent-pick {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 11px;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+    .agent-pick:hover { border-color: #a371f7; background: #faf5ff; transform: translateY(-1px); }
+    .agent-pick .ai {
+      flex: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      background: #f5f3ff;
+    }
+    .agent-pick .am { min-width: 0; }
+    .agent-pick .am b { display: block; font-size: 12px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .agent-pick .am small { font-size: 10px; color: var(--text-muted); }
+    .agent-pick .wired-pill {
+      margin-left: auto;
+      flex: none;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2.5px 8px;
+      border-radius: 20px;
+      background: #dcfce7;
+      color: #15803d;
+    }
+    .agent-pick .unwired-pill {
+      margin-left: auto;
+      flex: none;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2.5px 8px;
+      border-radius: 20px;
+      background: #fef3c7;
+      color: #92400e;
+    }
   </style>
 </head>
 
@@ -6000,25 +6512,29 @@
                   <div class="node-toolbar-left">
                     <span style="font-size:11px;font-weight:700;color:#58a6ff;letter-spacing:0.5px;">NODE GRAPH</span>
                     <div style="width:1px;height:14px;background:#30363d;"></div>
-                    <button class="node-pill-btn" onclick="openAddProviderModal()">+ Provider</button>
-                    <button class="node-pill-btn" onclick="openAddAgentModal()">+ Agent</button>
-                    <button class="node-pill-btn" onclick="openAddEngineModal()">+ Engine</button>
-                    <button class="node-pill-btn" onclick="autoLayoutNodes()">
+                    <button class="node-pill-btn" onclick="openAddProviderModal()" title="Paste an API key — the provider is detected, verified and its models listed (free &amp; paid)">＋ Provider</button>
+                    <button class="node-pill-btn" onclick="openFallbackModal()" title="Chain a failover: pick a provider, then one of its models">⟳ Fallback</button>
+                    <button class="node-pill-btn" onclick="openAddAgentModal()" title="Drop an agent node on the canvas and wire it to the chip">🤖 Agent</button>
+                    <button class="node-pill-btn" onclick="openAddEngineModal()" title="Pin one specific model of a provider">⚙ Engine</button>
+                    <button class="node-pill-btn" onclick="addChipNode()" title="Add or restore the Hyper Motion Chip node">🧠 Chip</button>
+                    <div style="width:1px;height:14px;background:#30363d;"></div>
+                    <button class="node-pill-btn" onclick="autoLayoutNodes()" title="Arrange all nodes into clean columns">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                       Clean Layout
                     </button>
-                    <button class="node-pill-btn" onclick="reloadNodeStudio();setTimeout(drawNodeWires,80);">
+                    <button class="node-pill-btn" onclick="reloadNodeStudio();setTimeout(drawNodeWires,80);" title="Re-read providers, engines, routes and agents from the backend">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                      Sync Graph
+                      Sync
                     </button>
                   </div>
                   <div class="node-toolbar-right">
-                    <div class="node-legend-item"><span class="node-legend-dot" style="background:#58a6ff;"></span><span>Provider Out</span></div>
-                    <div class="node-legend-item"><span class="node-legend-dot" style="background:#2ea043;"></span><span>Primary Route</span></div>
-                    <div class="node-legend-item"><span class="node-legend-dot" style="background:#a371f7;"></span><span>Fallback</span></div>
-                    <div class="node-legend-item"><span class="node-legend-dot" style="background:#39c5cf;"></span><span>Engine</span></div>
+                    <span class="node-health-chip" id="nodeHealthChip" title="Live pipeline health"><i></i><span id="nodeHealthText">…</span></span>
                     <div style="width:1px;height:14px;background:#30363d;"></div>
-                    <span class="node-toolbar-hint" title="Quick tips">💡 Right-click canvas to add nodes · drag between sockets to connect · click a wire to disconnect</span>
+                    <div class="node-legend-item"><span class="node-legend-dot" style="background:#58a6ff;"></span><span>⚡ Direct → chip</span></div>
+                    <div class="node-legend-item"><span class="node-legend-dot" style="background:#d29922;"></span><span>⟳ Fallback</span></div>
+                    <div class="node-legend-item"><span class="node-legend-dot" style="background:#39c5cf;"></span><span>🤖 Agent → chip</span></div>
+                    <div style="width:1px;height:14px;background:#30363d;"></div>
+                    <span class="node-toolbar-hint" title="Quick tips">💡 Drag ⚡Direct into the chip = main provider · drag ⟳Fallback into the chip = add a failover · right-click the canvas to add nodes</span>
                     <div style="width:1px;height:14px;background:#30363d;"></div>
                     <button class="node-pill-btn" onclick="toggleNodeHeight()" title="Expand/Collapse" id="nodeResizeBtn">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 15 12 20 17 15"/><polyline points="7 9 12 4 17 9"/></svg>
@@ -6031,17 +6547,12 @@
                 <div id="nodeEmptyState">
                   <div style="font-size:40px;line-height:1;">🧠</div>
                   <div style="font-size:15px;font-weight:700;color:#e6edf3;">Your brain is empty</div>
-                  <div style="font-size:12px;color:#8b949e;max-width:380px;line-height:1.6;pointer-events:none;">Right-click anywhere on the canvas to add a <b style="color:#58a6ff;">Provider</b>, <b style="color:#a371f7;">Agent</b> or <b style="color:#39c5cf;">Engine</b> node — every change applies to the live system instantly.</div>
+                  <div style="font-size:12px;color:#8b949e;max-width:420px;line-height:1.6;pointer-events:none;">Start with <b style="color:#58a6ff;">＋ Provider</b> — paste an API key and we detect the provider, verify it and list its models (free &amp; paid). Then drag <b style="color:#58a6ff;">⚡ Direct</b> into the <b style="color:#a371f7;">Hyper Motion chip</b>.</div>
                   <div style="display:flex;gap:8px;pointer-events:auto;">
-                    <button class="node-pill-btn" onclick="openAddProviderModal()">+ Provider</button>
-                    <button class="node-pill-btn" onclick="openAddAgentModal()">+ Agent</button>
-                    <button class="node-pill-btn" onclick="openAddEngineModal()">+ Engine</button>
+                    <button class="node-pill-btn primary" onclick="openAddProviderModal()">＋ Provider</button>
+                    <button class="node-pill-btn" onclick="openFallbackModal()">⟳ Fallback</button>
+                    <button class="node-pill-btn" onclick="openAddAgentModal()">🤖 Agent</button>
                   </div>
-                </div>
-                <!-- Guided "Add Fallback Link" mode hint -->
-                <div id="nodeLinkHint" style="display:none;position:absolute;top:58px;left:50%;transform:translateX(-50%);z-index:30;background:rgba(31,111,235,0.94);border:1px solid #388bfd;border-radius:8px;padding:8px 14px;font-size:11.5px;font-weight:600;color:#fff;align-items:center;gap:12px;backdrop-filter:blur(8px);">
-                  <span>ADD FALLBACK: click a Provider or Engine node…</span>
-                  <button class="dv-node-btn" onclick="cancelFallbackLinkMode()">Cancel</button>
                 </div>
               </div>
               <!-- Drag resize divider -->
@@ -6289,43 +6800,146 @@
     </div>
   </div>
 
-  <!-- Provider Modal -->
+  <!-- Provider Modal — key-first wizard (detect → verify → models → node) -->
   <div id="providerModal" class="modal-backdrop">
-    <div class="modal-box">
-      <h3 class="modal-title" style="margin-bottom: 16px;">Connect AI Provider</h3>
-      <div class="form-group">
-        <label class="form-label">Provider ID</label>
-        <input type="text" id="provIdInput" class="form-input" placeholder="e.g. gemini_pool_2">
+    <div class="modal-box modal-box-lg">
+      <h3 class="modal-title" id="providerModalTitle" style="margin-bottom: 14px;">Add Provider Node</h3>
+
+      <div id="provWizardWrap">
+        <div class="wiz-steps">
+          <div class="wiz-step active" id="provWizChip1"><span class="n">1</span> Paste API key</div>
+          <div class="wiz-step" id="provWizChip2"><span class="n">2</span> Verify &amp; detect</div>
+          <div class="wiz-step" id="provWizChip3"><span class="n">3</span> Pick models</div>
+        </div>
+
+        <div id="provStepKey">
+          <p class="wiz-hint">Paste your provider API key — we <strong>detect the provider from the key format</strong>, verify it live, then fetch every model it can access split into <strong style="color:#15803d;">Free</strong> and <strong style="color:#92400e;">Paid</strong>.</p>
+          <div class="form-group">
+            <label class="form-label">API Key</label>
+            <input type="password" id="provWizardKey" class="form-input" placeholder="AIza… · sk-… · gsk_… · sk-or-…" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="wiz-status" id="provDetectStatus"></div>
+        </div>
+
+        <div id="provStepModels" style="display:none;">
+          <div class="detected-provider">
+            <div class="dp-ico" id="provDetectedIco">✦</div>
+            <div class="dp-main">
+              <b id="provDetectedName">Provider</b>
+              <small id="provDetectedMeta"></small>
+            </div>
+            <span class="dp-badge" id="provDetectedBadge">✓ VERIFIED</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Node Name</label>
+            <input type="text" id="provWizardName" class="form-input" placeholder="Gemini">
+          </div>
+          <div class="tier-tabs">
+            <button class="tier-tab active free" id="provTabFree" onclick="setProvTier('free')">🟢 Free tier <span class="cnt" id="provFreeCount">0</span></button>
+            <button class="tier-tab paid" id="provTabPaid" onclick="setProvTier('paid')">💳 Paid models <span class="cnt" id="provPaidCount">0</span></button>
+          </div>
+          <input type="text" class="form-input" id="provModelSearch" placeholder="Search models…" oninput="renderProvModelList()">
+          <div class="model-list" id="provModelList"></div>
+          <div class="wiz-status" id="provWizardStatus"></div>
+        </div>
+
+        <div class="wiz-foot">
+          <span class="wiz-sel-count" id="provSelCount"></span>
+          <button class="btn-pill-secondary" onclick="closeModal('providerModal')">Cancel</button>
+          <button class="btn-pill-secondary" id="provBackBtn" style="display:none;" onclick="provWizardBack()">← Back</button>
+          <button class="btn-pill-primary" id="provNextBtn" onclick="detectProviderKey()">🔍 Verify Key &amp; Fetch Models</button>
+          <button class="btn-pill-primary" id="provAddBtn" style="display:none;" onclick="submitProviderWizard()">＋ Add Provider Node</button>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Provider Type</label>
-        <select id="provTypeSelect" class="form-select">
-          <option value="gemini">Google Gemini</option>
-          <option value="openrouter">OpenRouter Free/Paid</option>
-          <option value="groq">Groq High-Speed Llama</option>
-          <option value="ollama">Ollama Local Instance</option>
-          <option value="custom">Custom OpenAI-Compatible</option>
-        </select>
+
+      <!-- Manual / edit mode — kept for advanced OpenAI-compatible setups and edits -->
+      <div id="provManualBlock" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Provider ID</label>
+          <input type="text" id="provIdInput" class="form-input" placeholder="e.g. gemini_pool_2">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Provider Type</label>
+          <select id="provTypeSelect" class="form-select">
+            <option value="gemini">Google Gemini</option>
+            <option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic Claude</option>
+            <option value="openrouter">OpenRouter Free/Paid</option>
+            <option value="groq">Groq High-Speed Llama</option>
+            <option value="ollama">Ollama Local Instance</option>
+            <option value="custom">Custom OpenAI-Compatible</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Display Name</label>
+          <input type="text" id="provNameInput" class="form-input" placeholder="e.g. Backup Gemini Key Pool">
+        </div>
+        <div class="form-group">
+          <label class="form-label">API Key / Token</label>
+          <input type="password" id="provKeyInput" class="form-input" placeholder="AIzaSy... or sk-or-...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Base URL (Optional)</label>
+          <input type="text" id="provUrlInput" class="form-input" placeholder="https://api.groq.com/openai/v1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Supported Models (comma-separated)</label>
+          <input type="text" id="provModelsInput" class="form-input" placeholder="gemini-3.8-flash, gemini-3.5-flash">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+          <button class="btn-pill-secondary" onclick="closeModal('providerModal')">Cancel</button>
+          <button class="btn-pill-primary" onclick="submitProviderForm()">Save Provider</button>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Display Name</label>
-        <input type="text" id="provNameInput" class="form-input" placeholder="e.g. Backup Gemini Key Pool">
+    </div>
+  </div>
+
+  <!-- Fallback Node Modal — provider first, then free/paid model -->
+  <div id="fallbackModal" class="modal-backdrop">
+    <div class="modal-box modal-box-lg">
+      <h3 class="modal-title" style="margin-bottom: 6px;">Add Fallback Node</h3>
+      <p class="wiz-hint">Fallback nodes are tried <strong>automatically</strong> when the main provider fails. First pick a provider, then choose one of its models — the node is added to the fallback lane and wired to the chip.</p>
+
+      <div id="fbStepProvider">
+        <input type="text" class="form-input" id="fbProvSearch" placeholder="Search providers…" oninput="renderFallbackProviderList()" style="margin-bottom: 10px;">
+        <div class="prov-pick-list" id="fbProviderList"></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">API Key / Token</label>
-        <input type="password" id="provKeyInput" class="form-input" placeholder="AIzaSy... or sk-or-...">
+
+      <div id="fbStepModel" style="display:none;">
+        <div class="detected-provider">
+          <div class="dp-ico" id="fbPickedIco">⟳</div>
+          <div class="dp-main">
+            <b id="fbPickedName">Provider</b>
+            <small id="fbPickedMeta"></small>
+          </div>
+          <span class="dp-badge" id="fbPickedBadge" style="background:#fef3c7;color:#92400e;">FALLBACK</span>
+        </div>
+        <div class="tier-tabs">
+          <button class="tier-tab active free" id="fbTabFree" onclick="setFbTier('free')">🟢 Free tier <span class="cnt" id="fbFreeCount">0</span></button>
+          <button class="tier-tab paid" id="fbTabPaid" onclick="setFbTier('paid')">💳 Paid models <span class="cnt" id="fbPaidCount">0</span></button>
+        </div>
+        <input type="text" class="form-input" id="fbModelSearch" placeholder="Search models…" oninput="renderFbModelList()">
+        <div class="model-list" id="fbModelList"></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Base URL (Optional)</label>
-        <input type="text" id="provUrlInput" class="form-input" placeholder="https://api.groq.com/openai/v1">
+
+      <div class="wiz-foot">
+        <span class="wiz-sel-count" id="fbSelCount"></span>
+        <button class="btn-pill-secondary" onclick="closeModal('fallbackModal')">Cancel</button>
+        <button class="btn-pill-secondary" id="fbBackBtn" style="display:none;" onclick="fbBackToProviders()">← Back</button>
+        <button class="btn-pill-primary" id="fbAddBtn" style="display:none;" onclick="submitFallbackNode()">＋ Add Fallback Node</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">Supported Models (comma-separated)</label>
-        <input type="text" id="provModelsInput" class="form-input" placeholder="gemini-3.8-flash, gemini-3.5-flash">
-      </div>
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
-        <button class="btn-pill-secondary" onclick="closeModal('providerModal')">Cancel</button>
-        <button class="btn-pill-primary" onclick="submitProviderForm()">Save Provider</button>
+    </div>
+  </div>
+
+  <!-- Agent Node Modal — pick from the live roster -->
+  <div id="agentModal" class="modal-backdrop">
+    <div class="modal-box modal-box-lg">
+      <h3 class="modal-title" style="margin-bottom: 6px;">Add Agent Node</h3>
+      <p class="wiz-hint"><strong style="color:#15803d;">Wired</strong> agents already route through the chip. <strong style="color:#92400e;">Not wired</strong> agents land as draft nodes — drag their output into the chip's 🤖 input to activate them (they won't run otherwise).</p>
+      <div class="agent-pick-grid" id="agentPickGrid"></div>
+      <div class="wiz-foot">
+        <span class="wiz-sel-count" id="agentPickCount"></span>
+        <button class="btn-pill-secondary" onclick="closeModal('agentModal')">Close</button>
       </div>
     </div>
   </div>
@@ -6361,37 +6975,6 @@
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
         <button class="btn-pill-secondary" onclick="closeModal('routeModal')">Cancel</button>
         <button class="btn-pill-primary" onclick="submitRouteForm()">Save Route</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Agent Node Modal -->
-  <div id="agentModal" class="modal-backdrop">
-    <div class="modal-box">
-      <h3 class="modal-title" style="margin-bottom: 6px;">Add Agent Node</h3>
-      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5;">
-        Creates a live <strong>route node</strong> for an orchestrator agent — saved to the database and synced to the gateway instantly.
-      </p>
-      <div class="form-group">
-        <label class="form-label">Orchestrator Agent</label>
-        <select id="agentSelect" class="form-select"></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Primary Provider</label>
-        <select id="agentProviderSelect" class="form-select" onchange="onAgentProviderChange()"></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Primary Model</label>
-        <input type="text" id="agentModelInput" class="form-input" list="agentModelHints" placeholder="model name">
-        <datalist id="agentModelHints"></datalist>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Cooldown on 429 Rate Limit (Seconds)</label>
-        <input type="number" id="agentCooldownInput" class="form-input" value="300">
-      </div>
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-        <button class="btn-pill-secondary" onclick="closeModal('agentModal')">Cancel</button>
-        <button class="btn-pill-primary" onclick="submitAgentForm()">Save Agent Node</button>
       </div>
     </div>
   </div>
@@ -6848,13 +7431,11 @@
     // DAVINCI RESOLVE / BLENDER NODE GRAPH ENGINE & STUDIO INTERACTIVITY
     // ═══════════════════════════════════════════════════════════════════════════
 
-    let _nodeGraphData = { providers: [], routes: [], engines: [] };
+    let _nodeGraphData = { providers: [], routes: [], engines: [], agents: [] };
     let _nodePositions = {};
     let _activeDragNode = null;
     let _dragOffset = { x: 0, y: 0 };
     let _wireDrag = null;      // socket → socket connection drag state
-    let _linkMode = null;      // guided "Add Fallback Link" mode
-    let _agentRoster = [];
 
     // ── Node graph helpers ──────────────────────────────────────────────
 
@@ -6891,8 +7472,70 @@
       try { localStorage.setItem('hm_node_positions_v1', JSON.stringify(_nodePositions)); } catch (_) { }
     }
 
+    // ── Node graph v2 helpers — chip-centric wiring model ───────────────
+    const NODE_COLS = { prov: 40, eng: 310, fb: 560, agent: 790 };
+
+    function slugify(str) {
+      return String(str || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'provider';
+    }
+    function hashId(str) {
+      const s = String(str || '');
+      let h = 5381;
+      for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+      return h.toString(36);
+    }
+    function fbNodeId(providerId, model) { return 'fb_' + slugify(providerId) + '_' + hashId(model); }
+    function pipelineRoute() { return findRoute('default'); }
+    function agentRouteNodes() {
+      return (_nodeGraphData.routes || []).filter(r => r.route_name !== 'default');
+    }
+    // Local draft agent nodes — added to the canvas but not yet wired to the chip
+    function draftAgents() {
+      try { return JSON.parse(localStorage.getItem('hm_agent_drafts_v1') || '[]'); } catch (_) { return []; }
+    }
+    function saveDraftAgents(list) { try { localStorage.setItem('hm_agent_drafts_v1', JSON.stringify(list)); } catch (_) {} }
+    function addDraftAgent(name) { const l = draftAgents(); if (!l.includes(name)) { l.push(name); saveDraftAgents(l); } }
+    function removeDraftAgent(name) { saveDraftAgents(draftAgents().filter(n => n !== name)); }
+    // Chip node visibility (local preference — backend data is never touched)
+    function chipHidden() { try { return localStorage.getItem('hm_chip_hidden_v1') === '1'; } catch (_) { return false; } }
+    function setChipHidden(v) { try { localStorage.setItem('hm_chip_hidden_v1', v ? '1' : '0'); } catch (_) {} }
+    function guessModelTierClient(ptype, modelId) {
+      const t = String(ptype || '').toLowerCase();
+      const m = String(modelId || '').toLowerCase();
+      if (t === 'openrouter') return m.endsWith(':free') ? 'free' : 'paid';
+      if (t === 'gemini') return (m.includes('flash') || m.includes('lite')) ? 'free' : 'paid';
+      if (t === 'groq' || t === 'local' || t === 'custom') return 'free';
+      return 'paid';
+    }
+    function providerIcon(ptype) {
+      const t = String(ptype || '').toLowerCase();
+      return { gemini: '✦', openai: '⌘', groq: '⚡', openrouter: '🛰', anthropic: '✳', local: '💾', custom: '⚙' }[t] || '⬢';
+    }
+    // Mirror the gateway's fuzzy matching: exact agent key → partial contains → none
+    function agentForRoute(routeName) {
+      const roster = _nodeGraphData.agents || [];
+      const exact = roster.find(a => a.name === routeName);
+      if (exact) return exact;
+      return roster.find(a => a.name !== routeName && (a.name.includes(routeName) || routeName.includes(a.name))) || null;
+    }
+    function highlightNode(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add('selected');
+      setTimeout(() => el.classList.remove('selected'), 1600);
+    }
+    // Drop a freshly created node below the lowest node in the same column
+    function placeNewNode(key, colX, gap = 132) {
+      if (_nodePositions[key]) return;
+      const ys = Object.entries(_nodePositions)
+        .filter(([, p]) => p && Math.abs((p.x || 0) - colX) < 70)
+        .map(([, p]) => p.y || 0);
+      _nodePositions[key] = { x: colX, y: ys.length ? Math.max(...ys) + gap : 104 };
+      saveNodePositions();
+    }
+
     async function reloadNodeStudio() {
-      await Promise.all([loadProviders(), loadRoutes(), loadEngines()]);
+      await Promise.all([loadProviders(), loadRoutes(), loadEngines(), loadAgents()]);
       renderNodeGraph();
     }
 
@@ -6907,6 +7550,14 @@
       renderNodeGraph();
     }
 
+    // AGENT ROSTER (orchestrator agents + live route status)
+    async function loadAgents() {
+      try {
+        const res = await fetch('/api/agents');
+        _nodeGraphData.agents = res.ok ? await res.json() : [];
+      } catch (_) { _nodeGraphData.agents = []; }
+    }
+
     // ENGINES (provider + model pairs)
     async function loadEngines() {
       try {
@@ -6917,24 +7568,171 @@
       }
     }
 
+    // ── Add Provider wizard — paste key → detect & verify → pick models ──
+    let _provWizard = { key: '', detected: null, selected: new Set(), tier: 'free', filter: '' };
+
     function openAddProviderModal() {
-      const idEl = document.getElementById('provIdInput');
-      idEl.value = 'prov_' + Math.random().toString(36).substring(2, 7);
-      idEl.removeAttribute('readonly');
-      idEl.style.opacity = '';
-      document.getElementById('provNameInput').value = '';
-      document.getElementById('provKeyInput').value = '';
-      document.getElementById('provKeyInput').placeholder = 'AIzaSy... or sk-or-...';
-      document.getElementById('provUrlInput').value = '';
-      document.getElementById('provModelsInput').value = '';
-      const sel = document.getElementById('provTypeSelect');
-      sel.value = 'gemini';
+      _provWizard = { key: '', detected: null, selected: new Set(), tier: 'free', filter: '' };
+      document.getElementById('providerModalTitle').textContent = 'Add Provider Node';
+      document.getElementById('provWizardWrap').style.display = '';
+      document.getElementById('provManualBlock').style.display = 'none';
+      document.getElementById('provWizardKey').value = '';
+      document.getElementById('provWizardName').value = '';
+      document.getElementById('provModelSearch').value = '';
+      document.getElementById('provModelList').innerHTML = '';
+      setProvWizardStage(0);
+      setWizStatus('provDetectStatus', '', null);
+      setWizStatus('provWizardStatus', '', null);
       document.getElementById('providerModal').classList.add('active');
+      setTimeout(() => { const el = document.getElementById('provWizardKey'); if (el) el.focus(); }, 80);
+    }
+
+    function setProvWizardStage(stage) {
+      const s1 = document.getElementById('provWizChip1');
+      const s2 = document.getElementById('provWizChip2');
+      const s3 = document.getElementById('provWizChip3');
+      document.getElementById('provStepKey').style.display = stage === 0 ? '' : 'none';
+      document.getElementById('provStepModels').style.display = stage === 1 ? '' : 'none';
+      document.getElementById('provNextBtn').style.display = stage === 0 ? '' : 'none';
+      document.getElementById('provAddBtn').style.display = stage === 1 ? '' : 'none';
+      document.getElementById('provBackBtn').style.display = stage === 1 ? '' : 'none';
+      [s1, s2, s3].forEach(el => el && el.classList.remove('active', 'done'));
+      if (stage === 0) {
+        s1.classList.add('active');
+      } else {
+        s1.classList.add('done'); s2.classList.add('done'); s3.classList.add('active');
+      }
+    }
+
+    function setWizStatus(id, message, kind) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.className = 'wiz-status' + (kind ? ' ' + kind : '');
+      el.textContent = message || '';
+    }
+
+    async function detectProviderKey() {
+      const key = document.getElementById('provWizardKey').value.trim();
+      if (!key) { setWizStatus('provDetectStatus', 'Paste an API key first.', 'err'); return; }
+      setWizStatus('provDetectStatus', '⏳ Detecting provider from the key and verifying it live…', 'busy');
+      try {
+        const res = await fetch('/api/omniroute/detect-key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ api_key: key, provider_type: '' })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          setWizStatus('provDetectStatus', '✕ ' + (data.error || data.detail || 'Verification failed.'), 'err');
+          return;
+        }
+        _provWizard.key = key;
+        _provWizard.detected = data;
+        _provWizard.selected = new Set();
+        document.getElementById('provDetectedIco').textContent = providerIcon(data.provider_type);
+        document.getElementById('provDetectedName').textContent = `${data.display_name}`;
+        document.getElementById('provDetectedMeta').textContent = `${data.provider_type} · ${data.masked_key} · ${data.notes}`;
+        document.getElementById('provWizardName').value = data.display_name || data.provider_type;
+        document.getElementById('provFreeCount').textContent = data.free_count || 0;
+        document.getElementById('provPaidCount').textContent = data.paid_count || 0;
+        _provWizard.tier = (data.free_count || 0) > 0 ? 'free' : 'paid';
+        setProvTier(_provWizard.tier);
+        setWizStatus('provDetectStatus', '', null);
+        setProvWizardStage(1);
+      } catch (e) {
+        setWizStatus('provDetectStatus', '✕ ' + e.message, 'err');
+      }
+    }
+
+    function setProvTier(tier) {
+      _provWizard.tier = tier;
+      document.getElementById('provTabFree').classList.toggle('active', tier === 'free');
+      document.getElementById('provTabPaid').classList.toggle('active', tier === 'paid');
+      renderProvModelList();
+    }
+
+    function renderProvModelList() {
+      const list = document.getElementById('provModelList');
+      if (!list || !_provWizard.detected) return;
+      _provWizard.filter = (document.getElementById('provModelSearch').value || '').toLowerCase();
+      const models = (_provWizard.detected.models || []).filter(m =>
+        m.tier === _provWizard.tier &&
+        (!_provWizard.filter || (m.id || '').toLowerCase().includes(_provWizard.filter) || (m.label || '').toLowerCase().includes(_provWizard.filter))
+      );
+      if (!models.length) {
+        list.innerHTML = `<div class="model-empty">No ${_provWizard.tier} models${_provWizard.filter ? ' match this search' : ' available for this key'}.</div>`;
+      } else {
+        list.innerHTML = models.map(m => {
+          const sel = _provWizard.selected.has(m.id) ? ' sel' : '';
+          const label = (m.label && m.label !== m.id) ? `<small>${escapeHtml(m.label)}</small>` : '';
+          return `<div class="model-row${sel}" onclick="toggleProvModel('${jsStr(m.id)}')">
+            <span class="cb"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            <span class="mi"><b>${escapeHtml(m.id)}</b>${label}</span>
+            <span class="tier-pill ${m.tier}">${m.tier === 'free' ? 'FREE' : 'PAID'}</span>
+          </div>`;
+        }).join('');
+      }
+      updateProvSelCount();
+    }
+
+    function toggleProvModel(id) {
+      if (_provWizard.selected.has(id)) _provWizard.selected.delete(id);
+      else _provWizard.selected.add(id);
+      renderProvModelList();
+    }
+
+    function updateProvSelCount() {
+      const el = document.getElementById('provSelCount');
+      if (!el) return;
+      const n = _provWizard.selected.size;
+      el.textContent = n ? `${n} model${n === 1 ? '' : 's'} selected` : 'Select at least one model';
+    }
+
+    function provWizardBack() {
+      setProvWizardStage(0);
+      setWizStatus('provDetectStatus', '', null);
+      setWizStatus('provWizardStatus', '', null);
+    }
+
+    async function submitProviderWizard() {
+      if (!_provWizard.detected || !_provWizard.key) return;
+      const models = [..._provWizard.selected];
+      if (!models.length) { setWizStatus('provWizardStatus', 'Select at least one model — every free-tier model is a safe default.', 'err'); return; }
+      const name = document.getElementById('provWizardName').value.trim() || _provWizard.detected.display_name;
+      // unique provider id derived from the detected name
+      const existing = new Set((_nodeGraphData.providers || []).map(p => p.id));
+      const base = slugify(name);
+      let id = base, n = 2;
+      while (existing.has(id)) { id = `${base}_${n++}`; }
+      setWizStatus('provWizardStatus', '⏳ Saving provider node…', 'busy');
+      const res = await fetch('/api/omniroute/providers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          provider_type: _provWizard.detected.provider_type,
+          name,
+          api_key: _provWizard.key,
+          base_url: '',
+          models,
+          enabled: true
+        })
+      });
+      if (!res.ok) { setWizStatus('provWizardStatus', '✕ Server rejected the provider — try again.', 'err'); return; }
+      placeNewNode('prov_' + id, NODE_COLS.prov, 150);
+      closeModal('providerModal');
+      showToast('Provider Node Added', `'${name}' verified · ${models.length} model${models.length === 1 ? '' : 's'} · node placed on the canvas.`, 'success');
+      await reloadNodeStudio();
+      setTimeout(drawNodeWires, 100);
+      highlightNode('dv_node_prov_' + id);
     }
 
     function openEditProviderModal(providerId) {
       const p = findProvider(providerId);
       if (!p) return;
+      document.getElementById('providerModalTitle').textContent = 'Edit Provider Node';
+      document.getElementById('provWizardWrap').style.display = 'none';
+      document.getElementById('provManualBlock').style.display = '';
       const idEl = document.getElementById('provIdInput');
       idEl.value = p.id;
       idEl.setAttribute('readonly', 'readonly');
@@ -7000,48 +7798,226 @@
       alert(`Node Ping [${providerId || type}]:\nStatus: ${data.status}\nLatency: ${data.latency_ms}ms\nMessage: ${data.response || data.error || ''}`);
     }
 
-    // ── Agent nodes (route nodes bound to a real orchestrator agent) ────
+    // ── Agent nodes — draft nodes that must be wired into the chip ──────
 
     async function openAddAgentModal() {
-      try {
-        const r = await fetch('/api/agents');
-        _agentRoster = r.ok ? await r.json() : [];
-      } catch (_) { _agentRoster = []; }
-      const sel = document.getElementById('agentSelect');
-      sel.innerHTML = _agentRoster.map(a =>
-        `<option value="${a.name}">${a.label}${a.fact_critical ? ' — ⚠ fact-critical' : ''}${a.has_route ? ' — custom route active' : ''}</option>`
-      ).join('') || '<option value="">No agents available</option>';
-      const provSel = document.getElementById('agentProviderSelect');
-      provSel.innerHTML = (_nodeGraphData.providers || []).map(p =>
-        `<option value="${p.id}">${p.name} (${p.provider_type})</option>`
-      ).join('');
-      document.getElementById('agentCooldownInput').value = 300;
-      onAgentProviderChange();
       document.getElementById('agentModal').classList.add('active');
+      const grid = document.getElementById('agentPickGrid');
+      grid.innerHTML = '<div class="model-empty">Loading agents…</div>';
+      await loadAgents();
+      renderAgentPicker();
     }
 
-    function onAgentProviderChange() {
-      const pid = document.getElementById('agentProviderSelect').value;
-      const p = findProvider(pid);
-      const dl = document.getElementById('agentModelHints');
-      if (dl) dl.innerHTML = (p && p.models ? p.models : []).map(m => `<option value="${m}"></option>`).join('');
-      const mi = document.getElementById('agentModelInput');
-      if (mi) mi.value = firstModelOf(p);
+    function renderAgentPicker() {
+      const grid = document.getElementById('agentPickGrid');
+      if (!grid) return;
+      const roster = _nodeGraphData.agents || [];
+      if (!roster.length) { grid.innerHTML = '<div class="model-empty">No agents available.</div>'; return; }
+      const drafts = draftAgents();
+      grid.innerHTML = roster.map(a => {
+        const wired = !!a.has_route;
+        const onCanvas = wired || drafts.includes(a.name);
+        const pill = wired
+          ? '<span class="wired-pill">✓ WIRED</span>'
+          : (onCanvas ? '<span class="unwired-pill">NOT WIRED</span>' : '<span class="unwired-pill">＋ ADD</span>');
+        return `<div class="agent-pick" onclick="addAgentNode('${jsStr(a.name)}')" title="${escapeHtml(a.label)}${a.fact_critical ? ' — fact-critical' : ''}">
+          <span class="ai">🤖</span>
+          <span class="am"><b>${escapeHtml(a.label)}</b><small>${escapeHtml(a.name)}${a.fact_critical ? ' · ⚠ fact-critical' : ''}</small></span>
+          ${pill}
+        </div>`;
+      }).join('');
+      const cnt = document.getElementById('agentPickCount');
+      if (cnt) cnt.textContent = `${roster.filter(a => a.has_route).length}/${roster.length} agents wired to the chip`;
     }
 
-    async function submitAgentForm() {
-      const name = document.getElementById('agentSelect').value;
-      const primary_provider_id = document.getElementById('agentProviderSelect').value;
-      const primary_model = document.getElementById('agentModelInput').value.trim() || 'default';
-      const cooldown = parseInt(document.getElementById('agentCooldownInput').value) || 300;
-      if (!name || !primary_provider_id) {
-        showToast('Agent Node', 'Select an agent and a primary provider.', 'warning');
+    async function addAgentNode(name) {
+      if (findRoute(name)) {
+        // already wired — just make sure its node is on the canvas
+        placeNewNode('agent_' + name, NODE_COLS.agent, 150);
+        closeModal('agentModal');
+        showToast('Agent Already Wired', `'${name}' already routes through the chip — node pinned on the canvas.`, 'info');
+        await reloadNodeStudio();
+        setTimeout(drawNodeWires, 100);
+        highlightNode('dv_node_agent_' + name);
         return;
       }
-      const existing = findRoute(name);
-      const chain = existing ? (existing.fallback_chain || []).slice() : [];
-      await persistRoute(name, primary_provider_id, primary_model, chain, cooldown, existing ? existing.max_retries : 3);
+      addDraftAgent(name);
+      placeNewNode('agent_' + name, NODE_COLS.agent, 150);
       closeModal('agentModal');
+      showToast('Agent Node Added', `Drag its output into the chip's 🤖 input to activate '${name}' — it won't run until wired.`, 'warning');
+      await reloadNodeStudio();
+      setTimeout(drawNodeWires, 100);
+      highlightNode('dv_node_agent_' + name);
+    }
+
+    async function wireAgentNode(name) {
+      const pipeline = pipelineRoute();
+      let ppid = pipeline && pipeline.primary_provider_id;
+      let pmodel = pipeline && pipeline.primary_model;
+      if (!ppid) {
+        const first = (_nodeGraphData.providers || []).find(p => p.enabled !== false) || (_nodeGraphData.providers || [])[0];
+        if (!first) { showToast('Wire Agent', 'Add a provider node first — the agent needs a model to run.', 'warning'); return; }
+        ppid = first.id; pmodel = firstModelOf(first);
+      }
+      await persistRoute(name, ppid, pmodel, [], (pipeline && pipeline.cooldown_seconds) ?? 300, (pipeline && pipeline.max_retries) ?? 3, true);
+      removeDraftAgent(name);
+      showToast('Agent Wired To Chip', `'${name}' now routes through the pipeline (${ppid}${pmodel ? ' · ' + pmodel : ''}).`, 'success');
+    }
+
+    async function unwireAgentNode(name) {
+      const route = findRoute(name);
+      if (!route) { removeDraftAgent(name); await reloadNodeStudio(); setTimeout(drawNodeWires, 80); return; }
+      if (!confirm(`Disconnect agent "${name}" from the chip?\nIts route is deleted and the agent falls back to static routing until re-wired.`)) return;
+      await fetch(`/api/omniroute/routes/${encodeURIComponent(name)}`, { method: 'DELETE' });
+      addDraftAgent(name);   // keep the node on the canvas as a draft
+      showToast('Agent Unwired', `'${name}' is disconnected — it won't run until wired to the chip again.`, 'warning');
+      await reloadNodeStudio();
+      setTimeout(drawNodeWires, 100);
+    }
+
+    async function removeAgentNode(name) {
+      const route = findRoute(name);
+      if (route && !confirm(`Remove agent node "${name}" and delete its route?`)) return;
+      if (route) await fetch(`/api/omniroute/routes/${encodeURIComponent(name)}`, { method: 'DELETE' });
+      removeDraftAgent(name);
+      delete _nodePositions['agent_' + name];
+      saveNodePositions();
+      showToast('Agent Node Removed', `'${name}' removed from the canvas.`, 'info');
+      await reloadNodeStudio();
+      setTimeout(drawNodeWires, 100);
+    }
+
+    // ── Fallback wizard — provider first, then free/paid model ──────────
+    let _fbWizard = { providerId: '', tier: 'free', model: '' };
+
+    function openFallbackModal(providerId) {
+      _fbWizard = { providerId: '', tier: 'free', model: '' };
+      document.getElementById('fbProvSearch').value = '';
+      document.getElementById('fbModelSearch').value = '';
+      document.getElementById('fbStepProvider').style.display = '';
+      document.getElementById('fbStepModel').style.display = 'none';
+      document.getElementById('fbBackBtn').style.display = 'none';
+      document.getElementById('fbAddBtn').style.display = 'none';
+      document.getElementById('fbSelCount').textContent = '';
+      renderFallbackProviderList();
+      document.getElementById('fallbackModal').classList.add('active');
+      if (providerId) {
+        const p = findProvider(providerId);
+        if (p) pickFallbackProvider(providerId);
+      }
+    }
+
+    function renderFallbackProviderList() {
+      const list = document.getElementById('fbProviderList');
+      if (!list) return;
+      const q = (document.getElementById('fbProvSearch').value || '').toLowerCase();
+      const provs = (_nodeGraphData.providers || []).filter(p =>
+        !q || (p.name || '').toLowerCase().includes(q) || (p.id || '').toLowerCase().includes(q));
+      if (!provs.length) { list.innerHTML = '<div class="model-empty">No providers yet — add one first with ＋ Provider.</div>'; return; }
+      const pipeline = pipelineRoute() || {};
+      const chain = pipeline.fallback_chain || [];
+      list.innerHTML = provs.map(p => {
+        const inChain = chain.some(fb => fb.provider_id === p.id);
+        const isMain = pipeline.primary_provider_id === p.id;
+        const models = p.models || [];
+        const tags = [
+          isMain ? '<span class="mini-tag green">MAIN</span>' : '',
+          inChain ? '<span class="mini-tag amber">IN CHAIN</span>' : '',
+          p.enabled === false ? '<span class="mini-tag">OFF</span>' : '',
+        ].join('');
+        return `<div class="prov-pick" onclick="pickFallbackProvider('${jsStr(p.id)}')">
+          <span class="pi">${providerIcon(p.provider_type)}</span>
+          <span class="pm"><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.id)} · ${escapeHtml(p.provider_type)} · ${models.length} model${models.length === 1 ? '' : 's'}</small></span>
+          <span class="tags">${tags}</span>
+        </div>`;
+      }).join('');
+    }
+
+    function pickFallbackProvider(providerId) {
+      const p = findProvider(providerId);
+      if (!p) return;
+      if (!(p.models || []).length) { showToast('Fallback Node', `'${p.name}' has no models — edit the provider first.`, 'warning'); return; }
+      _fbWizard.providerId = providerId;
+      _fbWizard.model = '';
+      document.getElementById('fbStepProvider').style.display = 'none';
+      document.getElementById('fbStepModel').style.display = '';
+      document.getElementById('fbBackBtn').style.display = '';
+      document.getElementById('fbAddBtn').style.display = '';
+      document.getElementById('fbPickedIco').textContent = providerIcon(p.provider_type);
+      document.getElementById('fbPickedName').textContent = p.name;
+      document.getElementById('fbPickedMeta').textContent = `${p.id} · ${p.provider_type} · ${(p.models || []).length} models`;
+      const freeCount = (p.models || []).filter(m => guessModelTierClient(p.provider_type, m) === 'free').length;
+      document.getElementById('fbFreeCount').textContent = freeCount;
+      document.getElementById('fbPaidCount').textContent = (p.models || []).length - freeCount;
+      setFbTier(freeCount ? 'free' : 'paid');
+    }
+
+    function fbBackToProviders() {
+      document.getElementById('fbStepProvider').style.display = '';
+      document.getElementById('fbStepModel').style.display = 'none';
+      document.getElementById('fbBackBtn').style.display = 'none';
+      document.getElementById('fbAddBtn').style.display = 'none';
+      document.getElementById('fbSelCount').textContent = '';
+    }
+
+    function setFbTier(tier) {
+      _fbWizard.tier = tier;
+      document.getElementById('fbTabFree').classList.toggle('active', tier === 'free');
+      document.getElementById('fbTabPaid').classList.toggle('active', tier === 'paid');
+      renderFbModelList();
+    }
+
+    function renderFbModelList() {
+      const p = findProvider(_fbWizard.providerId);
+      const list = document.getElementById('fbModelList');
+      if (!p || !list) return;
+      const q = (document.getElementById('fbModelSearch').value || '').toLowerCase();
+      const models = (p.models || []).filter(m =>
+        guessModelTierClient(p.provider_type, m) === _fbWizard.tier && (!q || m.toLowerCase().includes(q)));
+      if (!models.length) {
+        list.innerHTML = `<div class="model-empty">No ${_fbWizard.tier} models${q ? ' match this search' : ''} for this provider.</div>`;
+      } else {
+        list.innerHTML = models.map(m => {
+          const sel = _fbWizard.model === m ? ' sel' : '';
+          return `<div class="model-row${sel}" onclick="pickFbModel('${jsStr(m)}')">
+            <span class="cb"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            <span class="mi"><b>${escapeHtml(m)}</b></span>
+            <span class="tier-pill ${_fbWizard.tier}">${_fbWizard.tier === 'free' ? 'FREE' : 'PAID'}</span>
+          </div>`;
+        }).join('');
+      }
+      document.getElementById('fbSelCount').textContent = _fbWizard.model ? `Selected: ${_fbWizard.model}` : 'Pick one model for this fallback';
+    }
+
+    function pickFbModel(model) { _fbWizard.model = model; renderFbModelList(); }
+
+    async function submitFallbackNode() {
+      const p = findProvider(_fbWizard.providerId);
+      if (!p || !_fbWizard.model) { showToast('Fallback Node', 'Pick a provider and a model first.', 'warning'); return; }
+      const pipeline = pipelineRoute();
+      if (!pipeline) { showToast('Fallback Node', 'No pipeline route yet — drag a ⚡Direct wire into the chip first.', 'warning'); return; }
+      const chain = (pipeline.fallback_chain || []).slice();
+      if (chain.some(fb => fb.provider_id === p.id && fb.model === _fbWizard.model)) {
+        showToast('Already In Chain', `${p.id} · ${_fbWizard.model} is already a fallback.`, 'info');
+        closeModal('fallbackModal'); return;
+      }
+      chain.push({ provider_id: p.id, model: _fbWizard.model, kind: 'fallback' });
+      await persistRoute('default', pipeline.primary_provider_id, pipeline.primary_model, chain, pipeline.cooldown_seconds ?? 300, pipeline.max_retries ?? 3, true);
+      placeNewNode(fbNodeId(p.id, _fbWizard.model), NODE_COLS.fb, 140);
+      closeModal('fallbackModal');
+      showToast('Fallback Node Added', `${p.name} · ${_fbWizard.model} takes over automatically if the main provider fails.`, 'success');
+      await reloadNodeStudio();
+      setTimeout(drawNodeWires, 100);
+      highlightNode('dv_node_' + fbNodeId(p.id, _fbWizard.model));
+    }
+
+    async function removeFallbackNode(providerId, model) {
+      const pipeline = pipelineRoute();
+      if (!pipeline) return;
+      if (!confirm(`Remove fallback ${providerId} · ${model}?`)) return;
+      const chain = (pipeline.fallback_chain || []).filter(fb => !(fb.provider_id === providerId && (!model || fb.model === model)));
+      await persistRoute('default', pipeline.primary_provider_id, pipeline.primary_model, chain, pipeline.cooldown_seconds ?? 300, pipeline.max_retries ?? 3, true);
+      showToast('Fallback Removed', `${providerId} · ${model} removed from the failover chain.`, 'info');
     }
 
     // ── Engine nodes (provider + model pairs) ───────────────────────────
@@ -7288,50 +8264,58 @@
 
     // ── Connection engine: connect / disconnect (all persisted) ─────────
 
-    async function connectSourceToRoute(source, routeName) {
-      const route = findRoute(routeName);
-      if (!route) { showToast('Connection Failed', `Route '${routeName}' not found.`, 'error'); return; }
-      const model = source.model || 'default';
-      const chain = (route.fallback_chain || []).slice();
+    // ── Chip wiring: ⚡Direct → main provider · ⟳Fallback → chain ──────
 
-      const isSameAsPrimary = route.primary_provider_id === source.provider_id;
-      const chainStep = chain.find(fb => fb.provider_id === source.provider_id);
+    async function setPipelinePrimary(source) {
+      const p = findProvider(source.provider_id);
+      if (!p) { showToast('Wire To Chip', `Provider '${source.provider_id}' no longer exists.`, 'error'); return; }
+      const model = source.model || firstModelOf(p);
+      const pipeline = pipelineRoute();
+      const curPrimary = pipeline ? pipeline.primary_provider_id : '';
+      const curModel = pipeline ? pipeline.primary_model : '';
+      if (curPrimary === p.id && curModel === model) {
+        showToast('Already Wired', `${p.id} is already the main provider (⚡ Direct).`, 'info'); return;
+      }
+      let chain = pipeline ? (pipeline.fallback_chain || []).slice() : [];
+      // demote the previous main provider into the failover chain (never lose a wire)
+      if (curPrimary && curPrimary !== p.id && !chain.some(fb => fb.provider_id === curPrimary)) {
+        chain.unshift({ provider_id: curPrimary, model: curModel, kind: 'fallback' });
+      }
+      // the new main provider must not also sit in the chain
+      chain = chain.filter(fb => fb.provider_id !== p.id);
+      await persistRoute('default', p.id, model, chain, (pipeline && pipeline.cooldown_seconds) ?? 300, (pipeline && pipeline.max_retries) ?? 3, true);
+      const demoted = (curPrimary && curPrimary !== p.id) ? ` · ${curPrimary} moved into the fallback chain` : '';
+      showToast('Main Provider Wired', `${p.name} · ${model} now feeds the chip directly${demoted}.`, 'success');
+    }
 
-      if (isSameAsPrimary) {
-        if (route.primary_model !== model) {
-          // Re-pin the primary model via this engine node
-          await persistRoute(routeName, route.primary_provider_id, model, chain, route.cooldown_seconds, route.max_retries, true);
-          showToast('Primary Model Pinned', `'${routeName}' primary now uses ${model}.`, 'success');
-        } else {
-          showToast('Already Connected', `${source.provider_id} is already the primary of '${routeName}'.`, 'info');
-        }
-        return;
+    function addChipNode() {
+      setChipHidden(false);
+      if (!_nodePositions['chip_core']) {
+        const vp = document.getElementById('nodeViewport');
+        const vw = (vp && vp.clientWidth) || 1200;
+        const vh = (vp && vp.clientHeight) || 560;
+        _nodePositions['chip_core'] = { x: Math.max(1000, vw - 310), y: Math.max(70, Math.round(vh / 2) - 120) };
+        saveNodePositions();
       }
-      if (chainStep) {
-        if (chainStep.model !== model) {
-          chainStep.model = model;
-          await persistRoute(routeName, route.primary_provider_id, route.primary_model, chain, route.cooldown_seconds, route.max_retries, true);
-          showToast('Fallback Model Pinned', `'${routeName}' fallback now uses ${model}.`, 'success');
-        } else {
-          showToast('Already Connected', `${source.provider_id} is already in the fallback chain of '${routeName}'.`, 'info');
-        }
-        return;
-      }
-      if (!route.primary_provider_id) {
-        await persistRoute(routeName, source.provider_id, model, chain, route.cooldown_seconds, route.max_retries, true);
-        showToast('Primary Connected', `${source.provider_id} set as primary of '${routeName}'.`, 'success');
-        return;
-      }
-      chain.push({ provider_id: source.provider_id, model });
-      await persistRoute(routeName, route.primary_provider_id, route.primary_model, chain, route.cooldown_seconds, route.max_retries, true);
-      showToast('Fallback Linked', `${source.provider_id} appended to '${routeName}' failover chain.`, 'success');
+      showToast('Chip Node Active', 'The Hyper Motion chip is on the canvas — wire providers & agents into it.', 'success');
+      renderNodeGraph();
+      setTimeout(drawNodeWires, 60);
+    }
+
+    function removeChipNode() {
+      if (!confirm('Remove the Hyper Motion chip node from the canvas?\nNo backend data is touched — use the 🧠 Chip button to bring it back.')) return;
+      setChipHidden(true);
+      showToast('Chip Node Hidden', 'Pipeline routes are untouched — re-add it with 🧠 Chip.', 'info');
+      renderNodeGraph();
     }
 
     async function disconnectEdgeFromRoute(edge) {
+      if (edge.role === 'agent') { await unwireAgentNode(edge.route_name); return; }
       const route = findRoute(edge.route_name);
       if (!route) return;
-      const who = edge.role === 'primary' ? 'primary provider' : 'fallback link';
-      if (!confirm(`Disconnect ${edge.provider_id} (${who}) from route '${edge.route_name}'?`)) return;
+      const who = edge.role === 'primary' ? 'main provider' : 'fallback';
+      const label = edge.model ? `${edge.provider_id} · ${edge.model}` : edge.provider_id;
+      if (!confirm(`Disconnect ${label} (${who}) from the chip?`)) return;
 
       let chain = (route.fallback_chain || []).slice();
       let primary_provider_id = route.primary_provider_id;
@@ -7342,11 +8326,11 @@
           const next = chain.shift();
           primary_provider_id = next.provider_id;
           primary_model = next.model || firstModelOf(findProvider(next.provider_id));
-          showToast('Primary Promoted', `${primary_provider_id} promoted to primary of '${edge.route_name}'.`, 'info');
+          showToast('Primary Promoted', `${primary_provider_id} promoted to main provider.`, 'info');
         } else {
           const alt = (_nodeGraphData.providers || []).find(p => p.id !== edge.provider_id && p.enabled !== false);
           if (!alt) {
-            showToast('Disconnect Blocked', 'A route needs at least one provider — add another provider node first.', 'warning');
+            showToast('Disconnect Blocked', 'The chip needs at least one provider — add another provider node first.', 'warning');
             return;
           }
           primary_provider_id = alt.id;
@@ -7354,58 +8338,13 @@
           showToast('Primary Replaced', `Switched to ${alt.id} (last remaining provider).`, 'info');
         }
       } else {
-        chain = chain.filter(fb => fb.provider_id !== edge.provider_id);
+        chain = chain.filter(fb => !(fb.provider_id === edge.provider_id && (!edge.model || fb.model === edge.model)));
       }
       await persistRoute(edge.route_name, primary_provider_id, primary_model, chain, route.cooldown_seconds, route.max_retries, true);
     }
 
-    // ── Guided link mode (context menu → "Add Fallback Link") ───────────
-
-    function startFallbackLinkMode() {
-      _linkMode = { stage: 0, source: null, sourceNodeId: null };
-      const hint = document.getElementById('nodeLinkHint');
-      if (hint) {
-        hint.style.display = 'flex';
-        const span = hint.querySelector('span');
-        if (span) span.textContent = 'ADD FALLBACK: click a Provider or Engine node…';
-      }
-    }
-    function cancelFallbackLinkMode() {
-      _linkMode = null;
-      const hint = document.getElementById('nodeLinkHint');
-      if (hint) hint.style.display = 'none';
-      document.querySelectorAll('.dv-node.link-source').forEach(n => n.classList.remove('link-source'));
-    }
-    function handleLinkModeClick(nodeEl) {
-      if (!_linkMode) return;
-      const nt = nodeEl.dataset.nodetype;
-      const hint = document.getElementById('nodeLinkHint');
-      const span = hint ? hint.querySelector('span') : null;
-      if (_linkMode.stage === 0) {
-        if (nt === 'provider') {
-          _linkMode.source = { provider_id: nodeEl.dataset.nodeRef, model: firstModelOf(findProvider(nodeEl.dataset.nodeRef)) };
-        } else if (nt === 'engine') {
-          const eng = findEngineByNodeId(nodeEl.dataset.nodeRef);
-          if (!eng) return;
-          _linkMode.source = { provider_id: eng.provider_id, model: eng.model };
-        } else {
-          showToast('Add Fallback Link', 'First click a Provider or Engine node.', 'warning');
-          return;
-        }
-        _linkMode.stage = 1;
-        _linkMode.sourceNodeId = nodeEl.dataset.nodeRef;
-        nodeEl.classList.add('link-source');
-        if (span) span.textContent = `ADD FALLBACK: now click the Route node to receive '${_linkMode.source.provider_id}'…`;
-      } else if (_linkMode.stage === 1) {
-        if (nt !== 'route') {
-          showToast('Add Fallback Link', 'Now click a Route node to complete the link.', 'warning');
-          return;
-        }
-        const src = _linkMode.source;
-        cancelFallbackLinkMode();
-        connectSourceToRoute(src, nodeEl.dataset.nodeRef);
-      }
-    }
+    // Guided "Add Fallback Link" mode was replaced by the ⟳ Fallback wizard
+    // (provider → free/paid model → small fallback node wired to the chip).
 
     async function runRouteTest() {
       const routeName = document.getElementById('testRouteSelect').value;
@@ -7413,11 +8352,17 @@
       const output = document.getElementById('testRouteOutput');
       output.textContent = `⚡ Executing node pipeline through route node [${routeName}]...`;
 
-      // Visual pulse on the matching route node in canvas
-      const nodeEl = document.getElementById(`dv_node_route_${routeName}`);
+      // Visual pulse on the matching agent node in the canvas (or the chip)
+      const nodeEl = document.getElementById(`dv_node_agent_${routeName}`);
       if (nodeEl) {
         nodeEl.classList.add('selected');
         setTimeout(() => nodeEl.classList.remove('selected'), 1200);
+      } else {
+        const chip = document.getElementById('dv_node_chip_core');
+        if (chip) {
+          chip.classList.add('selected');
+          setTimeout(() => chip.classList.remove('selected'), 1200);
+        }
       }
 
       const res = await fetch('/api/omniroute/test-route', {
@@ -7439,41 +8384,43 @@
       const vw = vp ? vp.clientWidth : 1200;
       const provs = _nodeGraphData.providers || [];
       const engines = _nodeGraphData.engines || [];
-      const routes = _nodeGraphData.routes || [];
+      const pipeline = pipelineRoute();
+      const chain = (pipeline && pipeline.fallback_chain) || [];
+      const agentRoutes = agentRouteNodes();
+      const drafts = draftAgents();
+      const chipOn = !chipHidden();
 
-      const colProv = 40;
-      const colEng = 300;
-      const colRoute = Math.min(600, Math.max(540, colEng + 240));
-      const colOut = Math.min(Math.max(colRoute + 240, vw - 250), 840);
+      const fitSpacing = (count, startY, min = 96, max = 160) =>
+        Math.max(min, Math.min(max, (Math.max(vh, 560) - startY - 40) / Math.max(count, 1)));
 
-      const fitSpacing = (count, startY) => Math.max(86, Math.min(150, (vh - startY - 30) / Math.max(count, 1)));
+      // Column 1 — providers
+      const provSp = fitSpacing(provs.length, 96);
+      provs.forEach((p, i) => { _nodePositions['prov_' + p.id] = { x: NODE_COLS.prov, y: 96 + i * provSp }; });
 
-      // Left column: Providers
-      const provSp = fitSpacing(provs.length, 70);
-      provs.forEach((p, idx) => {
-        _nodePositions['prov_' + p.id] = { x: colProv, y: 70 + (idx * provSp) };
-      });
+      // Column 2 — engines (pinned provider+model pairs)
+      const engSp = fitSpacing(engines.length, 96, 88, 150);
+      engines.forEach((e, i) => { _nodePositions[engineNodeId(e.provider_id, e.model)] = { x: NODE_COLS.eng, y: 96 + i * engSp }; });
 
-      // Engine column: engines grouped under their provider, orphans appended
-      const engList = [];
-      provs.forEach(p => engines.forEach(e => { if (e.provider_id === p.id && !engList.includes(e)) engList.push(e); }));
-      engines.forEach(e => { if (!engList.includes(e)) engList.push(e); });
-      const engSp = fitSpacing(engList.length, 70);
-      engList.forEach((e, idx) => {
-        _nodePositions[engineNodeId(e.provider_id, e.model)] = { x: colEng, y: 70 + (idx * engSp) };
-      });
+      // Column 3 — fallback chain (small failover nodes)
+      const fbSp = fitSpacing(chain.length, 112, 100, 150);
+      chain.forEach((f, i) => { _nodePositions[fbNodeId(f.provider_id, f.model)] = { x: NODE_COLS.fb, y: 112 + i * fbSp }; });
 
-      // Middle column: Routes (bound to orchestrator agents)
-      const routeSp = fitSpacing(routes.length, 80);
-      routes.forEach((r, idx) => {
-        _nodePositions['route_' + r.route_name] = { x: colRoute, y: 80 + (idx * routeSp) };
-      });
+      // Column 4 — agent nodes (wired routes + local drafts)
+      const agentKeys = [...agentRoutes.map(r => r.route_name), ...drafts.filter(d => !agentRoutes.some(r => r.route_name === d))];
+      const agSp = fitSpacing(agentKeys.length, 112, 100, 160);
+      agentKeys.forEach((k, i) => { _nodePositions['agent_' + k] = { x: NODE_COLS.agent, y: 112 + i * agSp }; });
 
-      // Right column: Final Output Node
-      _nodePositions['out_pipeline'] = { x: colOut, y: Math.max(80, (vh / 2) - 60) };
+      // Terminal — the Hyper Motion chip hugs the right edge
+      if (chipOn) {
+        _nodePositions['chip_core'] = {
+          x: Math.max(1000, vw - 310),
+          y: Math.max(80, Math.round(Math.max(vh, 560) / 2) - 130)
+        };
+      }
 
       saveNodePositions();
       renderNodeGraph();
+      setTimeout(drawNodeWires, 60);
     }
 
     function renderNodeGraph() {
@@ -7486,12 +8433,37 @@
       const provs = _nodeGraphData.providers || [];
       const routes = _nodeGraphData.routes || [];
       const engines = _nodeGraphData.engines || [];
+      const pipeline = pipelineRoute();
+      const chain = (pipeline && pipeline.fallback_chain) || [];
+      const agentRoutes = agentRouteNodes();
+      const drafts = draftAgents();
+      const chipOn = !chipHidden();
+      const vpEl = document.getElementById('nodeViewport');
+      const vw = (vpEl && vpEl.clientWidth) || 1200;
+      const vh = (vpEl && vpEl.clientHeight) || 560;
 
       if (summaryEl) {
-        summaryEl.textContent = `${provs.length} Providers · ${engines.length} Engines · ${routes.length} Routes`;
+        summaryEl.textContent = `${provs.length} Providers · ${engines.length} Engines · ${chain.length} Fallbacks · ${agentRoutes.length + drafts.length} Agent nodes`;
       }
 
-      // Friendly empty-state overlay (only when the whole graph is empty)
+      // Live pipeline health → toolbar chip
+      const health = document.getElementById('nodeHealthChip');
+      const healthText = document.getElementById('nodeHealthText');
+      if (health && healthText) {
+        const mainP = pipeline ? findProvider(pipeline.primary_provider_id) : null;
+        if (!chipOn) {
+          health.className = 'node-health-chip warn';
+          healthText.textContent = 'Chip node hidden — use 🧠 Chip';
+        } else if (!mainP) {
+          health.className = 'node-health-chip warn';
+          healthText.textContent = 'No main provider — drag ⚡Direct into the chip';
+        } else {
+          health.className = 'node-health-chip';
+          healthText.textContent = `Pipeline OK · ${mainP.name} · ${chain.length} fallback${chain.length === 1 ? '' : 's'} · ${agentRoutes.length} agent${agentRoutes.length === 1 ? '' : 's'}`;
+        }
+      }
+
+      // Friendly empty-state overlay (only when the whole wiring is empty)
       const emptyEl = document.getElementById('nodeEmptyState');
       if (emptyEl) {
         emptyEl.style.display = (provs.length + routes.length + engines.length) === 0 ? 'flex' : 'none';
@@ -7500,15 +8472,46 @@
       // Populate quick inventory list below viewport
       if (listEl) {
         let itemsHtml = '';
+        if (chipOn) {
+          const mainP = pipeline ? findProvider(pipeline.primary_provider_id) : null;
+          itemsHtml += `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#161b22;border:1px solid rgba(139,92,246,0.4);border-radius:6px;font-size:11px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="node-legend-dot" style="background:#8b5cf6;"></span>
+                <strong style="color:#e6edf3;">🧠 Hyper Motion Chip</strong>
+                <span class="dv-node-meta-tag">${mainP ? escapeHtml(mainP.name) : 'not wired'}</span>
+                <span class="dv-node-meta-tag">${chain.length} fallbacks</span>
+              </div>
+              <button class="dv-node-btn" onclick="autoLayoutNodes()">Layout</button>
+            </div>
+          `;
+        }
         provs.forEach(p => {
+          const isMain = pipeline && pipeline.primary_provider_id === p.id;
           itemsHtml += `
             <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#161b22;border:1px solid #30363d;border-radius:6px;font-size:11px;">
               <div style="display:flex;align-items:center;gap:6px;">
-                <span class="node-legend-dot" style="background:#58a6ff;"></span>
+                <span class="node-legend-dot" style="background:${isMain ? '#3fb950' : '#58a6ff'};"></span>
                 <strong style="color:#e6edf3;">${escapeHtml(p.name)}</strong>
                 <span class="dv-node-meta-tag">${escapeHtml(p.provider_type)}</span>
+                ${isMain ? '<span class="mini-tag green">MAIN</span>' : ''}
               </div>
-              <button class="dv-node-btn" onclick="testProviderLatency('${jsStr(p.provider_type)}', '${jsStr((p.models || [])[0] || '')}', '${jsStr(p.id)}')">Ping</button>
+              <div style="display:flex;gap:4px;">
+                <button class="dv-node-btn" onclick="testProviderLatency('${jsStr(p.provider_type)}', '${jsStr((p.models || [])[0] || '')}', '${jsStr(p.id)}')">Ping</button>
+                <button class="dv-node-btn" onclick="openFallbackModal('${jsStr(p.id)}')">⟳</button>
+              </div>
+            </div>
+          `;
+        });
+        chain.forEach((f, i) => {
+          itemsHtml += `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#161b22;border:1px solid rgba(210,153,34,0.35);border-radius:6px;font-size:11px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="node-legend-dot" style="background:#d29922;"></span>
+                <strong style="color:#e6edf3;">⟳ Fallback #${i + 1}</strong>
+                <span class="dv-node-meta-tag">${escapeHtml(f.provider_id)} · ${escapeHtml(f.model)}</span>
+              </div>
+              <button class="dv-node-btn danger" onclick="removeFallbackNode('${jsStr(f.provider_id)}', '${jsStr(f.model)}')">Remove</button>
             </div>
           `;
         });
@@ -7524,15 +8527,20 @@
             </div>
           `;
         });
-        routes.forEach(r => {
+        const agentKeys = [...agentRoutes.map(r => ({ key: r.route_name, wired: true })), ...drafts.filter(d => !agentRoutes.some(r => r.route_name === d)).map(d => ({ key: d, wired: false }))];
+        agentKeys.forEach(({ key, wired }) => {
+          const info = agentForRoute(key);
           itemsHtml += `
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#161b22;border:1px solid #30363d;border-radius:6px;font-size:11px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#161b22;border:1px solid ${wired ? '#30363d' : 'rgba(210,153,34,0.4)'};border-radius:6px;font-size:11px;">
               <div style="display:flex;align-items:center;gap:6px;">
-                <span class="node-legend-dot" style="background:#2ea043;"></span>
-                <strong style="color:#e6edf3;">Route: ${escapeHtml(r.route_name)}</strong>
-                <span class="dv-node-meta-tag">${escapeHtml(r.primary_model)}</span>
+                <span class="node-legend-dot" style="background:${wired ? '#39c5cf' : '#d29922'};"></span>
+                <strong style="color:#e6edf3;">🤖 ${escapeHtml(info ? info.label : key)}</strong>
+                <span class="dv-node-meta-tag">${wired ? 'wired' : '⚠ not wired'}</span>
               </div>
-              <button class="dv-node-btn danger" onclick="deleteRoute('${jsStr(r.route_name)}')">Remove</button>
+              <div style="display:flex;gap:4px;">
+                ${wired ? `<button class="dv-node-btn" onclick="testRouteQuick('${jsStr(key)}')">Test</button>` : `<button class="dv-node-btn" onclick="wireAgentNode('${jsStr(key)}')">Wire</button>`}
+                <button class="dv-node-btn danger" onclick="removeAgentNode('${jsStr(key)}')">Remove</button>
+              </div>
             </div>
           `;
         });
@@ -7541,71 +8549,84 @@
 
       // Default layout if not initialized
       provs.forEach((p, idx) => {
-        if (!_nodePositions['prov_' + p.id]) {
-          _nodePositions['prov_' + p.id] = { x: 40, y: 70 + (idx * 140) };
-        }
+        if (!_nodePositions['prov_' + p.id]) _nodePositions['prov_' + p.id] = { x: NODE_COLS.prov, y: 96 + idx * 150 };
       });
       engines.forEach((e, idx) => {
         const eid = engineNodeId(e.provider_id, e.model);
-        if (!_nodePositions[eid]) {
-          _nodePositions[eid] = { x: 300, y: 70 + (idx * 130) };
-        }
+        if (!_nodePositions[eid]) _nodePositions[eid] = { x: NODE_COLS.eng, y: 96 + idx * 132 };
       });
-      routes.forEach((r, idx) => {
-        if (!_nodePositions['route_' + r.route_name]) {
-          _nodePositions['route_' + r.route_name] = { x: 540, y: 80 + (idx * 150) };
-        }
+      chain.forEach((f, idx) => {
+        const fid = fbNodeId(f.provider_id, f.model);
+        if (!_nodePositions[fid]) _nodePositions[fid] = { x: NODE_COLS.fb, y: 112 + idx * 120 };
       });
-      if (!_nodePositions['out_pipeline']) {
-        _nodePositions['out_pipeline'] = { x: 800, y: 160 };
+      const agentKeys = [...agentRoutes.map(r => r.route_name), ...drafts.filter(d => !agentRoutes.some(r => r.route_name === d))];
+      agentKeys.forEach((k, idx) => {
+        if (!_nodePositions['agent_' + k]) _nodePositions['agent_' + k] = { x: NODE_COLS.agent, y: 112 + idx * 146 };
+      });
+      if (chipOn && !_nodePositions['chip_core']) {
+        _nodePositions['chip_core'] = { x: Math.max(1000, vw - 310), y: Math.max(80, Math.round(Math.max(vh, 560) / 2) - 130) };
       }
 
       // Build HTML nodes
       let nodesHtml = '';
 
-      // 1. Provider Nodes (Source Nodes like DaVinci MediaIn / Blender Texture)
+      // Column labels — painted onto the board
+      nodesHtml += `<div class="dv-col-label" style="left:${NODE_COLS.prov + 4}px;">Providers</div>`;
+      if (engines.length) nodesHtml += `<div class="dv-col-label" style="left:${NODE_COLS.eng + 4}px;">Engines</div>`;
+      if (chain.length) nodesHtml += `<div class="dv-col-label" style="left:${NODE_COLS.fb + 4}px;">Fallback chain</div>`;
+      if (agentKeys.length) nodesHtml += `<div class="dv-col-label" style="left:${NODE_COLS.agent + 4}px;">Agents</div>`;
+      if (chipOn) nodesHtml += `<div class="dv-col-label" style="right:18px;">Hyper Motion core</div>`;
+
+      // 1. Provider Nodes — two outputs: ⚡Direct (main) & ⟳Fallback (failover)
       provs.forEach(p => {
-        const pos = _nodePositions['prov_' + p.id] || { x: 40, y: 70 };
-        const modelStr = (p.models && p.models.length) ? p.models[0] : 'default';
+        const pos = _nodePositions['prov_' + p.id] || { x: NODE_COLS.prov, y: 96 };
+        const models = p.models || [];
+        const isMain = pipeline && pipeline.primary_provider_id === p.id;
+        const fbCount = chain.filter(fb => fb.provider_id === p.id).length;
         nodesHtml += `
           <div class="dv-node" id="dv_node_prov_${p.id}" data-node-id="prov_${p.id}" data-nodetype="provider" data-node-ref="${p.id}" style="left:${pos.x}px;top:${pos.y}px;pointer-events:auto;">
             <div class="dv-node-header node-color-provider" onmousedown="startNodeDrag(event, 'prov_${jsStr(p.id)}')">
-              <span>● ${escapeHtml((p.provider_type || '').toUpperCase())} NODE</span>
-              <span style="font-size:9px;opacity:0.85;">${p.enabled ? 'ACTIVE' : 'OFF'}</span>
+              <span>${providerIcon(p.provider_type)} PROVIDER · ${escapeHtml((p.provider_type || '').toUpperCase())}</span>
+              <span style="font-size:9px;opacity:0.9;">${isMain ? '⚡ MAIN' : (p.enabled ? 'ACTIVE' : 'OFF')}</span>
             </div>
             <div class="dv-node-body">
               <div class="dv-node-row">
-                <strong style="color:#ffffff;font-size:12px;">${escapeHtml(p.name)}</strong>
+                <strong style="color:#ffffff;font-size:12.5px;">${escapeHtml(p.name)}</strong>
+                <span class="dv-node-meta-tag">${escapeHtml(p.key_masked || '')}</span>
               </div>
               <div class="dv-node-row">
-                <span style="color:#8b949e;font-size:10px;">ID: ${escapeHtml(p.id)}</span>
-                <span class="dv-node-meta-tag">${escapeHtml(p.key_masked)}</span>
+                <span style="color:#8b949e;font-size:10px;">ID: ${escapeHtml(p.id)}${fbCount ? ` · ${fbCount} fallback${fbCount === 1 ? '' : 's'}` : ''}</span>
+                <span style="color:#8b949e;font-size:10px;">${models.length} model${models.length === 1 ? '' : 's'}</span>
               </div>
               <div class="dv-node-row" style="margin-top:6px;border-top:1px solid #21262d;padding-top:6px;">
-                <span style="color:#8b949e;font-size:10px;">Engine: ${escapeHtml(modelStr)}</span>
+                <span style="color:#8b949e;font-size:10px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(models[0] || '')}">⚙ ${escapeHtml(models[0] || 'no models')}</span>
                 <div style="display:flex;gap:4px;">
-                  <button class="dv-node-btn" onclick="testProviderLatency('${jsStr(p.provider_type)}', '${jsStr(modelStr)}', '${jsStr(p.id)}')">Ping</button>
-                  <button class="dv-node-btn danger" onclick="deleteProvider('${jsStr(p.id)}')">✕</button>
+                  <button class="dv-node-btn" onclick="testProviderLatency('${jsStr(p.provider_type)}', '${jsStr(models[0] || '')}', '${jsStr(p.id)}')" title="Send a tiny live request">Ping</button>
+                  <button class="dv-node-btn" onclick="openFallbackModal('${jsStr(p.id)}')" title="Add a failover model for this provider">⟳</button>
+                  <button class="dv-node-btn" onclick="openEditProviderModal('${jsStr(p.id)}')" title="Edit provider">✎</button>
+                  <button class="dv-node-btn danger" onclick="deleteProvider('${jsStr(p.id)}')" title="Delete provider">✕</button>
                 </div>
               </div>
             </div>
-            <!-- Output Socket (DaVinci Cyan) -->
-            <div class="dv-socket output" id="socket_out_prov_${p.id}" data-socket="output" data-nodetype="provider" data-node="prov_${p.id}" data-provider="${escapeHtml(p.id)}" style="top:50%;" title="Provider Output — drag to a Route input" onmousedown="startSocketDrag(event, this)"></div>
+            <div class="dv-socket output direct-sock" id="socket_out_prov_${p.id}" data-socket="output" data-out="direct" data-nodetype="provider" data-node="prov_${p.id}" data-provider="${escapeHtml(p.id)}" style="top:34%;" title="⚡ Direct — drag into the chip to make this the MAIN provider" onmousedown="startSocketDrag(event, this)"></div>
+            <div class="dv-sock-label right" style="top:34%;">⚡ Direct</div>
+            <div class="dv-socket output fallback-sock" id="socket_out_fb_${p.id}" data-socket="output" data-out="fallback" data-nodetype="provider" data-node="prov_${p.id}" data-provider="${escapeHtml(p.id)}" style="top:72%;" title="⟳ Fallback — drag into the chip's ⟳ input to add a failover" onmousedown="startSocketDrag(event, this)"></div>
+            <div class="dv-sock-label right" style="top:72%;">⟳ Fallback</div>
           </div>
         `;
       });
 
-      // 2. Engine Nodes (provider + model pairs / DaVinci LUT / Blender Value nodes)
+      // 2. Engine Nodes (pinned provider + model → chip ⚡ input)
       engines.forEach(e => {
         const eid = engineNodeId(e.provider_id, e.model);
-        const pos = _nodePositions[eid] || { x: 300, y: 70 };
+        const pos = _nodePositions[eid] || { x: NODE_COLS.eng, y: 96 };
         const parent = findProvider(e.provider_id);
         const ptype = parent ? parent.provider_type : 'orphan';
         nodesHtml += `
           <div class="dv-node engine" id="dv_node_${eid}" data-node-id="${eid}" data-nodetype="engine" data-node-ref="${eid}" style="left:${pos.x}px;top:${pos.y}px;pointer-events:auto;">
             <div class="dv-node-header node-color-engine" onmousedown="startNodeDrag(event, '${eid}')">
               <span>⚙ ENGINE · ${escapeHtml((ptype || '').toUpperCase())}</span>
-              <span style="font-size:9px;opacity:0.85;">MODEL</span>
+              <span style="font-size:9px;opacity:0.9;">${parent ? 'MODEL' : 'ORPHAN'}</span>
             </div>
             <div class="dv-node-body">
               <div class="dv-node-row">
@@ -7622,71 +8643,118 @@
                 </div>
               </div>
             </div>
-            <!-- Output Socket (Teal) -->
-            <div class="dv-socket output" id="socket_out_${eid}" data-socket="output" data-nodetype="engine" data-node="${eid}" data-provider="${escapeHtml(e.provider_id)}" data-model="${escapeHtml(e.model)}" style="top:50%;" title="Engine Output — drag to a Route input" onmousedown="startSocketDrag(event, this)"></div>
+            <div class="dv-socket output direct-sock" id="socket_out_${eid}" data-socket="output" data-out="direct" data-nodetype="engine" data-node="${eid}" data-provider="${escapeHtml(e.provider_id)}" data-model="${escapeHtml(e.model)}" style="top:50%;" title="⚡ Direct — drag into the chip to pin this model as the MAIN" onmousedown="startSocketDrag(event, this)"></div>
+            <div class="dv-sock-label right" style="top:50%;">⚡ Direct</div>
           </div>
         `;
       });
 
-      // 3. Route Nodes (Transform/Grade Nodes like DaVinci Corrector / Blender Shader)
-      routes.forEach(r => {
-        const pos = _nodePositions['route_' + r.route_name] || { x: 540, y: 80 };
-        const fbCount = (r.fallback_chain || []).length;
+      // 3. Fallback Nodes — small failover links between provider ⟳ and the chip
+      chain.forEach((f, idx) => {
+        const fid = fbNodeId(f.provider_id, f.model);
+        const pos = _nodePositions[fid] || { x: NODE_COLS.fb, y: 112 };
+        const parent = findProvider(f.provider_id);
         nodesHtml += `
-          <div class="dv-node" id="dv_node_route_${r.route_name}" data-node-id="route_${r.route_name}" data-nodetype="route" data-node-ref="${escapeHtml(r.route_name)}" style="left:${pos.x}px;top:${pos.y}px;pointer-events:auto;">
-            <!-- Input Socket (Blender Orange) — drop a provider/engine wire here -->
-            <div class="dv-socket input" id="socket_in_route_${r.route_name}" data-socket="input" data-nodetype="route" data-node="route_${r.route_name}" data-route="${escapeHtml(r.route_name)}" style="top:50%;" title="Route Input — drag from a Provider/Engine output" onmousedown="startSocketDrag(event, this)"></div>
-
-            <div class="dv-node-header node-color-route" onmousedown="startNodeDrag(event, 'route_${jsStr(r.route_name)}')">
-              <span>⚡ ROUTE: ${escapeHtml((r.route_name || '').toUpperCase())}</span>
-              <span style="font-size:9px;opacity:0.85;">CASCADE</span>
+          <div class="dv-node small fallback-node" id="dv_node_${fid}" data-node-id="${fid}" data-nodetype="fallback" data-node-ref="${escapeHtml(f.provider_id)}" data-model="${escapeHtml(f.model)}" style="left:${pos.x}px;top:${pos.y}px;pointer-events:auto;">
+            <div class="dv-node-header node-color-fallback" onmousedown="startNodeDrag(event, '${fid}')">
+              <span>⟳ FALLBACK #${idx + 1}</span>
+              <span style="font-size:9px;opacity:0.9;">AUTO</span>
             </div>
             <div class="dv-node-body">
               <div class="dv-node-row">
-                <span style="color:#8b949e;font-size:10px;">Primary:</span>
-                <span class="dv-node-meta-tag" style="color:#3fb950;border-color:rgba(46,160,67,0.4);">${escapeHtml(r.primary_provider_id)} → ${escapeHtml(r.primary_model)}</span>
+                <strong style="color:#ffffff;font-size:10.5px;">${escapeHtml(parent ? parent.name : f.provider_id)}</strong>
+                <button class="dv-node-btn danger" onclick="removeFallbackNode('${jsStr(f.provider_id)}', '${jsStr(f.model)}')" title="Remove from chain">✕</button>
               </div>
-              <div class="dv-node-row">
-                <span style="color:#8b949e;font-size:10px;">Fallback Chain:</span>
-                <span class="dv-node-meta-tag" style="color:#bc8cff;">${fbCount} failover${fbCount !== 1 ? 's' : ''}</span>
-              </div>
-              <div class="dv-node-row" style="margin-top:6px;border-top:1px solid #21262d;padding-top:6px;">
-                <span style="color:#8b949e;font-size:10px;">Cooldown: ${r.cooldown_seconds}s</span>
-                <div style="display:flex;gap:4px;">
-                  <button class="dv-node-btn" onclick="testRouteQuick('${jsStr(r.route_name)}')">Test</button>
-                  <button class="dv-node-btn danger" onclick="deleteRoute('${jsStr(r.route_name)}')">Delete</button>
-                </div>
+              <div class="dv-node-row" style="margin:0;">
+                <span class="dv-node-meta-tag" style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(f.model)}">${escapeHtml(f.model)}</span>
               </div>
             </div>
-
-            <!-- Output Socket to Master Pipeline -->
-            <div class="dv-socket output" id="socket_out_route_${r.route_name}" style="top:50%;" title="Route Output Socket"></div>
+            <div class="dv-socket input static-sock" id="socket_in_${fid}" style="top:50%;" title="Failover wire from the provider's ⟳ output"></div>
+            <div class="dv-socket output static-sock" id="socket_out_${fid}" style="top:50%;" title="Feeds the chip's ⟳ input"></div>
           </div>
         `;
       });
 
-      // 4. Final Master Engine Node (DaVinci MediaOut / Blender Material Output)
-      const outPos = _nodePositions['out_pipeline'] || { x: 800, y: 160 };
-      nodesHtml += `
-        <div class="dv-node" id="dv_node_out_pipeline" data-node-id="out_pipeline" data-nodetype="output" data-node-ref="out_pipeline" style="left:${outPos.x}px;top:${outPos.y}px;pointer-events:auto;width:220px;">
-          <!-- Input Socket -->
-          <div class="dv-socket input" id="socket_in_out_pipeline" style="top:50%;" title="Engine Ingest Socket"></div>
+      // 4. Agent Nodes — must be wired into the chip or they won't run
+      agentKeys.forEach(key => {
+        const pos = _nodePositions['agent_' + key] || { x: NODE_COLS.agent, y: 112 };
+        const route = findRoute(key);
+        const wired = !!route;
+        const info = agentForRoute(key);
+        const label = info ? info.label : key;
+        const routeMeta = wired
+          ? `<span class="dv-node-meta-tag" style="color:#3fb950;border-color:rgba(63,185,80,0.35);">route: ${escapeHtml(key)}</span>`
+          : `<span class="dv-node-meta-tag" style="color:#d29922;border-color:rgba(210,153,34,0.4);">⚠ not wired</span>`;
+        nodesHtml += `
+          <div class="dv-node agent-node${wired ? '' : ' unwired'}" id="dv_node_agent_${key}" data-node-id="agent_${key}" data-nodetype="agent" data-node-ref="${escapeHtml(key)}" style="left:${pos.x}px;top:${pos.y}px;pointer-events:auto;">
+            <div class="dv-node-header node-color-agent" onmousedown="startNodeDrag(event, 'agent_${jsStr(key)}')">
+              <span>🤖 AGENT</span>
+              <span style="font-size:9px;opacity:0.9;">${wired ? 'WIRED' : 'DRAFT'}</span>
+            </div>
+            <div class="dv-node-body">
+              <div class="dv-node-row">
+                <strong style="color:#ffffff;font-size:12px;">${escapeHtml(label)}</strong>
+                ${info && info.fact_critical ? '<span class="dv-node-meta-tag" style="color:#f0883e;border-color:rgba(240,136,62,0.4);">⚠ FACT</span>' : ''}
+              </div>
+              <div class="dv-node-row">
+                <span class="dv-agent-role">${escapeHtml(key)}${wired && route ? ' · ' + escapeHtml(route.primary_model || '') : ''}</span>
+              </div>
+              <div class="dv-node-row" style="margin:7px 0 0;border-top:1px solid #21262d;padding-top:6px;">
+                ${routeMeta}
+                <div style="display:flex;gap:4px;">
+                  ${wired ? `<button class="dv-node-btn" onclick="testRouteQuick('${jsStr(key)}')" title="Run a live test through this agent's lane">Test</button>` : `<button class="dv-node-btn" onclick="wireAgentNode('${jsStr(key)}')" title="Wire this draft directly">Wire</button>`}
+                  <button class="dv-node-btn danger" onclick="removeAgentNode('${jsStr(key)}')" title="Remove agent node">✕</button>
+                </div>
+              </div>
+            </div>
+            <div class="dv-socket output agent-sock" id="socket_out_agent_${key}" data-socket="output" data-out="agent" data-nodetype="agent" data-node="agent_${key}" data-agent="${escapeHtml(key)}" style="top:50%;" title="🤖 Agent output" onmousedown="startSocketDrag(event, this)"></div>
+            <div class="dv-sock-label right" style="top:50%;">🤖 Out</div>
+          </div>
+        `;
+      });
 
-          <div class="dv-node-header node-color-output" onmousedown="startNodeDrag(event, 'out_pipeline')">
-            <span>● AGENT PIPELINE</span>
-            <span style="font-size:9px;opacity:0.85;">OUTPUT</span>
+      // 5. The Hyper Motion Chip — the core sink every provider & agent needs
+      if (chipOn) {
+        const cpos = _nodePositions['chip_core'] || { x: Math.max(1000, vw - 310), y: 140 };
+        const mainP = pipeline ? findProvider(pipeline.primary_provider_id) : null;
+        const rosterSize = (_nodeGraphData.agents || []).length || agentRoutes.length;
+        const status = (!pipeline || !mainP)
+          ? '<div class="dv-chip-status err">⛔ NOT WIRED — connect a ⚡ Direct provider</div>'
+          : '<div class="dv-chip-status ok">● OPERATIONAL</div>';
+        nodesHtml += `
+          <div class="dv-node chip-node" id="dv_node_chip_core" data-node-id="chip_core" data-nodetype="chip" style="left:${cpos.x}px;top:${cpos.y}px;pointer-events:auto;">
+            <div class="dv-node-header" style="background:linear-gradient(135deg,#8957e5,#0e7490);color:#fff;" onmousedown="startNodeDrag(event, 'chip_core')">
+              <span>🧠 HYPER MOTION CHIP</span>
+              <span style="font-size:9px;opacity:0.9;">CORE</span>
+            </div>
+            <div class="dv-node-body">
+              <div class="dv-node-row">
+                <span style="color:#8b949e;font-size:10px;">Main provider:</span>
+                <span class="dv-node-meta-tag" style="color:${mainP ? '#3fb950' : '#f85149'};border-color:${mainP ? 'rgba(63,185,80,0.35)' : 'rgba(248,81,73,0.35)'};">${mainP ? escapeHtml(mainP.name) + ' · ' + escapeHtml(pipeline.primary_model || '') : 'none'}</span>
+              </div>
+              <div class="dv-node-row">
+                <span style="color:#8b949e;font-size:10px;">Fallback chain:</span>
+                <span class="dv-node-meta-tag" style="color:#d29922;border-color:rgba(210,153,34,0.4);">${chain.length} failover${chain.length === 1 ? '' : 's'}</span>
+              </div>
+              <div class="dv-node-row">
+                <span style="color:#8b949e;font-size:10px;">Agents wired:</span>
+                <span class="dv-node-meta-tag" style="color:#39c5cf;border-color:rgba(57,197,207,0.4);">${agentRoutes.length} / ${rosterSize}</span>
+              </div>
+              <div class="dv-node-row" style="margin-top:8px;">${status}</div>
+            </div>
+            <div class="dv-socket input chip-in direct-sock" id="socket_in_chip_direct" data-socket="input" data-in="direct" style="top:28%;" title="⚡ Main provider input — drop a provider/engine ⚡ Direct wire here"></div>
+            <div class="dv-sock-label left" style="top:28%;">⚡ Providers</div>
+            <div class="dv-socket input chip-in fallback-sock" id="socket_in_chip_fallback" data-socket="input" data-in="fallback" style="top:56%;" title="⟳ Failover input — drop a provider's ⟳ Fallback wire here"></div>
+            <div class="dv-sock-label left" style="top:56%;">⟳ Fallbacks</div>
+            <div class="dv-socket input chip-in agent-sock" id="socket_in_chip_agents" data-socket="input" data-in="agents" style="top:84%;" title="🤖 Agent input — drop agent outputs here to activate them"></div>
+            <div class="dv-sock-label left" style="top:84%;">🤖 Agents</div>
           </div>
-          <div class="dv-node-body">
-            <div style="font-size:11px;color:#e6edf3;font-weight:600;margin-bottom:4px;">Multi-Agent Orchestrator</div>
-            <p style="font-size:10px;color:#8b949e;line-height:1.4;margin:0 0 6px 0;">All agent calls (TrendHunter, FactChecker, ScriptForge) route through this master sink.</p>
-            <div class="dv-node-meta-tag" style="color:#7ee787;border-color:rgba(126,231,135,0.3);width:100%;text-align:center;">ONLINE & READY</div>
-          </div>
-        </div>
-      `;
+        `;
+      }
 
       container.innerHTML = nodesHtml;
 
-      // Draw DaVinci / Blender Bezier wires
+      // Draw the Bezier wires
       drawNodeWires();
     }
 
@@ -7720,7 +8788,9 @@
       if (edgeMeta) {
         path.dataset.edge = JSON.stringify(edgeMeta);
         const t = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-        t.textContent = `Click to disconnect ${edgeMeta.provider_id} (${edgeMeta.role}) from '${edgeMeta.route_name}'`;
+        t.textContent = edgeMeta.role === 'agent'
+          ? `Click to unwire agent '${edgeMeta.route_name}' from the chip`
+          : `Click to disconnect ${edgeMeta.provider_id}${edgeMeta.model ? ' · ' + edgeMeta.model : ''} (${edgeMeta.role}) from the chip`;
         path.appendChild(t);
       }
       return path;
@@ -7738,7 +8808,9 @@
         return;
       }
 
-      const routes = _nodeGraphData.routes || [];
+      const pipeline = pipelineRoute();
+      const chain = (pipeline && pipeline.fallback_chain) || [];
+      const agentRoutes = agentRouteNodes();
 
       // Preserve defs (wire gradients); drop previous wire paths
       const defs = svg.querySelector('defs');
@@ -7747,34 +8819,45 @@
       // A redraw detaches the in-flight connection preview — recreate lazily
       if (_wireDrag) _wireDrag.preview = null;
 
-      // 1. Provider/Engine → Route (primary + fallback edges, each clickable)
-      routes.forEach(r => {
-        const inPos = socketPos(document.getElementById(`socket_in_route_${r.route_name}`));
-        if (!inPos) return;
+      const chipDirect = socketPos(document.getElementById('socket_in_chip_direct'));
+      const chipFallback = socketPos(document.getElementById('socket_in_chip_fallback'));
+      const chipAgents = socketPos(document.getElementById('socket_in_chip_agents'));
 
-        const primary = resolveEndpointPos(r.primary_provider_id, r.primary_model);
-        if (primary) {
-          svg.appendChild(mkWirePath(primary.pos, inPos, 'url(#primaryWireGrad)', true,
-            { route_name: r.route_name, role: 'primary', provider_id: r.primary_provider_id, model: r.primary_model }));
+      // 1. Main provider (⚡ Direct) → chip ⚡ input
+      if (pipeline && pipeline.primary_provider_id && chipDirect) {
+        const src = resolveEndpointPos(pipeline.primary_provider_id, pipeline.primary_model);
+        if (src) {
+          svg.appendChild(mkWirePath(src.pos, chipDirect, 'url(#primaryWireGrad)', true,
+            { route_name: 'default', role: 'primary', provider_id: pipeline.primary_provider_id, model: pipeline.primary_model }));
         }
+      }
 
-        (r.fallback_chain || []).forEach(fb => {
-          const ep = resolveEndpointPos(fb.provider_id, fb.model);
-          if (ep) {
-            svg.appendChild(mkWirePath(ep.pos, inPos, 'url(#fallbackWireGrad)', false,
-              { route_name: r.route_name, role: 'fallback', provider_id: fb.provider_id, model: fb.model }));
+      // 2. Fallback chain: provider ⟳ socket → small fallback node → chip ⟳ input
+      chain.forEach(f => {
+        const fid = fbNodeId(f.provider_id, f.model);
+        const fbIn = socketPos(document.getElementById('socket_in_' + fid));
+        const fbOut = socketPos(document.getElementById('socket_out_' + fid));
+        const provOut = socketPos(document.getElementById('socket_out_fb_' + f.provider_id));
+        if (provOut && fbIn) {
+          svg.appendChild(mkWirePath(provOut, fbIn, 'url(#fallbackWireGrad)', false,
+            { route_name: 'default', role: 'fallback', provider_id: f.provider_id, model: f.model }));
+        }
+        if (fbOut && chipFallback) {
+          svg.appendChild(mkWirePath(fbOut, chipFallback, 'url(#fallbackWireGrad)', true,
+            { route_name: 'default', role: 'fallback', provider_id: f.provider_id, model: f.model }));
+        }
+      });
+
+      // 3. Every wired agent lane → chip 🤖 input
+      if (chipAgents) {
+        agentRoutes.forEach(r => {
+          const outPos = socketPos(document.getElementById('socket_out_agent_' + r.route_name));
+          if (outPos) {
+            svg.appendChild(mkWirePath(outPos, chipAgents, '#39c5cf', true,
+              { route_name: r.route_name, role: 'agent', provider_id: r.primary_provider_id, model: r.primary_model }));
           }
         });
-      });
-
-      // 2. Routes → Master Pipeline Output
-      const masterPos = socketPos(document.getElementById('socket_in_out_pipeline'));
-      routes.forEach(r => {
-        const routePos = socketPos(document.getElementById(`socket_out_route_${r.route_name}`));
-        if (routePos && masterPos) {
-          svg.appendChild(mkWirePath(routePos, masterPos, '#3fb950', true, null));
-        }
-      });
+      }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -7856,22 +8939,25 @@
       if (!sock || sock === drag.fromSocket) return false;
       const targetKind = sock.dataset.socket;
       if (!targetKind || targetKind === drag.fromKind) return false;
-      // One end must be a route input, the other a provider/engine output
       const outSock = drag.fromKind === 'output' ? drag.fromSocket : sock;
       const inSock = drag.fromKind === 'input' ? drag.fromSocket : sock;
-      return Boolean(outSock.dataset.provider && inSock.dataset.route);
+      const outKind = outSock.dataset.out;
+      const inKind = inSock.dataset.in;
+      if (!outKind || !inKind) return false;
+      return (outKind === 'direct' && inKind === 'direct')
+          || (outKind === 'fallback' && inKind === 'fallback')
+          || (outKind === 'agent' && inKind === 'agents');
     }
 
     function resolveConnection(drag, target) {
       const outSock = drag.fromKind === 'output' ? drag.fromSocket : target;
       const inSock = drag.fromKind === 'input' ? drag.fromSocket : target;
-      if (!outSock.dataset.provider || !inSock.dataset.route) return null;
-      let model = outSock.dataset.model || '';
-      if (!model) model = firstModelOf(findProvider(outSock.dataset.provider));
       return {
-        provider_id: outSock.dataset.provider,
-        model: model,
-        route_name: inSock.dataset.route
+        outKind: outSock.dataset.out || '',
+        inKind: inSock.dataset.in || '',
+        provider_id: outSock.dataset.provider || '',
+        model: outSock.dataset.model || '',
+        agent: outSock.dataset.agent || ''
       };
     }
 
@@ -7886,7 +8972,9 @@
       if (!prev || !prev.parentNode) {
         prev = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         prev.setAttribute('class', 'node-wire preview');
-        prev.setAttribute('stroke', _wireDrag.fromKind === 'output' ? '#58a6ff' : '#f0883e');
+        const srcKind = _wireDrag.fromSocket.dataset.out;
+        const col = srcKind === 'fallback' ? '#d29922' : (srcKind === 'agent' ? '#39c5cf' : '#58a6ff');
+        prev.setAttribute('stroke', _wireDrag.fromKind === 'output' ? col : '#f0883e');
         prev.setAttribute('fill', 'none');
         svg.appendChild(prev);
         _wireDrag.preview = prev;
@@ -7921,11 +9009,19 @@
 
       if (!drag.moved || !drag.hoverSocket) return;
       const conn = resolveConnection(drag, drag.hoverSocket);
-      if (!conn) {
-        showToast('Invalid Connection', 'Wires go from Provider/Engine outputs to Route inputs.', 'warning');
+      if (!conn || !conn.outKind) {
+        showToast('Invalid Connection', 'Drag ⚡Direct → chip ⚡ input · ⟳Fallback → chip ⟳ input · 🤖Agent → chip 🤖 input.', 'warning');
         return;
       }
-      connectSourceToRoute({ provider_id: conn.provider_id, model: conn.model }, conn.route_name);
+      if (conn.outKind === 'direct' && conn.inKind === 'direct') {
+        setPipelinePrimary({ provider_id: conn.provider_id, model: conn.model });
+      } else if (conn.outKind === 'fallback' && conn.inKind === 'fallback') {
+        openFallbackModal(conn.provider_id);
+      } else if (conn.outKind === 'agent' && conn.inKind === 'agents') {
+        wireAgentNode(conn.agent);
+      } else {
+        showToast('Invalid Connection', 'Those sockets are not compatible.', 'warning');
+      }
     }
 
     function cancelSocketDrag() {
@@ -7957,7 +9053,10 @@
         try { edge = JSON.parse(pathEl.dataset.edge); } catch (_) { }
         if (edge) {
           items.push({ title: 'Connection' });
-          items.push({ label: `✂ Disconnect ${edge.provider_id} (${edge.role})`, danger: true, action: () => disconnectEdgeFromRoute(edge) });
+          const label = edge.role === 'agent'
+            ? `✂ Unwire agent '${edge.route_name}'`
+            : `✂ Disconnect ${edge.provider_id}${edge.model ? ' · ' + edge.model : ''} (${edge.role})`;
+          items.push({ label, danger: true, action: () => disconnectEdgeFromRoute(edge) });
           items.push({ label: `▶ Test route '${edge.route_name}'`, action: () => testRouteQuick(edge.route_name) });
         }
       } else if (nodeEl) {
@@ -7966,8 +9065,16 @@
         if (nt === 'provider') {
           const p = findProvider(ref);
           if (p) {
+            const pipeline = pipelineRoute();
+            const isMain = pipeline && pipeline.primary_provider_id === p.id;
             items.push({ title: `Provider · ${p.id}` });
             items.push({ label: '📡 Ping Provider Node', action: () => testProviderLatency(p.provider_type, firstModelOf(p), p.id) });
+            items.push({
+              label: isMain ? '⚡ Main provider (already wired)' : '⚡ Make MAIN provider (wire to chip)',
+              action: () => { if (!isMain) setPipelinePrimary({ provider_id: p.id, model: firstModelOf(p) }); }
+            });
+            items.push({ label: '⟳ Add Fallback Node…', action: () => openFallbackModal(p.id) });
+            items.push({ sep: true });
             items.push({ label: '✏ Edit Provider Node…', action: () => openEditProviderModal(p.id) });
             items.push({ label: '⚙ Add Engine For This Provider…', action: () => openAddEngineModal(p.id) });
             items.push({ sep: true });
@@ -7978,30 +9085,48 @@
           if (eng) {
             const parent = findProvider(eng.provider_id);
             items.push({ title: `Engine · ${eng.model}` });
+            items.push({ label: '⚡ Pin as MAIN provider (wire to chip)', action: () => setPipelinePrimary({ provider_id: eng.provider_id, model: eng.model }) });
             items.push({ label: '📡 Ping Engine', action: () => testProviderLatency(parent ? parent.provider_type : 'custom', eng.model, eng.provider_id) });
             items.push({ sep: true });
             items.push({ label: '🗑 Delete Engine Node', danger: true, action: () => deleteEngineNode(eng.id, eng.model) });
           }
-        } else if (nt === 'route') {
-          items.push({ title: `Route · ${ref}` });
-          items.push({ label: '▶ Test Route…', action: () => testRouteQuick(ref) });
-          items.push({ label: '✏ Edit Route…', action: () => openEditRouteModal(ref) });
-          items.push({ label: '🧹 Clear Fallback Chain', action: () => clearRouteFallbacks(ref) });
+        } else if (nt === 'fallback') {
+          const pid = nodeEl.dataset.nodeRef || '';
+          const model = nodeEl.dataset.model || '';
+          const parent = findProvider(pid);
+          items.push({ title: `Fallback · ${pid} · ${model}` });
+          items.push({ label: '⚡ Promote To MAIN', action: () => setPipelinePrimary({ provider_id: pid, model }) });
+          items.push({ label: '📡 Ping Fallback Provider', action: () => testProviderLatency(parent ? parent.provider_type : 'custom', model, pid) });
           items.push({ sep: true });
-          items.push({ label: '🗑 Delete Route Node', danger: true, action: () => deleteRoute(ref) });
-        } else if (nt === 'output') {
-          items.push({ title: 'Master Pipeline' });
+          items.push({ label: '🗑 Remove From Chain', danger: true, action: () => removeFallbackNode(pid, model) });
+        } else if (nt === 'agent') {
+          const key = ref;
+          const wired = !!findRoute(key);
+          items.push({ title: `Agent · ${key}` });
+          if (wired) {
+            items.push({ label: '▶ Test Agent Lane', action: () => testRouteQuick(key) });
+            items.push({ label: '✂ Unwire From Chip', action: () => unwireAgentNode(key) });
+          } else {
+            items.push({ label: '🤖 Wire Agent To Chip', action: () => wireAgentNode(key) });
+          }
+          items.push({ sep: true });
+          items.push({ label: '🗑 Remove Agent Node', danger: true, action: () => removeAgentNode(key) });
+        } else if (nt === 'chip') {
+          items.push({ title: '🧠 Hyper Motion Chip' });
           items.push({ label: '✨ Clean Layout', action: () => autoLayoutNodes() });
           items.push({ label: '🔄 Refresh Graph', action: () => reloadNodeStudio() });
+          items.push({ label: '🧹 Clear Fallback Chain', action: () => clearRouteFallbacks('default') });
+          items.push({ sep: true });
+          items.push({ label: '🗑 Remove Chip Node (canvas only)', danger: true, action: () => removeChipNode() });
         }
       } else {
         // Empty canvas → node creation menu
         items.push({ title: 'Add Node' });
-        items.push({ label: '➕ Add Provider Node', action: () => openAddProviderModal() });
+        items.push({ label: '➕ Add Provider Node (paste API key)', action: () => openAddProviderModal() });
+        items.push({ label: '⟳ Add Fallback Node', action: () => openFallbackModal() });
         items.push({ label: '🤖 Add Agent Node', action: () => openAddAgentModal() });
         items.push({ label: '⚙ Add Engine Node', action: () => openAddEngineModal() });
-        items.push({ sep: true });
-        items.push({ label: '🔗 Add Fallback Link (guided)', action: () => startFallbackLinkMode() });
+        if (chipHidden()) items.push({ label: '🧠 Add Hyper Motion Chip', action: () => addChipNode() });
         items.push({ sep: true });
         items.push({ label: '✨ Clean Layout', action: () => autoLayoutNodes() });
         items.push({ label: '🔄 Refresh Graph', action: () => reloadNodeStudio() });
@@ -8061,23 +9186,14 @@
         });
       }
 
-      // Guided fallback-link mode: click provider/engine → then a route
-      if (container) {
-        container.addEventListener('click', (e) => {
-          if (!_linkMode) return;
-          if (e.target.closest('.dv-node-btn') || e.target.closest('.dv-socket')) return;
-          const nodeEl = e.target.closest('.dv-node');
-          if (!nodeEl) return;
-          handleLinkModeClick(nodeEl);
-        });
-      }
+      // (Guided fallback-link mode was replaced by the ⟳ Fallback wizard)
 
       document.addEventListener('click', (e) => {
         const menu = document.getElementById('nodeCtxMenu');
         if (menu && menu.style.display !== 'none' && !e.target.closest('#nodeCtxMenu')) hideNodeContextMenu();
       });
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') { hideNodeContextMenu(); cancelSocketDrag(); cancelFallbackLinkMode(); }
+        if (e.key === 'Escape') { hideNodeContextMenu(); cancelSocketDrag(); }
       });
       window.addEventListener('scroll', hideNodeContextMenu, true);
     }

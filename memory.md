@@ -12,7 +12,7 @@
 | **Version** | 1.0.2 (`pyproject.toml`) |
 | **Stack** | Python 3.10+ (dev machine: 3.14.7) · FastAPI · Uvicorn · SQLite (aiosqlite) · APScheduler · Rich · SSE |
 | **Repo** | `F:\Workshop\Automation\Hyper-Motion` · GitHub: `sayeeddesignerz-creator/Hyper-Motion` · branch `main` |
-| **Last updated** | 2026-10-15 |
+| **Last updated** | 2026-10-16 |
 
 ---
 
@@ -126,6 +126,18 @@ Hyper-Motion/
 ## 8. Task Log
 
 > Newest first. Format: `### YYYY-MM-DD — title ✅` + bullets (what changed, follow-ups).
+
+### 2026-10-16 — Node Graph v2: chip-centric wiring + key-first Provider wizard + Fallback/Agent nodes ✅
+**Goal:** premium node-graph overhaul — Add-Provider (API key first → verify → auto-detect → models split free/paid), fallback nodes (provider→model popup, smaller cards, direct+fallback sockets), Add-Agent picker, and an addable **Hyper Motion chip** that main providers & working agents must connect to.
+- 🚏 **Chip-centric wiring model:** provider **⚡Direct** socket → chip = becomes primary of route `default` (old primary is demoted into the fallback chain — never lost); provider **⟳Fallback** socket → chip opens the fallback wizard; **fallback nodes** render from `default`'s chain (`fb_<slug>_<hash>`, smaller card, provider ⟳ → fb node → chip ⟳); every non-default route + local draft renders as an **agent node** wired to the chip's 🤖 input. Socket pairs validated strictly (direct→direct, fallback→fallback, agent→agents); invalid pairs rejected with a hint toast.
+- ➕ **Add Provider wizard (key-first):** paste key → `POST /api/omniroute/detect-key` detects the vendor from the key prefix (AIza→Gemini, sk-or-→OpenRouter, sk-ant-→Anthropic, gsk_→Groq, sk-→OpenAI last), verifies it live (12s httpx bound, 20s endpoint bound), fetches its models split **Free / Paid** (OpenRouter real pricing / `:free` suffix, Gemini flash|lite, Groq all free, OpenAI·Anthropic paid) → pick models → node lands on the canvas. Manual/edit form kept for custom OpenAI-compatible edits.
+- ⟳ **Fallback wizard:** provider list first (MAIN / IN-CHAIN tags) → free/paid model tabs → adds a small fallback node + chain entry; remove via wire click or node ✕.
+- 🤖 **Agent picker:** modal lists the live roster (10 agents) with WIRED / NOT-WIRED state → adds a draft agent node; wiring creates a route named after the agent key (primary copied from the pipeline), unwiring deletes the route but keeps the node as a draft (`hm_agent_drafts_v1`) — drafts show "⚠ not wired" and can't run.
+- 🧠 **Chip node:** addable/hideable (`hm_chip_hidden_v1`, canvas-only — no backend data touched), toolbar **🧠 Chip** button + context menu; health chip in the toolbar shows `Pipeline OK · <main> · N fallbacks · M agents` or warns when unwired.
+- 🎨 **Premium graph:** column labels (Providers / Engines / Fallback chain / Agents / Hyper Motion core), two labeled outputs per provider (⚡Direct · ⟳Fallback), rebuilt right-click menus for every node type, quick-inventory list mirrors chip state; guided "Add Fallback Link" mode removed.
+- 🌊 **Orchestration panel:** stage border removed; wires now flow with environment-matching particles — violet `#8b5cf6` (providers), sky `#38bdf8` (agents), cyan `#22d3ee` (results).
+- 🧪 **Backend + tests:** new `app/llm/model_catalog.py` (detection, masked keys, tier rules, pure payload parsers, bounded live verify) + `POST /api/omniroute/detect-key`; 19 new tests (`tests/test_model_catalog.py`) — full suite **35 passed**; `node --check` OK; live smoke: `/` 200 · detect-key rejects unknown formats with a friendly error · `/api/agents` 10 · routes `default, fact_check, script_writing`.
+- ⏭️ **Follow-ups (user):** rotate FB credentials (§5 #1); optionally replace seed `gemini-3.8-flash` (503 from Gemini).
 
 ### 2026-10-15 — Sidebar minimize (icons-only rail) ✅
 **Goal:** add a minimize function to the left sidebar — when minimized only the icons show.
