@@ -115,28 +115,9 @@ your-project/
 | **Script Forge** | Second-by-second scripts · B-roll cues · CTAs |
 | **SEO Matrix** | 4 A/B title variants · 200+ word descriptions · Tags & hashtags |
 | **Facebook Engine** | Feed posts · Stories · Reels · AI visuals · Live publishing |
-| **LLM Gateway** | Gemini → OmniRoute → OpenAI → OpenRouter (auto-fallback) |
+| **LLM Gateway** | Gemini → OpenAI → OpenRouter (auto-fallback) |
 | **Autonomous Scheduler** | Runs every N minutes, hands-free 24/7 |
 | **Mission Control UI** | Dark glassmorphic dashboard at `localhost:8500` |
-
----
-
-## 🔌 Optional: OmniRoute (Local AI Proxy)
-
-Pool multiple API keys and route them intelligently:
-
-```bash
-npm install -g omniroute
-omniroute
-```
-
-Then in `.env`:
-
-```env
-OMNIROUTE_BASE_URL=http://localhost:20128/v1
-OMNIROUTE_API_KEY=your-omniroute-key
-OMNIROUTE_MODEL=auto
-```
 
 ---
 

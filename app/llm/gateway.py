@@ -1,7 +1,7 @@
 """
 LLM Gateway - enhanced with:
 
-* OmniRoute local provider as a first-class fallback
+* Direct multi-provider resilience (Gemini, OpenAI, OpenRouter)
 * Per-agent routing policy (primary + ordered fallback + fallback_policy)
 * Exponential-backoff + jitter retry for 429 / 5xx (tenacity)
 * Retry-After header honoured
@@ -54,7 +54,7 @@ FACT_CRITICAL_AGENTS = {"fact_checker", "script_forge", "strategist"}
 #   primary  : provider key used first
 #   fallback : ordered list of provider keys to try
 #   fallback_policy: "allow" | "flag"
-_DEFAULT_FALLBACK_ORDER = ["gemini", "omniroute", "openai", "openrouter"]
+_DEFAULT_FALLBACK_ORDER = ["gemini", "openai", "openrouter"]
 
 AGENT_ROUTING: Dict[str, Dict[str, Any]] = {
     "trend_hunter":   {"primary": "gemini", "fallback": _DEFAULT_FALLBACK_ORDER, "fallback_policy": "allow"},
@@ -70,20 +70,15 @@ _DEFAULT_ROUTING = {"primary": "gemini", "fallback": _DEFAULT_FALLBACK_ORDER, "f
 # ---------------------------------------------------------------------------
 # Provider-ID → gateway handle key mapping
 # Maps the provider_id strings stored in the DB omni_routes table to the
-# logical provider keys used by LLMGateway._handles ("gemini", "omniroute", …)
+# logical provider keys used by LLMGateway._handles ("gemini", "openai", …)
 # ---------------------------------------------------------------------------
 _PROVIDER_ID_TO_HANDLE: Dict[str, str] = {
     "gemini_primary":    "gemini",
     "gemini":            "gemini",
-    "groq_fast":         "omniroute",
-    "groq":              "omniroute",
     "openrouter_free":   "openrouter",
     "openrouter":        "openrouter",
     "openai_cloud":      "openai",
     "openai":            "openai",
-    "local_heuristics":  "omniroute",
-    "local":             "omniroute",
-    "omniroute":         "omniroute",
 }
 
 # ---------------------------------------------------------------------------
@@ -437,7 +432,6 @@ class LLMGateway:
     def _build_handles(self) -> None:
         from app.llm.gemini_provider import GeminiProvider
         from app.llm.openai_provider import OpenAIProvider
-        from app.llm.omniroute_provider import OmniRouteProvider
 
         s = self.settings
 
@@ -445,14 +439,9 @@ class LLMGateway:
         gemini_key = os.getenv("GEMINI_API_KEYS", "") or s.gemini_api_key or ""
         gemini_key = gemini_key.split(",")[0].strip()
         if gemini_key:
-            from app.llm.gemini_provider import GeminiProvider
             p = GeminiProvider(api_key=gemini_key)
             if p.is_configured():
                 self._handles["gemini"] = ProviderHandle("gemini", p, "Gemini")
-
-        # --- OmniRoute (local proxy, always added) ---
-        omni_p = OmniRouteProvider()
-        self._handles["omniroute"] = ProviderHandle("omniroute", omni_p, "OmniRoute")
 
         # --- OpenAI ---
         openai_key = os.getenv("OPENAI_API_KEY") or s.openai_api_key
@@ -482,7 +471,7 @@ class LLMGateway:
     # ------------------------------------------------------------------
 
     def is_available(self) -> bool:
-        return True  # OmniRoute local is always present
+        return len(self._handles) > 0
 
     # ------------------------------------------------------------------
     # Live route management — called by api.py after every DB mutation

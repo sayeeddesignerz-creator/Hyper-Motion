@@ -185,10 +185,6 @@ GEMINI_MODEL=gemini-2.5-flash
 OPENAI_MODEL=gpt-4o-mini
 OPENROUTER_MODEL=meta-llama/llama-3.3-70b-instruct:free
 
-# ── OmniRoute Local Proxy (optional) ─────────────────────────────────────────
-OMNIROUTE_BASE_URL=http://localhost:20128/v1
-OMNIROUTE_API_KEY=your-omniroute-api-key-here
-OMNIROUTE_MODEL=auto
 
 # ── Intelligence APIs (optional) ──────────────────────────────────────────────
 YOUTUBE_API_KEY=

@@ -1,11 +1,13 @@
 """
 Pytest configuration.
 """
+import asyncio
 import pytest
 
-@pytest.fixture(scope="session")
-def event_loop():
-    import asyncio
-    loop = asyncio.get_event_loop_policy().new_event_loop()
+@pytest.fixture(autouse=True)
+def setup_event_loop():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     yield loop
     loop.close()
+    asyncio.set_event_loop(None)

@@ -33,6 +33,7 @@ def tmp_gateway(tmp_path):
     gw = object.__new__(LLMGateway)
     gw._db = GatewayDB(tmp_path / "gw_test.db")
     gw._handles = {}
+    gw._live_routes = {}
     gw.settings = MagicMock()
 
     yield gw
@@ -71,19 +72,19 @@ def _mock_handle(
 
 
 # ============================================================================
-# 1. 429 on Gemini triggers fallback to OmniRoute
+# 1. 429 on Gemini triggers fallback to OpenAI
 # ============================================================================
 
 @pytest.mark.asyncio
-async def test_429_on_gemini_falls_back_to_omniroute(tmp_gateway):
-    """Rate-limit error from Gemini should route the call to OmniRoute."""
+async def test_429_on_gemini_falls_back_to_openai(tmp_gateway):
+    """Rate-limit error from Gemini should route the call to OpenAI."""
     from app.llm.gateway import AGENT_ROUTING
 
     gemini_exc = Exception("429 RESOURCE_EXHAUSTED quota exceeded")
     gemini = _mock_handle("gemini", "Gemini", text_exc=gemini_exc)
-    omniroute = _mock_handle("omniroute", "OmniRoute", text_ret="fallback answer")
+    openai_h = _mock_handle("openai", "OpenAI", text_ret="fallback answer")
 
-    tmp_gateway._handles = {"gemini": gemini, "omniroute": omniroute}
+    tmp_gateway._handles = {"gemini": gemini, "openai": openai_h}
 
     result = await tmp_gateway.generate_text("hello", agent_name="trend_hunter")
     assert result == "fallback answer"
@@ -124,7 +125,7 @@ async def test_daily_cap_skips_provider(tmp_gateway):
 
     assert await tmp_gateway._db.is_daily_limit_reached("gemini")
 
-    # Build handles: gemini raises (daily limit), omniroute answers
+    # Build handles: gemini raises (daily limit), openai answers
     async def _capped(db, *a, **kw):
         raise RuntimeError("Daily limit reached for Gemini")
 
@@ -137,11 +138,11 @@ async def test_daily_cap_skips_provider(tmp_gateway):
         generate_text = _capped
         generate_json = _capped
 
-    omniroute = _mock_handle("omniroute", "OmniRoute", text_ret="omniroute answer")
-    tmp_gateway._handles = {"gemini": _CappedHandle(), "omniroute": omniroute}
+    openai_h = _mock_handle("openai", "OpenAI", text_ret="openai answer")
+    tmp_gateway._handles = {"gemini": _CappedHandle(), "openai": openai_h}
 
     result = await tmp_gateway.generate_text("what is 2+2?", agent_name="seo_optimizer")
-    assert result == "omniroute answer"
+    assert result == "openai answer"
 
 
 # ============================================================================
@@ -153,12 +154,12 @@ async def test_invalid_json_escalates_to_next_provider(tmp_gateway):
     """A provider raising ValueError (bad JSON) should escalate to the next provider."""
     bad_json_exc = ValueError("Could not parse valid JSON: {{broken")
     gemini = _mock_handle("gemini", "Gemini", json_exc=bad_json_exc)
-    omniroute = _mock_handle("omniroute", "OmniRoute", json_ret={"result": "omniroute json"})
+    openai_h = _mock_handle("openai", "OpenAI", json_ret={"result": "openai json"})
 
-    tmp_gateway._handles = {"gemini": gemini, "omniroute": omniroute}
+    tmp_gateway._handles = {"gemini": gemini, "openai": openai_h}
 
     result = await tmp_gateway.generate_json("summarise facts", agent_name="fact_checker")
-    # Should have come from omniroute; fact_checker + fallback ? tagged
+    # Should have come from openai; fact_checker + fallback ? tagged
     assert "result" in result or "model_tier" in result
 
 

@@ -78,16 +78,6 @@ class Settings(BaseModel):
     anthropic_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY"))
     youtube_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("YOUTUBE_API_KEY"))
 
-    # OmniRoute local proxy settings
-    omniroute_base_url: str = Field(
-        default_factory=lambda: os.getenv("OMNIROUTE_BASE_URL", "http://localhost:20128/v1")
-    )
-    omniroute_api_key: Optional[str] = Field(
-        default_factory=lambda: os.getenv("OMNIROUTE_API_KEY")
-    )
-    omniroute_model: str = Field(
-        default_factory=lambda: os.getenv("OMNIROUTE_MODEL", "auto")
-    )
 
     # Default Provider Settings
     llm_provider: str = Field(default_factory=lambda: os.getenv("LLM_PROVIDER", "gemini"))
@@ -124,17 +114,6 @@ class Settings(BaseModel):
 _settings_instance: Optional[Settings] = None
 
 
-def _warn_omniroute_url(url: str) -> None:
-    """Log a startup warning when OmniRoute is pointed at a non-localhost URL."""
-    host = urlparse(url).hostname or ""
-    if host not in ("localhost", "127.0.0.1", "::1"):
-        _cfg_logger.warning(
-            "OMNIROUTE_BASE_URL '%s' is not localhost — ensure the remote endpoint "
-            "is trusted and OMNIROUTE_API_KEY is kept secure.",
-            url,
-        )
-
-
 def reload_settings() -> Settings:
     global _settings_instance
     _load_dotenv()
@@ -145,5 +124,4 @@ def get_settings() -> Settings:
     global _settings_instance
     if _settings_instance is None:
         _settings_instance = Settings()
-        _warn_omniroute_url(_settings_instance.omniroute_base_url)
     return _settings_instance
