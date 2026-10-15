@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hypermotion"
-version = "1.0.1"
+version = "1.0.2"
 description = "Multi-Agent Autonomous Content Research, Scriptwriting, SEO & Facebook Growth Engine"
 readme = "README.md"
 requires-python = ">=3.10"

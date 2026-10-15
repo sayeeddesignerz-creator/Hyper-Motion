@@ -2844,6 +2844,262 @@
       transform: translateY(-1px);
     }
 
+    /* ══════════════════════════════════════════════════════════════
+       DAVINCI RESOLVE / BLENDER NODE SYSTEM STYLES
+       ══════════════════════════════════════════════════════════════ */
+    .node-system-viewport {
+      position: relative;
+      width: 100%;
+      height: 640px;
+      min-height: 520px;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 16px;
+      overflow: hidden;
+      user-select: none;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.6), 0 8px 30px rgba(0,0,0,0.25);
+    }
+
+    .node-canvas-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle, rgba(255,255,255,0.08) 1.2px, transparent 1.2px),
+        linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 24px 24px, 120px 120px, 120px 120px;
+      pointer-events: none;
+    }
+
+    .node-system-toolbar {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .node-toolbar-left, .node-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+      background: rgba(13, 17, 23, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .node-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: #161b22;
+      color: #e6edf3;
+      transition: all 0.15s ease;
+    }
+    .node-pill-btn:hover {
+      background: #21262d;
+      border-color: #388bfd;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+    .node-pill-btn.primary {
+      background: #238636;
+      border-color: #2ea043;
+      color: #ffffff;
+    }
+    .node-pill-btn.primary:hover {
+      background: #2ea043;
+      border-color: #3fb950;
+    }
+
+    #nodeSvgWires {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .node-wire {
+      fill: none;
+      stroke-width: 3;
+      stroke-linecap: round;
+      transition: stroke 0.2s ease, stroke-width 0.2s ease;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+    }
+    .node-wire.active {
+      stroke-dasharray: 6 6;
+      animation: wireDash 1s linear infinite;
+    }
+    @keyframes wireDash {
+      to { stroke-dashoffset: -24; }
+    }
+
+    /* DaVinci / Blender Node Card */
+    .dv-node {
+      position: absolute;
+      width: 250px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.4);
+      z-index: 10;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .dv-node:hover, .dv-node.selected {
+      border-color: #58a6ff;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.7), 0 0 0 1px #58a6ff, 0 0 18px rgba(88, 166, 255, 0.25);
+      z-index: 15;
+    }
+
+    /* Header with Blender/DaVinci Color coding */
+    .dv-node-header {
+      padding: 8px 12px;
+      border-top-left-radius: 9px;
+      border-top-right-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      cursor: grab;
+      border-bottom: 1px solid rgba(0,0,0,0.3);
+    }
+    .dv-node-header:active {
+      cursor: grabbing;
+    }
+
+    /* Node Header Category Colors */
+    .node-color-provider {
+      background: linear-gradient(180deg, #1f6feb 0%, #1158c7 100%);
+      color: #ffffff;
+    }
+    .node-color-route {
+      background: linear-gradient(180deg, #238636 0%, #196c2e 100%);
+      color: #ffffff;
+    }
+    .node-color-output {
+      background: linear-gradient(180deg, #8957e5 0%, #6e40c9 100%);
+      color: #ffffff;
+    }
+
+    .dv-node-body {
+      padding: 10px 12px;
+      background: #0d1117;
+      border-bottom-left-radius: 9px;
+      border-bottom-right-radius: 9px;
+      font-size: 11.5px;
+      color: #c9d1d9;
+    }
+
+    .dv-node-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 7px;
+    }
+    .dv-node-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .dv-socket {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 2px solid #0d1117;
+      background: #8b949e;
+      position: absolute;
+      cursor: crosshair;
+      transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .dv-socket:hover {
+      transform: scale(1.4);
+      box-shadow: 0 0 8px currentColor;
+    }
+    .dv-socket.input {
+      left: -6px;
+      background: #f0883e; /* Orange input socket like Blender */
+      color: #f0883e;
+    }
+    .dv-socket.output {
+      right: -6px;
+      background: #58a6ff; /* Cyan output socket like DaVinci */
+      color: #58a6ff;
+    }
+    .dv-socket.fallback {
+      right: -6px;
+      background: #a371f7; /* Purple fallback socket */
+      color: #a371f7;
+    }
+
+    .dv-node-meta-tag {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #8b949e;
+    }
+    .dv-node-btn {
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      border-radius: 4px;
+      border: 1px solid #30363d;
+      background: #21262d;
+      color: #c9d1d9;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .dv-node-btn:hover {
+      background: #30363d;
+      color: #fff;
+    }
+    .dv-node-btn.danger {
+      color: #f85149;
+      border-color: rgba(248,81,73,0.3);
+      background: rgba(248,81,73,0.1);
+    }
+    .dv-node-btn.danger:hover {
+      background: #f85149;
+      color: #fff;
+    }
+
+    .node-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: #8b949e;
+    }
+    .node-legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
   </style>
 </head>
 
@@ -2995,27 +3251,15 @@
                 <div class="nav-item-content">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
-                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
-                    <line x1="6" y1="6" x2="6.01" y2="6" />
-                    <line x1="6" y1="18" x2="6.01" y2="18" />
+                    <rect x="2" y="3" width="7" height="6" rx="1.5" />
+                    <rect x="15" y="3" width="7" height="6" rx="1.5" />
+                    <rect x="8" y="15" width="8" height="6" rx="1.5" />
+                    <path d="M5.5 9v3a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V9" />
+                    <path d="M12 14v1" />
                   </svg>
-                  <span>AI Providers</span>
+                  <span>Node Graph (Studio)</span>
                 </div>
-              </button>
-            </li>
-            <li class="nav-item" id="nav-routes">
-              <button onclick="switchTab('routes')">
-                <div class="nav-item-content">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="18" cy="18" r="3" />
-                    <circle cx="6" cy="6" r="3" />
-                    <path d="M13 6h3a2 2 0 0 1 2 2v7" />
-                    <line x1="6" y1="9" x2="6" y2="21" />
-                  </svg>
-                  <span>Routes & Fallback</span>
-                </div>
+                <span class="nav-badge" style="background:#238636;">NODES</span>
               </button>
             </li>
           </ul>
@@ -3783,51 +4027,126 @@
             <div>
               <h1 class="page-title">Provider Connections</h1>
               <p class="page-subtitle">Manage API keys, pooling, and custom endpoints.</p>
-            </div>
-            <button class="btn-pill-primary" onclick="openAddProviderModal()">+ Add Provider</button>
-          </div>
-          <div id="providersGrid"
-            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;"></div>
-        </div>
-
-        <!-- TAB 8: OMNIROUTE ROUTES & FALLBACKS -->
-        <div id="tab-routes" class="view-panel">
+        <!-- MERGED TAB: DAVINCI & BLENDER NODE SYSTEM STUDIO -->
+        <div id="tab-providers" class="view-panel">
           <div class="page-title-row">
             <div>
-              <h1 class="page-title">Routes & Fallback Cascades</h1>
-              <p class="page-subtitle">Define primary engines and failover paths to eliminate quota limits.</p>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+                <h1 class="page-title">AI Node Graph Studio</h1>
+                <span class="badge" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;font-size:10px;padding:3px 8px;border-radius:12px;font-family:'JetBrains Mono',monospace;">DAVINCI / BLENDER ENGINE</span>
+                <span id="routeSyncBadge" title="Real-time sync status" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);font-size:11px;font-weight:600;color:#10b981;">
+                  <span id="routeSyncDot" style="width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981;"></span>
+                  <span id="routeSyncLabel">LIVE SYNC</span>
+                </span>
+                <span id="liveRouteCount" style="padding:3px 9px;border-radius:12px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);font-size:11px;font-weight:700;color:#8b5cf6;">0 active</span>
+              </div>
+              <p class="page-subtitle">Interactive visual node graph connecting AI Providers, Dynamic Pipeline Routes, and Failover Cascades.</p>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <span id="routeSyncBadge" title="Real-time sync status" style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);font-size:11px;font-weight:600;color:#10b981;">
-                <span id="routeSyncDot" style="width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981;"></span>
-                <span id="routeSyncLabel">LIVE SYNC</span>
-              </span>
-              <span id="liveRouteCount" style="padding:4px 10px;border-radius:12px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);font-size:11px;font-weight:700;color:#8b5cf6;">0 active</span>
-              <button class="btn-pill-primary" onclick="openAddRouteModal()">+ Add Route</button>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button class="btn-pill-secondary" onclick="openAddProviderModal()">+ Add Provider Node</button>
+              <button class="btn-pill-primary" onclick="openAddRouteModal()">+ Add Route Node</button>
             </div>
-          </div><!-- end .page-title-row -->
-          <div id="routesContainer" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
           </div>
 
-          <!-- Interactive Playground -->
-          <div class="donezo-card">
-            <div class="donezo-card-header">
-              <span class="donezo-card-title">Live Route Playground & Latency Tester</span>
+          <!-- The Visual Node Viewport -->
+          <div class="node-system-viewport" id="nodeViewport">
+            <!-- Background Grid -->
+            <div class="node-canvas-grid"></div>
+
+            <!-- SVG Wire Connections -->
+            <svg id="nodeSvgWires">
+              <defs>
+                <linearGradient id="primaryWireGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#58a6ff" />
+                  <stop offset="100%" stop-color="#3fb950" />
+                </linearGradient>
+                <linearGradient id="fallbackWireGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#bc8cff" />
+                  <stop offset="100%" stop-color="#f0883e" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            <!-- Floating Studio HUD Toolbar -->
+            <div class="node-system-toolbar">
+              <div class="node-toolbar-left">
+                <span style="font-size:11px;font-weight:700;color:#58a6ff;letter-spacing:0.5px;">NODE GRAPH</span>
+                <div style="width:1px;height:14px;background:#30363d;"></div>
+                <button class="node-pill-btn" onclick="autoLayoutNodes()" title="Auto-align nodes">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                  Clean Layout
+                </button>
+                <button class="node-pill-btn" onclick="reloadNodeStudio()" title="Refresh nodes from server">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                  Sync Graph
+                </button>
+              </div>
+
+              <div class="node-toolbar-right">
+                <div class="node-legend-item">
+                  <span class="node-legend-dot" style="background:#58a6ff;"></span>
+                  <span>Provider Output</span>
+                </div>
+                <div class="node-legend-item">
+                  <span class="node-legend-dot" style="background:#2ea043;"></span>
+                  <span>Primary Route</span>
+                </div>
+                <div class="node-legend-item">
+                  <span class="node-legend-dot" style="background:#bc8cff;"></span>
+                  <span>Fallback Link</span>
+                </div>
+              </div>
             </div>
-            <div style="display: flex; gap: 10px; margin-bottom: 14px;">
-              <select id="testRouteSelect" class="form-select" style="max-width: 180px;">
-                <option value="default">Route: default</option>
-                <option value="fact_check">Route: fact_check</option>
-                <option value="script_writing">Route: script_writing</option>
-              </select>
-              <input type="text" id="testPromptInput" class="form-input" value="Explain quantum computing simply.">
-              <button class="btn-pill-primary" onclick="runRouteTest()">Test Route <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;vertical-align:-1px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></button>
-            </div>
-            <div id="testRouteOutput"
-              style="background: #f8fafc; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--forest-primary); min-height: 60px;">
-              Awaiting route test execution...
+
+            <!-- Node Elements Container -->
+            <div id="nodesContainer" style="position: absolute; inset: 0; pointer-events: none;">
+              <!-- Dynamic nodes populated via JS -->
             </div>
           </div>
+
+          <!-- Mini Inspector & Playground underneath -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;">
+            <!-- Interactive Route Playground -->
+            <div class="donezo-card">
+              <div class="donezo-card-header">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2ea043" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  <span class="donezo-card-title">Live Route Tester & Latency Monitor</span>
+                </div>
+              </div>
+              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <select id="testRouteSelect" class="form-select" style="max-width: 170px;">
+                  <option value="default">Route: default</option>
+                  <option value="fact_check">Route: fact_check</option>
+                  <option value="script_writing">Route: script_writing</option>
+                </select>
+                <input type="text" id="testPromptInput" class="form-input" value="Explain quantum computing simply.">
+                <button class="btn-pill-primary" onclick="runRouteTest()" style="white-space:nowrap;">Test Route</button>
+              </div>
+              <div id="testRouteOutput"
+                style="background: #0d1117; border: 1px solid #21262d; border-radius: 10px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #7ee787; min-height: 80px; max-height: 140px; overflow-y: auto;">
+                Awaiting node graph route test execution...
+              </div>
+            </div>
+
+            <!-- Quick Node Inventory & Actions -->
+            <div class="donezo-card">
+              <div class="donezo-card-header">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                  <span class="donezo-card-title">Active Node Connections</span>
+                </div>
+                <span id="nodeTotalSummary" style="font-size:11px;font-weight:700;color:var(--text-muted);">Loading nodes...</span>
+              </div>
+              <div id="quickNodeList" style="display:flex;flex-direction:column;gap:8px;max-height:140px;overflow-y:auto;padding-right:4px;">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Hidden fallback containers so legacy queries don't break -->
+          <div id="providersGrid" style="display:none;"></div>
+          <div id="routesContainer" style="display:none;"></div>
         </div>
 
         <!-- =============================================================== -->
@@ -5269,8 +5588,10 @@
       if (tabId === 'facts') loadClaims();
       if (tabId === 'scripts') loadScripts();
       if (tabId === 'audience') loadAudience();
-      if (tabId === 'providers') loadProviders();
-      if (tabId === 'routes') loadRoutes();
+      if (tabId === 'providers' || tabId === 'routes') {
+        reloadNodeStudio();
+        setTimeout(drawNodeWires, 80);
+      }
       if (tabId === 'facebook') loadFacebookStudio();
       if (tabId === 'youtube') loadYouTubeStudio();
       if (tabId === 'brain') {
@@ -5537,34 +5858,29 @@
       } catch (e) { }
     }
 
-    // OMNIROUTE PROVIDERS
+    // ═══════════════════════════════════════════════════════════════════════════
+    // DAVINCI RESOLVE / BLENDER NODE GRAPH ENGINE & STUDIO INTERACTIVITY
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    let _nodeGraphData = { providers: [], routes: [] };
+    let _nodePositions = {};
+    let _activeDragNode = null;
+    let _dragOffset = { x: 0, y: 0 };
+
+    async function reloadNodeStudio() {
+      await Promise.all([loadProviders(), loadRoutes()]);
+      renderNodeGraph();
+    }
+
+    // PROVIDERS
     async function loadProviders() {
-      const grid = document.getElementById('providersGrid');
       try {
         const res = await fetch('/api/omniroute/providers');
-        const providers = await res.json();
-        grid.innerHTML = providers.map(p => `
-          <div class="donezo-card">
-            <div>
-              <div class="donezo-card-header">
-                <span class="status-pill ${p.enabled ? 'status-completed' : 'status-pending'}">${p.provider_type.toUpperCase()}</span>
-                <span style="font-size: 0.75rem; color: var(--text-light);">ID: ${p.id}</span>
-              </div>
-              <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 4px;">${p.name}</h4>
-              <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">Key: ${p.key_masked}</div>
-              <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 16px;">
-                ${(p.models || []).slice(0, 3).map(m => `
-                  <span style="font-size: 10px; background: #f3f4f6; border-radius: 4px; padding: 2px 6px; font-weight: 600;">${m}</span>
-                `).join('')}
-              </div>
-            </div>
-            <div style="display: flex; gap: 8px; border-top: 1px solid var(--card-border); padding-top: 14px;">
-              <button class="btn-pill-secondary" style="flex: 1; padding: 6px 12px; font-size: 0.75rem;" onclick="testProviderLatency('${p.provider_type}', '${p.models[0] || ''}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;vertical-align:-1px;margin-right:3px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Test Latency</button>
-              <button style="border: 1px solid #fee2e2; background: #fef2f2; color: #ef4444; border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 11px;" onclick="deleteProvider('${p.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
-            </div>
-          </div>
-        `).join('');
-      } catch (e) { }
+        _nodeGraphData.providers = await res.json();
+      } catch (e) {
+        _nodeGraphData.providers = [];
+      }
+      renderNodeGraph();
     }
 
     function openAddProviderModal() {
@@ -5590,13 +5906,14 @@
         body: JSON.stringify({ id, provider_type: type, name, api_key: key, base_url: url, models, enabled: true })
       });
       closeModal('providerModal');
-      loadProviders();
+      await reloadNodeStudio();
     }
 
     async function deleteProvider(id) {
-      if (confirm(`Delete provider ${id}?`)) {
+      if (confirm(`Delete provider node "${id}"?`)) {
         await fetch(`/api/omniroute/providers/${id}`, { method: 'DELETE' });
-        loadProviders();
+        delete _nodePositions['prov_' + id];
+        await reloadNodeStudio();
       }
     }
 
@@ -5607,16 +5924,14 @@
         body: JSON.stringify({ provider_type: type, api_key: '', model: model })
       });
       const data = await res.json();
-      alert(`Ping Result for ${type}:\nStatus: ${data.status}\nLatency: ${data.latency_ms}ms\nMessage: ${data.response || data.error || ''}`);
+      alert(`Node Ping [${type}]:\nStatus: ${data.status}\nLatency: ${data.latency_ms}ms\nMessage: ${data.response || data.error || ''}`);
     }
 
-    // OMNIROUTE ROUTES & FALLBACKS ─────────────────────────────────────────
-
+    // ROUTES & FALLBACKS
     let _routeSseSource = null;
 
-    /** Connect to /api/events and auto-refresh when routes_changed arrives. */
     function setupRoutesSSE() {
-      if (_routeSseSource) return; // already connected
+      if (_routeSseSource) return;
       try {
         _routeSseSource = new EventSource('/api/events');
 
@@ -5633,7 +5948,6 @@
           try {
             const msg = JSON.parse(ev.data);
             if (msg.type === 'routes_changed') {
-              // Flash the badge to signal incoming update
               const badge = document.getElementById('routeSyncBadge');
               if (badge) {
                 badge.style.background = 'rgba(139,92,246,0.18)';
@@ -5645,11 +5959,9 @@
                   badge.style.color = '#10b981';
                 }, 900);
               }
-              // Update active count from SSE payload
               const cnt = document.getElementById('liveRouteCount');
               if (cnt && msg.payload && msg.payload.total !== undefined)
                 cnt.textContent = `${msg.payload.total} active`;
-              // Reload the route cards
               loadRoutes();
             }
           } catch (_) {}
@@ -5662,62 +5974,33 @@
           if (dot)   { dot.style.background = '#f59e0b'; dot.style.boxShadow = '0 0 6px #f59e0b'; }
           if (label) label.textContent = 'RECONNECTING';
           if (badge) { badge.style.color = '#f59e0b'; }
-          // SSE auto-reconnects; nullify so setupRoutesSSE can be called again
           _routeSseSource = null;
         };
-      } catch (_) { /* SSE not supported in very old browsers */ }
+      } catch (_) { }
     }
 
     async function loadRoutes() {
-      const container = document.getElementById('routesContainer');
       try {
         const res = await fetch('/api/omniroute/routes');
-        const routes = await res.json();
+        _nodeGraphData.routes = await res.json();
 
-        // Update live route count badge from gateway live-routes endpoint
         fetch('/api/omniroute/live-routes').then(r => r.json()).then(data => {
           const cnt = document.getElementById('liveRouteCount');
-          if (cnt) cnt.textContent = `${data.total ?? routes.length} active`;
+          if (cnt) cnt.textContent = `${data.total ?? _nodeGraphData.routes.length} active`;
         }).catch(() => {
           const cnt = document.getElementById('liveRouteCount');
-          if (cnt) cnt.textContent = `${routes.length} active`;
+          if (cnt) cnt.textContent = `${_nodeGraphData.routes.length} active`;
         });
 
-        // Refresh playground route selector
         const sel = document.getElementById('testRouteSelect');
         if (sel) {
           const currentVal = sel.value;
-          sel.innerHTML = routes.map(r => `<option value="${r.route_name}"${r.route_name === currentVal ? ' selected' : ''}>${r.route_name}</option>`).join('');
+          sel.innerHTML = _nodeGraphData.routes.map(r => `<option value="${r.route_name}"${r.route_name === currentVal ? ' selected' : ''}>Route: ${r.route_name}</option>`).join('');
         }
-
-        container.innerHTML = routes.map(r => `
-          <div class="donezo-card" style="border-left:3px solid #10b981;">
-            <div class="donezo-card-header">
-              <div>
-                <span class="status-pill status-completed">ROUTE: ${r.route_name.toUpperCase()}</span>
-                <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 10px;">Primary: ${r.primary_provider_id} [${r.primary_model}]</span>
-              </div>
-              <div style="display: flex; gap: 8px; align-items:center;">
-                <span style="font-size: 0.75rem; color: var(--text-light);">Cooldown: ${r.cooldown_seconds}s &nbsp;·&nbsp; Retries: ${r.max_retries}</span>
-                <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(16,185,129,0.12);color:#10b981;font-weight:700;">LIVE</span>
-                <button style="border: 1px solid #fee2e2; background: #fef2f2; color: #ef4444; border-radius: 6px; padding: 4px 8px; font-size: 10px; cursor: pointer;" onclick="deleteRoute('${r.route_name}')">Delete</button>
-              </div>
-            </div>
-            <div class="chain-flow">
-              <div class="chain-node" style="border-color: var(--forest-primary); font-weight: 700;">
-                <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#10b981;margin-right:4px;"></span> Primary: ${r.primary_model}
-              </div>
-              ${(r.fallback_chain || []).map(step => `
-                <span style="color: var(--text-light);display:inline-flex;align-items:center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
-                <div class="chain-node">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-1px;margin-right:3px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> ${step.provider_id}: ${step.model}
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `).join('');
-      } catch (e) { }
-      // Ensure SSE is running whenever routes tab is active
+      } catch (e) {
+        _nodeGraphData.routes = [];
+      }
+      renderNodeGraph();
       setupRoutesSSE();
     }
 
@@ -5751,24 +6034,29 @@
         })
       });
       closeModal('routeModal');
-      // SSE will trigger loadRoutes() automatically, but also call it directly
-      // so there's zero perceived lag for the local user
-      loadRoutes();
+      await reloadNodeStudio();
     }
 
     async function deleteRoute(name) {
-      if (confirm(`Delete route "${name}"?\n\nThis will immediately remove it from the live gateway.`)) {
+      if (confirm(`Delete route node "${name}"?\nThis removes it immediately from the live engine.`)) {
         await fetch(`/api/omniroute/routes/${name}`, { method: 'DELETE' });
-        loadRoutes();
+        delete _nodePositions['route_' + name];
+        await reloadNodeStudio();
       }
     }
-
 
     async function runRouteTest() {
       const routeName = document.getElementById('testRouteSelect').value;
       const prompt = document.getElementById('testPromptInput').value.trim();
       const output = document.getElementById('testRouteOutput');
-      output.textContent = `Routing request through route [${routeName}]...`;
+      output.textContent = `⚡ Executing node pipeline through route node [${routeName}]...`;
+
+      // Visual pulse on the matching route node in canvas
+      const nodeEl = document.getElementById(`dv_node_route_${routeName}`);
+      if (nodeEl) {
+        nodeEl.classList.add('selected');
+        setTimeout(() => nodeEl.classList.remove('selected'), 1200);
+      }
 
       const res = await fetch('/api/omniroute/test-route', {
         method: 'POST',
@@ -5778,6 +6066,314 @@
       const data = await res.json();
       output.textContent = JSON.stringify(data, null, 2);
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // DAVINCI & BLENDER CANVAS ENGINE: Rendering, Drag & Drop, Bezier Curves
+    // ─────────────────────────────────────────────────────────────────────────
+
+    function autoLayoutNodes() {
+      const provs = _nodeGraphData.providers || [];
+      const routes = _nodeGraphData.routes || [];
+
+      // Left column: Providers
+      provs.forEach((p, idx) => {
+        _nodePositions['prov_' + p.id] = { x: 50, y: 70 + (idx * 160) };
+      });
+
+      // Center column: Routes
+      routes.forEach((r, idx) => {
+        _nodePositions['route_' + r.route_name] = { x: 380, y: 80 + (idx * 170) };
+      });
+
+      // Right column: Final Output Nodes
+      _nodePositions['out_pipeline'] = { x: 740, y: 160 };
+
+      renderNodeGraph();
+    }
+
+    function renderNodeGraph() {
+      const container = document.getElementById('nodesContainer');
+      const svg = document.getElementById('nodeSvgWires');
+      const listEl = document.getElementById('quickNodeList');
+      const summaryEl = document.getElementById('nodeTotalSummary');
+      if (!container || !svg) return;
+
+      const provs = _nodeGraphData.providers || [];
+      const routes = _nodeGraphData.routes || [];
+
+      if (summaryEl) {
+        summaryEl.textContent = `${provs.length} Providers · ${routes.length} Dynamic Routes`;
+      }
+
+      // Populate quick inventory list below viewport
+      if (listEl) {
+        let itemsHtml = '';
+        provs.forEach(p => {
+          itemsHtml += `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#161b22;border:1px solid #30363d;border-radius:6px;font-size:11px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="node-legend-dot" style="background:#58a6ff;"></span>
+                <strong style="color:#e6edf3;">${p.name}</strong>
+                <span class="dv-node-meta-tag">${p.provider_type}</span>
+              </div>
+              <button class="dv-node-btn" onclick="testProviderLatency('${p.provider_type}', '${(p.models || [])[0] || ''}')">Ping</button>
+            </div>
+          `;
+        });
+        routes.forEach(r => {
+          itemsHtml += `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#161b22;border:1px solid #30363d;border-radius:6px;font-size:11px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="node-legend-dot" style="background:#2ea043;"></span>
+                <strong style="color:#e6edf3;">Route: ${r.route_name}</strong>
+                <span class="dv-node-meta-tag">${r.primary_model}</span>
+              </div>
+              <button class="dv-node-btn danger" onclick="deleteRoute('${r.route_name}')">Remove</button>
+            </div>
+          `;
+        });
+        listEl.innerHTML = itemsHtml || '<div style="color:#8b949e;font-size:11px;">No nodes created yet. Click "+ Add Provider Node" or "+ Add Route Node" to begin.</div>';
+      }
+
+      // Default layout if not initialized
+      provs.forEach((p, idx) => {
+        if (!_nodePositions['prov_' + p.id]) {
+          _nodePositions['prov_' + p.id] = { x: 50, y: 70 + (idx * 160) };
+        }
+      });
+      routes.forEach((r, idx) => {
+        if (!_nodePositions['route_' + r.route_name]) {
+          _nodePositions['route_' + r.route_name] = { x: 380, y: 80 + (idx * 170) };
+        }
+      });
+      if (!_nodePositions['out_pipeline']) {
+        _nodePositions['out_pipeline'] = { x: 740, y: 160 };
+      }
+
+      // Build HTML nodes
+      let nodesHtml = '';
+
+      // 1. Provider Nodes (Source Nodes like DaVinci MediaIn / Blender Texture)
+      provs.forEach(p => {
+        const pos = _nodePositions['prov_' + p.id] || { x: 50, y: 70 };
+        const modelStr = (p.models && p.models.length) ? p.models[0] : 'default';
+        nodesHtml += `
+          <div class="dv-node" id="dv_node_prov_${p.id}" data-node-id="prov_${p.id}" style="left:${pos.x}px;top:${pos.y}px;pointer-events:auto;">
+            <div class="dv-node-header node-color-provider" onmousedown="startNodeDrag(event, 'prov_${p.id}')">
+              <span>● ${p.provider_type.toUpperCase()} NODE</span>
+              <span style="font-size:9px;opacity:0.85;">${p.enabled ? 'ACTIVE' : 'OFF'}</span>
+            </div>
+            <div class="dv-node-body">
+              <div class="dv-node-row">
+                <strong style="color:#ffffff;font-size:12px;">${p.name}</strong>
+              </div>
+              <div class="dv-node-row">
+                <span style="color:#8b949e;font-size:10px;">ID: ${p.id}</span>
+                <span class="dv-node-meta-tag">${p.key_masked}</span>
+              </div>
+              <div class="dv-node-row" style="margin-top:6px;border-top:1px solid #21262d;padding-top:6px;">
+                <span style="color:#8b949e;font-size:10px;">Engine: ${modelStr}</span>
+                <div style="display:flex;gap:4px;">
+                  <button class="dv-node-btn" onclick="testProviderLatency('${p.provider_type}', '${modelStr}')">Ping</button>
+                  <button class="dv-node-btn danger" onclick="deleteProvider('${p.id}')">✕</button>
+                </div>
+              </div>
+            </div>
+            <!-- Output Socket (DaVinci Cyan) -->
+            <div class="dv-socket output" id="socket_out_prov_${p.id}" style="top:50%;" title="Provider Output Socket"></div>
+          </div>
+        `;
+      });
+
+      // 2. Route Nodes (Transform/Grade Nodes like DaVinci Corrector / Blender Shader)
+      routes.forEach(r => {
+        const pos = _nodePositions['route_' + r.route_name] || { x: 380, y: 80 };
+        const fbCount = (r.fallback_chain || []).length;
+        nodesHtml += `
+          <div class="dv-node" id="dv_node_route_${r.route_name}" data-node-id="route_${r.route_name}" style="left:${pos.x}px;top:${pos.y}px;pointer-events:auto;">
+            <!-- Input Socket (Blender Orange) -->
+            <div class="dv-socket input" id="socket_in_route_${r.route_name}" style="top:50%;" title="Input Stream Socket"></div>
+
+            <div class="dv-node-header node-color-route" onmousedown="startNodeDrag(event, 'route_${r.route_name}')">
+              <span>⚡ ROUTE: ${r.route_name.toUpperCase()}</span>
+              <span style="font-size:9px;opacity:0.85;">CASCADE</span>
+            </div>
+            <div class="dv-node-body">
+              <div class="dv-node-row">
+                <span style="color:#8b949e;font-size:10px;">Primary Engine:</span>
+                <span class="dv-node-meta-tag" style="color:#3fb950;border-color:rgba(46,160,67,0.4);">${r.primary_model}</span>
+              </div>
+              <div class="dv-node-row">
+                <span style="color:#8b949e;font-size:10px;">Fallback Chain:</span>
+                <span class="dv-node-meta-tag" style="color:#bc8cff;">${fbCount} failover${fbCount !== 1 ? 's' : ''}</span>
+              </div>
+              <div class="dv-node-row" style="margin-top:6px;border-top:1px solid #21262d;padding-top:6px;">
+                <span style="color:#8b949e;font-size:10px;">Cooldown: ${r.cooldown_seconds}s</span>
+                <button class="dv-node-btn danger" onclick="deleteRoute('${r.route_name}')">Delete</button>
+              </div>
+            </div>
+
+            <!-- Output Socket to Master Pipeline -->
+            <div class="dv-socket output" id="socket_out_route_${r.route_name}" style="top:50%;" title="Route Output Socket"></div>
+          </div>
+        `;
+      });
+
+      // 3. Final Master Engine Node (DaVinci MediaOut / Blender Material Output)
+      const outPos = _nodePositions['out_pipeline'] || { x: 740, y: 160 };
+      nodesHtml += `
+        <div class="dv-node" id="dv_node_out_pipeline" data-node-id="out_pipeline" style="left:${outPos.x}px;top:${outPos.y}px;pointer-events:auto;width:220px;">
+          <!-- Input Socket -->
+          <div class="dv-socket input" id="socket_in_out_pipeline" style="top:50%;" title="Engine Ingest Socket"></div>
+
+          <div class="dv-node-header node-color-output" onmousedown="startNodeDrag(event, 'out_pipeline')">
+            <span>● AGENT PIPELINE</span>
+            <span style="font-size:9px;opacity:0.85;">OUTPUT</span>
+          </div>
+          <div class="dv-node-body">
+            <div style="font-size:11px;color:#e6edf3;font-weight:600;margin-bottom:4px;">Multi-Agent Orchestrator</div>
+            <p style="font-size:10px;color:#8b949e;line-height:1.4;margin:0 0 6px 0;">All agent calls (TrendHunter, FactChecker, ScriptForge) route through this master sink.</p>
+            <div class="dv-node-meta-tag" style="color:#7ee787;border-color:rgba(126,231,135,0.3);width:100%;text-align:center;">ONLINE & READY</div>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = nodesHtml;
+
+      // Draw DaVinci / Blender Bezier wires
+      drawNodeWires();
+    }
+
+    function drawNodeWires() {
+      const svg = document.getElementById('nodeSvgWires');
+      const viewport = document.getElementById('nodeViewport');
+      if (!svg || !viewport) return;
+
+      const vRect = viewport.getBoundingClientRect();
+      const provs = _nodeGraphData.providers || [];
+      const routes = _nodeGraphData.routes || [];
+
+      // Preserve defs
+      const defs = svg.querySelector('defs');
+      svg.innerHTML = '';
+      if (defs) svg.appendChild(defs);
+
+      // Helper to compute socket center relative to viewport
+      function getSocketPos(el) {
+        if (!el) return null;
+        const rect = el.getBoundingClientRect();
+        return {
+          x: rect.left - vRect.left + (rect.width / 2),
+          y: rect.top - vRect.top + (rect.height / 2)
+        };
+      }
+
+      // Draw cubic bezier wire (DaVinci / Blender style)
+      function drawWire(p1, p2, strokeStyle, isActive = false) {
+        if (!p1 || !p2) return;
+        const dx = Math.abs(p2.x - p1.x) * 0.55;
+        const cp1x = p1.x + dx;
+        const cp1y = p1.y;
+        const cp2x = p2.x - dx;
+        const cp2y = p2.y;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', `M ${p1.x} ${p1.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`);
+        path.setAttribute('class', `node-wire ${isActive ? 'active' : ''}`);
+        path.setAttribute('stroke', strokeStyle);
+        svg.appendChild(path);
+      }
+
+      // 1. Connect Providers to Routes
+      routes.forEach(r => {
+        const inSocket = document.getElementById(`socket_in_route_${r.route_name}`);
+        const inPos = getSocketPos(inSocket);
+
+        // Find primary provider
+        const primaryProv = provs.find(p => p.id === r.primary_provider_id) || provs[0];
+        if (primaryProv) {
+          const outSocket = document.getElementById(`socket_out_prov_${primaryProv.id}`);
+          const outPos = getSocketPos(outSocket);
+          drawWire(outPos, inPos, 'url(#primaryWireGrad)', true);
+        }
+
+        // Draw fallback connections
+        (r.fallback_chain || []).forEach(fb => {
+          const fbProv = provs.find(p => p.id === fb.provider_id);
+          if (fbProv && fbProv !== primaryProv) {
+            const outSocket = document.getElementById(`socket_out_prov_${fbProv.id}`);
+            const outPos = getSocketPos(outSocket);
+            drawWire(outPos, inPos, 'url(#fallbackWireGrad)', false);
+          }
+        });
+      });
+
+      // 2. Connect Routes to Master Pipeline Output
+      const masterIn = document.getElementById('socket_in_out_pipeline');
+      const masterPos = getSocketPos(masterIn);
+      routes.forEach(r => {
+        const routeOut = document.getElementById(`socket_out_route_${r.route_name}`);
+        const routePos = getSocketPos(routeOut);
+        drawWire(routePos, masterPos, '#3fb950', true);
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Interactive Node Dragging
+    // ─────────────────────────────────────────────────────────────────────────
+
+    function startNodeDrag(e, nodeId) {
+      _activeDragNode = nodeId;
+      const nodeEl = document.getElementById('dv_node_' + nodeId);
+      const viewport = document.getElementById('nodeViewport');
+      if (!nodeEl || !viewport) return;
+
+      const vRect = viewport.getBoundingClientRect();
+      const nRect = nodeEl.getBoundingClientRect();
+
+      _dragOffset.x = e.clientX - nRect.left;
+      _dragOffset.y = e.clientY - nRect.top;
+
+      // Bring clicked node to top z-index
+      document.querySelectorAll('.dv-node').forEach(n => n.classList.remove('selected'));
+      nodeEl.classList.add('selected');
+
+      window.addEventListener('mousemove', handleNodeDrag);
+      window.addEventListener('mouseup', endNodeDrag);
+      e.preventDefault();
+    }
+
+    function handleNodeDrag(e) {
+      if (!_activeDragNode) return;
+      const nodeEl = document.getElementById('dv_node_' + _activeDragNode);
+      const viewport = document.getElementById('nodeViewport');
+      if (!nodeEl || !viewport) return;
+
+      const vRect = viewport.getBoundingClientRect();
+      let newX = e.clientX - vRect.left - _dragOffset.x;
+      let newY = e.clientY - vRect.top - _dragOffset.y;
+
+      // Bounds clamping
+      newX = Math.max(10, Math.min(newX, vRect.width - nodeEl.offsetWidth - 10));
+      newY = Math.max(10, Math.min(newY, vRect.height - nodeEl.offsetHeight - 10));
+
+      nodeEl.style.left = newX + 'px';
+      nodeEl.style.top = newY + 'px';
+      _nodePositions[_activeDragNode] = { x: newX, y: newY };
+
+      // Redraw wires smoothly in real time
+      drawNodeWires();
+    }
+
+    function endNodeDrag() {
+      _activeDragNode = null;
+      window.removeEventListener('mousemove', handleNodeDrag);
+      window.removeEventListener('mouseup', endNodeDrag);
+    }
+
+    window.addEventListener('resize', () => {
+      drawNodeWires();
+    });
 
     let isFacebookConfigured = false;
 
@@ -6981,12 +7577,12 @@
       left: [
         ['zap', 'Google Gemini'],
         ['globe', 'OpenRouter'],
-        ['cpu', 'OpenAI (DALL-E 3)'],
-        ['sync', 'OmniRoute']
+        ['cpu', 'OpenAI (GPT-4o)'],
+        ['sync', 'Dynamic Fallback']
       ],
       top: [
         ['trending', 'TrendHunter', 'Breakout trends discovered', 'Google Gemini', 'Trend Radar'],
-        ['shield', 'FactChecker', 'Claims verified with citations', 'OmniRoute', 'Truth Verification'],
+        ['shield', 'FactChecker', 'Claims verified with citations', 'Google Gemini', 'Truth Verification'],
         ['target', 'Strategist', 'Content angle & hooks locked', 'Google Gemini', 'Strategy & Angle'],
         ['user', 'AudienceMiner', 'Retention & sentiment mapped', 'OpenRouter', 'Audience Mining']
       ],
@@ -6994,17 +7590,17 @@
         ['edit', 'ScriptForge', 'High-retention script forged', 'Google Gemini', 'Script Forge'],
         ['bar', 'SEOOptimizer', 'Viral SEO bundle assembled', 'OpenRouter', 'SEO & Metadata'],
         ['fb', 'FB Agent', 'Facebook post & media ready', 'Google Gemini', 'Facebook Studio'],
-        ['sync', 'Learner', 'Knowledge graph updated', 'OmniRoute', 'Neural Memory']
+        ['sync', 'Learner', 'Knowledge graph updated', 'OpenAI (GPT-4o)', 'Neural Memory']
       ]
     };
 
     // Real content workflow tasks
     const brainTasksList = [
-      { n: 'Autonomous Pipeline', p: ['Google Gemini', 'OmniRoute'], a: ['TrendHunter', 'FactChecker', 'Strategist', 'ScriptForge', 'SEOOptimizer'] },
+      { n: 'Autonomous Pipeline', p: ['Google Gemini', 'OpenAI (GPT-4o)'], a: ['TrendHunter', 'FactChecker', 'Strategist', 'ScriptForge', 'SEOOptimizer'] },
       { n: 'Trend Radar Sweep', p: ['Google Gemini', 'OpenRouter'], a: ['TrendHunter', 'Strategist', 'AudienceMiner'] },
       { n: 'Script Forge Lab', p: ['Google Gemini'], a: ['Strategist', 'ScriptForge', 'SEOOptimizer'] },
-      { n: 'Fact-Check Lab', p: ['OmniRoute', 'Google Gemini'], a: ['TrendHunter', 'FactChecker'] },
-      { n: 'Facebook Growth Cycle', p: ['Google Gemini', 'OmniRoute'], a: ['TrendHunter', 'FB Agent', 'Learner'] }
+      { n: 'Fact-Check Lab', p: ['Google Gemini', 'OpenRouter'], a: ['TrendHunter', 'FactChecker'] },
+      { n: 'Facebook Growth Cycle', p: ['Google Gemini', 'OpenAI (GPT-4o)'], a: ['TrendHunter', 'FB Agent', 'Learner'] }
     ];
 
     let brainStage, brainChip, brainWires, brainConns = [], brainN = {}, brainRes = null;
@@ -7543,7 +8139,7 @@
         chatPanelEl.scrollTop = chatPanelEl.scrollHeight;
       }
 
-      const prov = brainN['Google Gemini'] || brainN['OmniRoute'] || brainN['OpenRouter'] || Object.values(brainN).find(x => x && x.side === 'left');
+      const prov = brainN['Google Gemini'] || brainN['OpenAI (GPT-4o)'] || brainN['OpenRouter'] || Object.values(brainN).find(x => x && x.side === 'left');
       if (prov) { prov.el.classList.add('on'); brainPulse(prov, 1, 700); }
 
       try {
