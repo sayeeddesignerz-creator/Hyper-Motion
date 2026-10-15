@@ -127,6 +127,18 @@ Hyper-Motion/
 
 > Newest first. Format: `### YYYY-MM-DD — title ✅` + bullets (what changed, follow-ups).
 
+### 2026-10-15 — Orchestration polish 2: dark canvas + functional wires + node-graph mirror ✅
+**Goal:** fix "everything white / nothing visible / no wires", add wires with functional flow, bigger centered chip, and mirror the node graph (providers + connections) in the flow.
+- 🌑 **Dark premium canvas:** the Orchestration stage is now a dark board (`#0d1117` + violet/cyan glows + dot grid) with fully dark-themed cards, chip, labels and results — the washed-out white look is gone and wires are clearly visible. `#brainPanelOrch` bg forced dark too.
+- 🔗 **3-path wire system** (base `w` / animated flow `f` / task pulse `g`):
+  - **Agents ALWAYS flow into the chip** — all 8 agent wires carry green flowing dashes (agent → chip), matching the spec "agents give the output to the chip first".
+  - **Chip → Results** violet flow — the chip displays finished work in the Results card.
+  - **Provider → chip wires exist ONLY when the provider is connected in the node graph** (referenced as primary/fallback in any `omni_routes` route — same data the bottom graph wires render from). Connected = cyan flowing dashes; not connected = dimmed card, grey dot, **no wire**, tooltip "connect it in the node graph below". Adding/connecting a provider in the node graph now automatically raises a provider card + wire here (SSE `routes_changed` re-syncs live).
+  - Task dim/highlight now also dims the flow layer; `prefers-reduced-motion` users get static wires (no animation).
+- 🧠 **Hyper Motion chip:** bigger (250→320px wide, 72px core, 21px title, 36px icon) with gradient border + accent glow, flex-centered in a widened center column (`1fr 340px 1fr`); mobile grid layout untouched (`@media (min-width: 861px)` guard).
+- ✅ **Verified:** `node --check` OK; served page contains every new block; live data check — all 3 DB providers are route-connected (wires to chip), unwired-provider path handled; `pytest` suite unchanged (16 passed last run).
+- ⏭️ **Follow-ups (user):** rotate FB credentials (§5 #1).
+
 ### 2026-10-15 — Brain → `🧠 Orchestration` flow: premium redesign + fully live wiring ✅
 **Goal:** make the Orchestration sub-panel premium and functional (it was hardcoded: fake provider pings, no toolbar, no route info).
 - 🧰 **Sticky premium toolbar** (`.orch-toolbar`): title + subtitle, live stat chips (**providers · agents · live routes**), last-sync timestamp, and actions — **⟳ Sync** (re-reads the backend), **✨ Simulate** (animates the next workflow; restores the old task-chip behaviour), **▶ Run Pipeline** (real trigger).

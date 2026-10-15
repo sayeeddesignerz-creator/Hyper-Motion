@@ -3379,8 +3379,9 @@
     }
 
     /* ══════════════════════════════════════════════════════════════
-       ORCHESTRATION FLOW — premium toolbar, stage, cards & wires
+       ORCHESTRATION FLOW — premium dark canvas, toolbar, cards & wires
        ══════════════════════════════════════════════════════════════ */
+    #brainPanelOrch { background: #0b0f14 !important; }
     #brainPanelOrch .orch-toolbar {
       position: sticky;
       top: 0;
@@ -3486,25 +3487,40 @@
       background: linear-gradient(180deg, rgba(56, 189, 248, 0.22), rgba(56, 189, 248, 0.08));
     }
     #brainPanelOrch .brain-wrap {
-      padding: 14px 16px 18px !important;
+      padding: 16px 18px 22px !important;
+    }
+    @media (min-width: 861px) {
+      #tab-brain .grid {
+        grid-template-columns: 1fr 340px 1fr;
+        gap: 86px 56px;
+      }
+    }
+    #tab-brain .c {
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     #tab-brain .stage {
       background:
-        radial-gradient(820px 340px at 50% 42%, rgba(99, 102, 241, 0.08), transparent 62%),
-        radial-gradient(620px 280px at 50% 46%, rgba(14, 165, 233, 0.07), transparent 60%),
-        #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 18px;
+        radial-gradient(900px 400px at 50% 45%, rgba(124, 58, 237, 0.14), transparent 62%),
+        radial-gradient(700px 320px at 50% 48%, rgba(14, 165, 233, 0.10), transparent 60%),
+        #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 20px;
       overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 30px 80px -50px rgba(0, 0, 0, 0.9);
     }
     #tab-brain .stage::before {
       content: '';
       position: absolute;
       inset: 0;
       border-radius: inherit;
-      background-image: radial-gradient(rgba(15, 23, 42, 0.055) 1.1px, transparent 1.1px);
+      background-image: radial-gradient(rgba(255, 255, 255, 0.065) 1.1px, transparent 1.1px);
       background-size: 22px 22px;
       pointer-events: none;
+    }
+    #tab-brain .lab {
+      color: #7d8b9d;
     }
     #tab-brain .lab::before {
       content: '';
@@ -3514,19 +3530,40 @@
       border-radius: 3px;
       margin-right: 8px;
       vertical-align: middle;
-      background: linear-gradient(90deg, #6366f1, #0ea5e9);
-      opacity: 0.75;
+      background: linear-gradient(90deg, #8b5cf6, #0ea5e9);
+      opacity: 0.85;
     }
     #tab-brain .card {
-      background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 14px 30px -22px rgba(15, 23, 42, 0.45);
+      background: linear-gradient(180deg, #161d26 0%, #121820 100%);
+      border: 1px solid #2b3542;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 18px 34px -26px rgba(0, 0, 0, 0.9);
       transition: transform 0.18s ease, border-color 0.25s ease, box-shadow 0.3s ease, opacity 0.3s;
     }
     #tab-brain .card:hover {
       transform: translateY(-2px);
-      border-color: color-mix(in srgb, var(--ac) 42%, #e2e8f0);
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 20px 38px -22px color-mix(in srgb, var(--ac) 45%, transparent);
+      border-color: color-mix(in srgb, var(--ac) 60%, #2b3542);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 22px 40px -24px color-mix(in srgb, var(--ac) 55%, transparent);
+    }
+    #tab-brain .card b {
+      color: #e6edf3;
+    }
+    #tab-brain .agent span {
+      color: #8b949e;
+    }
+    #tab-brain .card.idle {
+      opacity: 0.55;
+    }
+    #tab-brain .ico {
+      background: color-mix(in srgb, var(--ac) 20%, transparent);
+      color: #c4b5fd;
+    }
+    #tab-brain .dot {
+      background: #48525f;
+    }
+    #tab-brain .dot.en {
+      background: #3fb950;
+      opacity: 1;
+      box-shadow: 0 0 8px rgba(63, 185, 80, 0.7);
     }
     #tab-brain .agent .aroute {
       margin-top: 9px;
@@ -3536,9 +3573,9 @@
       max-width: 100%;
       padding: 3px 9px;
       border-radius: 8px;
-      background: rgba(100, 116, 139, 0.08);
-      border: 1px solid rgba(100, 116, 139, 0.2);
-      color: #64748b;
+      background: rgba(88, 166, 255, 0.09);
+      border: 1px solid rgba(88, 166, 255, 0.25);
+      color: #79c0ff;
       font-family: 'JetBrains Mono', monospace;
       font-size: 9.5px;
       letter-spacing: 0.1px;
@@ -3549,16 +3586,17 @@
       transition: border-color 0.15s ease, color 0.15s ease;
     }
     #tab-brain .agent .aroute:hover {
-      border-color: rgba(88, 166, 255, 0.5);
-      color: #3b82f6;
+      border-color: rgba(88, 166, 255, 0.6);
+      color: #a5d6ff;
     }
     #tab-brain .agent .aroute.live {
-      background: rgba(16, 185, 129, 0.09);
-      border-color: rgba(16, 185, 129, 0.3);
-      color: #0e9f6e;
+      background: rgba(63, 185, 80, 0.12);
+      border-color: rgba(63, 185, 80, 0.35);
+      color: #3fb950;
     }
     #tab-brain .agent .aroute.live:hover {
-      border-color: rgba(16, 185, 129, 0.6);
+      border-color: rgba(63, 185, 80, 0.65);
+      color: #56d364;
     }
     #tab-brain .prov .pcol {
       min-width: 0;
@@ -3573,44 +3611,146 @@
     }
     #tab-brain .prov .pcol small {
       font-size: 10.5px;
-      color: var(--mu);
+      color: #7d8b9d;
       font-family: 'JetBrains Mono', monospace;
     }
-    #tab-brain .dot.en {
-      background: var(--ok);
-      opacity: 1;
-      box-shadow: 0 0 6px color-mix(in srgb, var(--ok) 70%, transparent);
+    #tab-brain .rh b {
+      color: #e6edf3;
     }
-    #tab-brain .st {
-      padding: 5px 12px;
-      border-radius: 20px;
-      background: rgba(100, 116, 139, 0.08);
-      border: 1px solid rgba(100, 116, 139, 0.18);
+    #tab-brain #clr {
+      color: #8b949e;
     }
-    #tab-brain .st.busy {
-      background: color-mix(in srgb, var(--ok) 10%, transparent);
-      border-color: color-mix(in srgb, var(--ok) 35%, transparent);
-      color: var(--ok);
+    #tab-brain .cnt {
+      background: rgba(63, 185, 80, 0.16);
+      color: #3fb950;
     }
+    #tab-brain .ri {
+      border-top: 1px solid #21262d;
+    }
+    #tab-brain .ri i {
+      background: rgba(63, 185, 80, 0.16);
+      color: #3fb950;
+    }
+    #tab-brain .ri b {
+      color: #e6edf3;
+    }
+    #tab-brain .ri small {
+      color: #8b949e;
+    }
+    #tab-brain .empty {
+      color: #6e7b8f;
+    }
+    #tab-brain .more {
+      color: #6e7b8f;
+    }
+    /* The Hyper Motion chip — bigger, centered, glowing */
     #tab-brain .chip {
+      width: 320px;
+      max-width: 100%;
+      padding: 36px 26px 28px;
+      border-radius: 32px;
+      background: linear-gradient(#161d27, #0e131a) padding-box, linear-gradient(135deg, #8b5cf6, #0ea5e9) border-box;
+      box-shadow: 0 30px 90px -30px rgba(139, 92, 246, 0.6);
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.3s ease;
     }
     #tab-brain .chip:hover {
-      transform: translateY(-2px);
+      transform: translateY(-3px);
     }
     #tab-brain .core {
-      box-shadow: 0 8px 22px -10px color-mix(in srgb, var(--ac) 70%, transparent);
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 14px 34px -12px color-mix(in srgb, var(--ac) 80%, transparent);
       transition: box-shadow 0.25s ease;
     }
+    #tab-brain .core svg {
+      width: 36px;
+      height: 36px;
+    }
+    #tab-brain .chip h2 {
+      color: #e6edf3;
+      font-size: 21px;
+      font-weight: 700;
+    }
+    #tab-brain .chip p {
+      color: #8b949e;
+      font-size: 12.5px;
+    }
+    #tab-brain .st {
+      margin-top: 16px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      color: #9aa7b8;
+      background: rgba(148, 163, 184, 0.1);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+    }
+    #tab-brain .st i {
+      background: #6e7b8f;
+    }
+    #tab-brain .st.busy {
+      color: #3fb950;
+      background: rgba(63, 185, 80, 0.12);
+      border-color: rgba(63, 185, 80, 0.4);
+    }
+    #tab-brain .st.busy i {
+      background: #3fb950;
+      animation: bl 1s infinite;
+    }
+    /* Wires — base plumbing + animated flow (agents → chip, providers → chip) */
+    #tab-brain .w {
+      fill: none;
+      stroke: #55606e;
+      stroke-width: 1.4;
+      opacity: 0.6;
+      transition: opacity 0.3s, stroke 0.3s;
+    }
+    #tab-brain .w.idle {
+      stroke-dasharray: 4 9;
+      opacity: 0.25;
+    }
+    #tab-brain .w.on {
+      stroke: #7d8b9d;
+      opacity: 0.9;
+    }
+    #tab-brain .w.dim {
+      opacity: 0.12;
+    }
+    #tab-brain .f {
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      opacity: 0.95;
+      transition: opacity 0.3s;
+    }
+    #tab-brain .f.prov {
+      stroke: #22d3ee;
+      filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.5));
+    }
+    #tab-brain .f.agent {
+      stroke: #34d399;
+      filter: drop-shadow(0 0 4px rgba(52, 211, 153, 0.45));
+    }
+    #tab-brain .f.res {
+      stroke: #a78bfa;
+      filter: drop-shadow(0 0 4px rgba(167, 139, 250, 0.45));
+    }
+    #tab-brain .f.dim {
+      opacity: 0.15;
+    }
     @media (prefers-reduced-motion: no-preference) {
-      #tab-brain .w {
-        stroke-dasharray: 2 8;
-        stroke-linecap: round;
-        animation: wiredash 4.2s linear infinite;
+      #tab-brain .f {
+        stroke-dasharray: 5 13;
+        animation: brainflow 1.25s linear infinite;
+      }
+      #tab-brain .f.res {
+        animation-name: brainflowback;
+        animation-duration: 1.6s;
       }
     }
-    @keyframes wiredash { to { stroke-dashoffset: -20; } }
+    @keyframes brainflow { to { stroke-dashoffset: -18; } }
+    @keyframes brainflowback { to { stroke-dashoffset: 18; } }
   </style>
 </head>
 
@@ -9150,9 +9290,10 @@
     }
 
     function mkBrainWire(el, k) {
-      const w = document.createElementNS(brainNS, 'path'), g = document.createElementNS(brainNS, 'path');
-      w.setAttribute('class', 'w'); g.setAttribute('class', 'g'); brainWires.append(w, g);
-      return Object.assign(k, { el, w, g, len: 0, h: false });
+      const w = document.createElementNS(brainNS, 'path'), f = document.createElementNS(brainNS, 'path'), g = document.createElementNS(brainNS, 'path');
+      w.setAttribute('class', 'w'); f.setAttribute('class', 'f'); g.setAttribute('class', 'g');
+      brainWires.append(w, f, g);
+      return Object.assign(k, { el, w, f, g, len: 0, h: false, flow: !!k.flow });
     }
 
     function initBrainSystem(skipLive) {
@@ -9167,6 +9308,14 @@
       brainN = {};
       brainWires.innerHTML = '';
 
+      // A provider is "wired to the chip" when it participates in any route
+      // (primary or fallback) — i.e. it is connected in the node graph below.
+      const wiredProv = new Set();
+      (brainLive.routes || []).forEach(r => {
+        if (r && r.primary_provider_id) wiredProv.add(r.primary_provider_id);
+        ((r && r.fallback_chain) || []).forEach(f => { if (f && f.provider_id) wiredProv.add(f.provider_id); });
+      });
+
       // Build the node set — left column uses LIVE backend providers when available
       const liveProvs = (brainLive.providers || []).filter(p => p && p.name);
       const sideItems = {
@@ -9178,10 +9327,11 @@
                 name: p.name,
                 meta: `${p.provider_type || 'provider'} · ${models.length} model${models.length === 1 ? '' : 's'}${p.enabled === false ? ' · disabled' : ''}`,
                 enabled: p.enabled !== false,
+                wired: p.id ? wiredProv.has(p.id) : true,
                 raw: p
               };
             })
-          : brainD.left.map(([i, t]) => ({ icon: i, name: t, meta: 'built-in fallback', enabled: true, raw: null })),
+          : brainD.left.map(([i, t]) => ({ icon: i, name: t, meta: 'built-in fallback', enabled: true, wired: true, raw: null })),
         top: brainD.top.map(([icon, name, out, need, role, key]) => ({ icon, name, out, need, role, key })),
         bottom: brainD.bottom.map(([icon, name, out, need, role, key]) => ({ icon, name, out, need, role, key }))
       };
@@ -9197,7 +9347,7 @@
         const n = items.length, ag = side !== 'left';
         items.forEach((it, j) => {
           const el = document.createElement('div');
-          el.className = 'card ' + (ag ? 'agent' : 'prov');
+          el.className = 'card ' + (ag ? 'agent' : 'prov') + (!ag && !it.wired ? ' idle' : '');
 
           if (ag) {
             const info = (brainLive.agents || []).find(a => a && a.name === it.key);
@@ -9214,15 +9364,17 @@
             }
             el.innerHTML = `<i class="dot"></i><div class="ico">${brainIc(it.icon)}</div><b>${brainEsc(it.name)}</b><span>${brainEsc(it.role || ('Agent ' + (j + 1)))}</span>${chip}`;
           } else {
-            el.innerHTML = `<div class="ico">${brainIc(it.icon)}</div><div class="pcol"><b title="${brainEsc(it.name)}">${brainEsc(it.name)}</b><small>${brainEsc(it.meta)}</small></div><i class="dot${it.enabled ? ' en' : ''}"></i>`;
+            el.innerHTML = `<div class="ico">${brainIc(it.icon)}</div><div class="pcol"><b title="${brainEsc(it.name)}">${brainEsc(it.name)}</b><small>${brainEsc(it.meta)}</small></div><i class="dot${it.enabled && it.wired ? ' en' : ''}"></i>`;
           }
 
           host.append(el);
-          const k = mkBrainWire(el, { side, ag, name: it.name, out: it.out, need: it.need, off: (j - (n - 1) / 2) * (ag ? 18 : 16) });
+          const k = mkBrainWire(el, { side, ag, name: it.name, out: it.out, need: it.need, flow: ag || !!it.wired, off: (j - (n - 1) / 2) * (ag ? 18 : 16) });
           brainConns.push(k);
           brainN[it.name] = k;
 
           if (ag) {
+            // Agents ALWAYS feed the chip — the wire flows agent → chip
+            k.f.setAttribute('class', 'f agent');
             brainAgentKeys.push(it.name);
             el.onclick = () => runBrainTask({ n: it.name, p: [it.need], a: [it.name] });
             const chipEl = el.querySelector('.aroute');
@@ -9231,18 +9383,28 @@
               chipEl.onclick = ev => { ev.stopPropagation(); switchBrainSubTab('routes'); };
             }
           } else {
+            // Provider wire exists only when connected in the node graph
+            if (it.wired) {
+              k.w.setAttribute('class', 'w on');
+            } else {
+              k.dead = true; // no wire until connected to the chip
+            }
+            k.f.setAttribute('class', 'f prov');
             brainProvKeys.push(it.name);
             el.style.cursor = 'pointer';
-            el.title = it.raw && it.raw.id ? 'Click to ping this provider (one tiny live request)' : 'Click to ping this provider';
+            el.title = !it.wired
+              ? 'Not wired to the chip yet — connect this provider in the node graph below'
+              : (it.raw && it.raw.id ? 'Click to ping this provider (one tiny live request)' : 'Click to ping this provider');
             el.onclick = () => brainPingProvider(el, k, it);
           }
         });
       });
 
-      // Results card
+      // Results card — the chip displays finished work here (flow chip → results)
       const resEl = document.getElementById('res');
       if (resEl) {
-        brainRes = mkBrainWire(resEl, { side: 'right', res: true, off: 0 });
+        brainRes = mkBrainWire(resEl, { side: 'right', res: true, off: 0, flow: true });
+        brainRes.f.setAttribute('class', 'f res');
         brainConns.push(brainRes);
       }
 
@@ -9315,8 +9477,11 @@
         }
         k.h = m && (k.side === 'bottom' || k.res);
         k.w.setAttribute('d', d);
+        k.f.setAttribute('d', d);
         k.g.setAttribute('d', d);
-        k.w.style.display = k.g.style.display = k.h ? 'none' : '';
+        k.w.style.display = (k.h || k.dead) ? 'none' : '';
+        k.g.style.display = k.h ? 'none' : '';
+        k.f.style.display = (k.h || k.dead || !k.flow) ? 'none' : '';
         k.len = k.h ? 0 : k.g.getTotalLength();
       });
     }
@@ -9388,6 +9553,7 @@
         const d = !inv.has(k);
         k.el.classList.toggle('dim', d);
         k.w.classList.toggle('dim', d);
+        if (k.f) k.f.classList.toggle('dim', d);
       });
 
       setBrainStatus(`${T.n} · fetching`, true);
