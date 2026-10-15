@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hyper Motion — AI Brain</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F6FA;--card:#fff;--bd:#E2E5EE;--tx:#0F1320;--mu:#667085;--ac:#5B5BF0;--ac2:#0EA5E9;--ln:#D3D8E4;--ok:#16A34A;--c1:#fff;--c2:#EEF0FF;--sh:0 1px 2px rgba(16,24,40,.05);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07090F;--card:#0E1219;--bd:rgba(255,255,255,.08);--tx:#E8EBF4;--mu:#8A92A6;--ac:#7C83FF;--ac2:#4CC9F0;--ln:rgba(255,255,255,.1);--ok:#34D399;--c1:#141A2B;--c2:#0B0F1C;--sh:none}}
+:root[data-theme="dark"]{--bg:#07090F;--card:#0E1219;--bd:rgba(255,255,255,.08);--tx:#E8EBF4;--mu:#8A92A6;--ac:#7C83FF;--ac2:#4CC9F0;--ln:rgba(255,255,255,.1);--ok:#34D399;--c1:#141A2B;--c2:#0B0F1C;--sh:none}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.4 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:20px 16px 40px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+h1{font-size:18px;font-weight:600;margin:0;letter-spacing:-.01em}
+h1 small{display:block;font-size:12px;color:var(--mu);font-weight:400;margin-top:2px}
+.btns{display:flex;gap:8px;align-items:center}
+button, a.btn{font:inherit;font-weight:500;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:9px 16px;cursor:pointer;min-height:40px;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+button.pri, a.btn.pri{background:linear-gradient(135deg,var(--ac),var(--ac2));border:0;color:#fff}
+button[aria-pressed="true"]{border-color:var(--ac);color:var(--ac)}
+.tasks{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:28px}
+.tasks>span{font-size:12px;color:var(--mu);letter-spacing:.06em;text-transform:uppercase;margin-right:4px}
+.tk{border-radius:99px;padding:6px 14px;min-height:36px;font-size:13px}
+.tk small{color:var(--mu);margin-left:6px;font-size:12px}
+.tk.cur{border-color:var(--ac);color:var(--ac)}
+.stage{position:relative}
+#wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.w{fill:none;stroke:var(--ln);stroke-width:1.25;transition:opacity .3s}.w.dim{opacity:.3}
+.g{fill:none;stroke:var(--ac);stroke-width:2.2;stroke-linecap:round;opacity:0;filter:drop-shadow(0 0 5px var(--ac))}
+.grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr 250px 1fr;grid-template-areas:"t t t" "l c r" "b b b";gap:84px 60px;align-items:center}
+.t{grid-area:t}.b{grid-area:b}.l{grid-area:l}.r{grid-area:r}.c{grid-area:c}
+.lab{font-size:12px;color:var(--mu);letter-spacing:.06em;text-transform:uppercase;margin:0 0 12px;text-align:center}
+.row{display:flex;gap:12px}.row .card{flex:1;min-width:0}
+.col{display:flex;flex-direction:column;gap:12px}
+.card{position:relative;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;box-shadow:var(--sh);transition:border-color .4s,box-shadow .4s,opacity .3s}
+.card.dim{opacity:.4}
+.card b{display:block;font-weight:500;font-size:14px}
+.agent{cursor:pointer}.agent span{font-size:12px;color:var(--mu)}
+.ico{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:var(--ac);background:color-mix(in srgb,var(--ac) 12%,transparent);margin-bottom:10px}
+.ico svg{width:17px;height:17px}
+.prov{display:flex;align-items:center;gap:12px;padding:12px 14px}.prov .ico{margin:0}
+.dot{position:absolute;top:12px;right:12px;width:6px;height:6px;border-radius:50%;background:var(--mu);opacity:.5}
+.card.on{border-color:color-mix(in srgb,var(--ac) 70%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--ac) 35%,transparent),0 8px 32px -8px color-mix(in srgb,var(--ac) 55%,transparent)}
+.card.on .dot{background:var(--ok);opacity:1;animation:bl 1s infinite}
+@keyframes bl{50%{opacity:.35}}
+.res{min-height:272px;display:flex;flex-direction:column}
+.rh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.rh b{font-size:14px}.rh div{display:flex;gap:10px;align-items:center}
+.cnt{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);font-weight:600;font-size:12px;border-radius:99px;padding:2px 10px}
+#clr{background:none;border:0;padding:0;min-height:0;font-size:12px;color:var(--mu);cursor:pointer}
+.ri{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--bd);animation:in .5s}
+.ri:first-child{border-top:0}
+.ri i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}.ri svg{width:12px;height:12px}
+.ri b{font-size:13px;display:block}.ri small{font-size:12px;color:var(--mu)}
+.empty{margin:auto;color:var(--mu);font-size:13px;text-align:center}
+.more{font-size:12px;color:var(--mu);margin-top:auto;padding-top:6px}
+@keyframes in{from{opacity:0;transform:translateY(-6px)}}
+.chip{position:relative;margin:auto;width:250px;padding:28px 20px 22px;text-align:center;border-radius:28px;border:1px solid transparent;background:linear-gradient(var(--c1),var(--c2)) padding-box,linear-gradient(135deg,var(--ac),var(--ac2)) border-box;box-shadow:0 20px 80px -20px color-mix(in srgb,var(--ac) 45%,transparent);animation:br 5s ease-in-out infinite}
+.core{width:56px;height:56px;margin:0 auto 14px;border-radius:16px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--ac),var(--ac2))}
+.core svg{width:28px;height:28px}
+.chip h2{margin:0;font-size:17px;font-weight:600}
+.chip p{margin:4px 0 0;font-size:12px;color:var(--mu)}
+.st{margin-top:14px;display:inline-flex;gap:8px;align-items:center;font-size:12px;color:var(--mu)}
+.st i{width:6px;height:6px;border-radius:50%;background:var(--mu);flex:none}
+.st.busy i{background:var(--ok)}
+.chip::after{content:"";position:absolute;inset:-1px;border-radius:28px;border:1.5px solid var(--ac);opacity:0;pointer-events:none}
+.chip.flare::after{animation:fl 1.1s ease-out}
+@keyframes fl{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.28)}}
+@keyframes br{50%{box-shadow:0 20px 100px -16px color-mix(in srgb,var(--ac) 60%,transparent)}}
+
+/* Agent Console Section */
+.bc-section{margin-top:32px;background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px;box-shadow:var(--sh)}
+.bc-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.bc-title{display:flex;align-items:center;gap:10px}
+.bc-title h3{font-size:15px;font-weight:600;margin:0}
+.bc-traffic{display:flex;gap:5px}
+.bc-traffic span{width:10px;height:10px;border-radius:50%}
+.bc-t-red{background:#FF5F57}
+.bc-t-yellow{background:#FEBC2E}
+.bc-t-green{background:#28C840}
+.bc-live-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent);padding:3px 10px;border-radius:99px}
+.bc-live-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);animation:bl 1.2s infinite}
+.bc-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bc-box{background:#030508;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden}
+/* Split console panels */
+.bc-split{display:grid;grid-template-columns:1fr 1px 1fr;gap:0;height:360px;overflow:hidden}
+.bc-split-divider{background:rgba(255,255,255,.07)}
+.bc-panel{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.bc-panel-header{padding:7px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.bc-panel-title{font:600 10.5px/1 'JetBrains Mono',monospace;color:var(--mu);text-transform:uppercase;letter-spacing:.06em}
+#brainLog{flex:1;min-height:0;overflow-y:auto;padding:10px 14px;scroll-behavior:smooth}
+#brainLog::-webkit-scrollbar{width:4px}
+#brainLog::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:4px}
+/* Chat panel */
+.bc-chat{flex:1;min-height:0;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:10px}
+.bc-chat::-webkit-scrollbar{width:4px}
+.bc-chat::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:4px}
+.bc-bubble{max-width:88%;padding:9px 13px;border-radius:12px;font:400 12.5px/1.6 'Inter',sans-serif;word-break:break-word;white-space:pre-wrap}
+.bc-bubble.user{align-self:flex-end;background:color-mix(in srgb,var(--ac) 18%,transparent);border:1px solid color-mix(in srgb,var(--ac) 30%,transparent);color:#E2E8F0;border-bottom-right-radius:3px}
+.bc-bubble.ai{align-self:flex-start;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#CBD5E1;border-bottom-left-radius:3px}
+.bc-typing{display:flex;gap:4px;padding:10px 13px;align-items:center;align-self:flex-start}
+.bc-typing span{width:6px;height:6px;border-radius:50%;background:var(--ac);animation:blink 1.2s infinite}
+.bc-typing span:nth-child(2){animation-delay:.2s}
+.bc-typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.bc-line{display:flex;align-items:flex-start;gap:8px;padding:2px 4px;border-radius:4px}
+.bc-line:hover{background:rgba(255,255,255,.04)}
+.bc-ts{color:#64748B;flex-shrink:0;font:400 10px/1.8 'JetBrains Mono',monospace;min-width:56px}
+.bc-ag{flex-shrink:0;font:600 10.5px/1.8 'JetBrains Mono',monospace;min-width:115px;color:var(--ac)}
+.bc-msg{font:400 12px/1.6 'JetBrains Mono',monospace;color:#E2E8F0;word-break:break-word;white-space:pre-wrap;flex:1}
+.bc-line.ok .bc-msg{color:#34D399}
+.bc-line.warn .bc-msg{color:#FBBF24}
+.bc-line.err .bc-msg{color:#F87171}
+.bc-line.sys .bc-ag{color:#94A3B8}
+.bc-line.sys .bc-msg{color:#94A3B8;font-style:italic}
+.bc-line.cmd .bc-msg{color:#38BDF8;font-weight:600}
+.bc-line.started .bc-msg{color:#38BDF8;font-weight:600}
+.bc-line.done .bc-msg{color:#34D399;font-weight:600}
+.bc-line.failed .bc-msg{color:#F87171;font-weight:600}
+.bc-input-row{display:flex;align-items:center;border-top:1px solid rgba(255,255,255,.08);background:#020306}
+.bc-prompt{padding:8px 0 8px 14px;font:600 12px/1 'JetBrains Mono',monospace;color:var(--ac);user-select:none}
+#bcCmd{flex:1;background:0;border:0;outline:0;font:400 12px/1 'JetBrains Mono',monospace;color:#F8FAFC;padding:8px 8px;caret-color:var(--ac)}
+#bcCmd::placeholder{color:#64748B}
+#bcCmdSend{border:0;background:0;color:var(--ac);cursor:pointer;padding:8px 14px;min-height:auto;border-radius:0;display:grid;place-items:center}
+#bcCmdSend:hover{color:var(--ac2)}
+
+@media(max-width:860px){
+.grid{grid-template-columns:1fr 1fr;grid-template-areas:"t t" "c c" "l l" "r r" "b b";gap:48px 12px;align-items:start}
+.l .col{display:grid;grid-template-columns:1fr 1fr}
+.row{display:grid;grid-template-columns:1fr 1fr}
+.row>:last-child:nth-child(odd){grid-column:1/-1}
+.prov{padding:12px}.res{min-height:0}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div>
+<h1>AI Brain<small>Hyper Motion · orchestration flow</small></h1>
+</div>
+<div class="btns">
+<a href="/" class="btn" style="font-size:12px;padding:6px 12px;min-height:34px;">Dashboard</a>
+<button id="themeToggle" style="font-size:12px;padding:6px 12px;min-height:34px;">Theme</button>
+</div>
+</header>
+
+<div class="stage" id="stage">
+<svg id="wires" aria-hidden="true"></svg>
+<div class="grid">
+<section class="t"><p class="lab">Research & Strategy Agents</p><div class="row" id="top"></div></section>
+<section class="l"><p class="lab">Providers</p><div class="col" id="left"></div></section>
+<section class="c"><div class="chip" id="chip">
+<div class="core" id="core"></div>
+<h2>Hyper Motion Chip</h2>
+<p>V3 · Orchestrate · Process · Accelerate</p>
+<div class="st" id="st"><i></i><span>Idle</span></div>
+</div></section>
+<section class="r"><p class="lab">Results</p>
+<div class="card res" id="res"><div class="rh"><b>Finished work</b><div><span class="cnt" id="cnt">0</span><button id="clr">Clear</button></div></div><div id="rl"></div></div></section>
+<section class="b"><p class="lab">Production & Delivery Agents</p><div class="row" id="bottom"></div></section>
+</div></div>
+
+<!-- Agent Console Section -->
+<div class="bc-section" id="brainConsoleSection">
+  <div class="bc-header">
+    <div class="bc-title">
+      <div class="bc-traffic"><span class="bc-t-red"></span><span class="bc-t-yellow"></span><span class="bc-t-green"></span></div>
+      <h3>Agent Console</h3>
+      <span class="bc-live-pill"><span class="bc-live-dot"></span> LIVE TELEMETRY</span>
+    </div>
+    <div class="bc-toolbar">
+      <button onclick="handleCmd('pipeline')" style="font-size:11px;padding:4px 10px;min-height:28px;border-color:var(--ac2);color:var(--ac2);">Run Pipeline</button>
+      <button onclick="handleCmd('hunt')" style="font-size:11px;padding:4px 10px;min-height:28px;border-color:var(--ac);color:var(--ac);">Hunt Trends</button>
+      <button id="bcClear" style="font-size:11px;padding:4px 10px;min-height:28px;">Clear</button>
+      <button id="bcScrollBtn" aria-pressed="true" style="font-size:11px;padding:4px 10px;min-height:28px;">Auto-scroll</button>
+    </div>
+  </div>
+  <div class="bc-box">
+    <div class="bc-split">
+      <!-- LEFT: Live Agent Log -->
+      <div class="bc-panel">
+        <div class="bc-panel-header">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span class="bc-panel-title">Live Agent Log</span>
+        </div>
+        <div id="brainLog"></div>
+      </div>
+      <!-- DIVIDER -->
+      <div class="bc-split-divider"></div>
+      <!-- RIGHT: AI Chat -->
+      <div class="bc-panel">
+        <div class="bc-panel-header">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span class="bc-panel-title">AI Assistant</span>
+        </div>
+        <div class="bc-chat" id="bcChat"></div>
+        <div class="bc-input-row" style="border-top:1px solid rgba(255,255,255,.07);">
+          <span class="bc-prompt">&#9654;&nbsp;</span>
+          <input id="bcCmd" type="text" placeholder="Ask anything..." autocomplete="off" spellcheck="false">
+          <button id="bcCmdSend" title="Send"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s),NS='http://www.w3.org/2000/svg';
+const I={
+ cloud:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
+ db:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5M3 12a9 3 0 0 0 18 0"/>',
+ plug:'<path d="M12 22v-5M9 8V2M15 8V2M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>',
+ globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/>',
+ user:'<circle cx="12" cy="7" r="4"/><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>',
+ cpu:'<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/>',
+ bar:'<path d="M12 20V10M18 20V4M6 20v-4"/>',
+ msg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+ bot:'<rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 16h.01M16 16h.01"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ zap:'<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>',
+ shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+ sync:'<path d="M3 12a9 9 0 0 1 9-9 9.8 9.8 0 0 1 6.7 2.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.8 9.8 0 0 1-6.7-2.7L3 16M3 21v-5h5"/>',
+ file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7zM14 2v4a2 2 0 0 0 2 2h4"/>',
+ search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+ ok:'<path d="M20 6 9 17l-5-5"/>',
+ trending:'<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
+ target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+ edit:'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
+ fb:'<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>'
+};
+const ic=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${I[n]||I.cpu}</svg>`;
+$('#core').innerHTML=ic('cpu');
+
+// [icon, name, result text, default provider, role subtitle]
+const D={
+ left:[
+   ['zap','Google Gemini'],
+   ['globe','OpenRouter'],
+   ['cpu','OpenAI (DALL-E 3)'],
+   ['sync','OmniRoute']
+ ],
+ top:[
+   ['trending','TrendHunter','Breakout trends discovered','Google Gemini','Trend Radar'],
+   ['shield','FactChecker','Claims verified with citations','OmniRoute','Truth Verification'],
+   ['target','Strategist','Content angle & hooks locked','Google Gemini','Strategy & Angle'],
+   ['user','AudienceMiner','Retention & sentiment mapped','OpenRouter','Audience Mining']
+ ],
+ bottom:[
+   ['edit','ScriptForge','High-retention script forged','Google Gemini','Script Forge'],
+   ['bar','SEOOptimizer','Viral SEO bundle assembled','OpenRouter','SEO & Metadata'],
+   ['fb','FB Agent','Facebook post & media ready','Google Gemini','Facebook Studio'],
+   ['sync','Learner','Knowledge graph updated','OmniRoute','Neural Memory']
+ ]
+};
+
+// real content workflow tasks
+const TASKS=[
+ {n:'Autonomous Pipeline',p:['Google Gemini','OmniRoute'],a:['TrendHunter','FactChecker','Strategist','ScriptForge','SEOOptimizer']},
+ {n:'Trend Radar Sweep',p:['Google Gemini','OpenRouter'],a:['TrendHunter','Strategist','AudienceMiner']},
+ {n:'Script Forge Lab',p:['Google Gemini'],a:['Strategist','ScriptForge','SEOOptimizer']},
+ {n:'Fact-Check Lab',p:['OmniRoute','Google Gemini'],a:['TrendHunter','FactChecker']},
+ {n:'Facebook Growth Cycle',p:['Google Gemini','OmniRoute'],a:['TrendHunter','FB Agent','Learner']}
+];
+
+const stage=$('#stage'),chip=$('#chip'),wires=$('#wires'),conns=[],N={};
+function mkWire(el,k){
+  const w=document.createElementNS(NS,'path'),g=document.createElementNS(NS,'path');
+  w.setAttribute('class','w');g.setAttribute('class','g');wires.append(w,g);
+  return Object.assign(k,{el,w,g,len:0,h:false});
+}
+
+for(const side in D){
+  const host=$('#'+side),n=D[side].length,ag=side!=='left';
+  D[side].forEach(([i,t,out,need,role],j)=>{
+    const el=document.createElement('div');
+    el.className='card '+(ag?'agent':'prov');
+    el.innerHTML=ag?`<i class="dot"></i><div class="ico">${ic(i)}</div><b>${t}</b><span>${role||('Agent '+(j+1))}</span>`:`<div class="ico">${ic(i)}</div><b>${t}</b><i class="dot"></i>`;
+    host.append(el);
+    const k=mkWire(el,{side,ag,name:t,out,need,off:(j-(n-1)/2)*(ag?18:16)});
+    conns.push(k);N[t]=k;
+    if(ag){
+      el.onclick=()=>run({n:t,p:[need],a:[t]});
+    }else{
+      el.style.cursor='pointer';
+      el.onclick=()=>{
+        appendLog('Provider',`Pinging provider: ${t}...`,'sys','System');
+        el.classList.add('on');
+        pulse(k,1,700).then(()=>{
+          pulse(k,0,800);
+          el.classList.remove('on');
+          appendLog(t,`Connected & active. Route status: 200 OK`,'ok','System');
+        });
+      };
+    }
+  });
+}
+
+const res=mkWire($('#res'),{side:'right',res:true,off:0});conns.push(res);
+const rect=e=>{const r=e.getBoundingClientRect(),s=stage.getBoundingClientRect();return{l:r.left-s.left,r:r.right-s.left,t:r.top-s.top,b:r.bottom-s.top,cx:(r.left+r.right)/2-s.left,cy:(r.top+r.bottom)/2-s.top}};
+
+function layout(){
+  const m=matchMedia('(max-width:860px)').matches,c=rect(chip);
+  conns.forEach(k=>{
+    const e=rect(k.el);let a,b,d;
+    if(!k.ag&&!m){
+      const L=k.side==='left';a=[L?e.r:e.l,e.cy];b=[L?c.l:c.r,c.cy+k.off];
+      const q=(b[0]-a[0])/2;d=`M${a} C${a[0]+q},${a[1]} ${b[0]-q},${b[1]} ${b}`;
+    }else{
+      if(k.side==='top'){a=[e.cx,e.b];b=[c.cx+k.off,c.t]}
+      else if(k.side==='bottom'){a=[e.cx,e.t];b=[c.cx+k.off,c.b]}
+      else{a=[e.cx,e.t];b=[c.cx+off(k),c.b]}
+      const q=(b[1]-a[1])/2;d=`M${a} C${a[0]},${a[1]+q} ${b[0]},${b[1]-q} ${b}`;
+    }
+    k.h=m&&(k.side==='bottom'||k.res);
+    k.w.setAttribute('d',d);k.g.setAttribute('d',d);
+    k.w.style.display=k.g.style.display=k.h?'none':'';
+    k.len=k.h?0:k.g.getTotalLength();
+  });
+}
+const off=k=>(k.side==='left'?-40:40)+k.off*.5;
+const sl=ms=>new Promise(r=>setTimeout(r,ms)),RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+function pulse(k,out,ms=1000){
+  if(RM||k.h||!k.len)return sl(300);
+  const q=Math.min(110,k.len*.4);
+  k.g.style.strokeDasharray=`${q} ${k.len+q}`;
+  const f=out?[-k.len,q]:[q,-k.len];
+  return k.g.animate([{strokeDashoffset:f[0],opacity:0},{opacity:1,offset:.15},{opacity:1,offset:.85},{strokeDashoffset:f[1],opacity:0}],{duration:ms,easing:'ease-in-out'}).finished.catch(()=>{});
+}
+
+const st=$('#st'),setS=(t,b)=>{st.className='st'+(b?' busy':'');st.lastElementChild.textContent=t};
+const flare=()=>{chip.classList.remove('flare');void chip.offsetWidth;chip.classList.add('flare')};
+
+// results panel: finished work stays here
+let items=[],total=0;
+function draw(){
+  $('#cnt').textContent=total;
+  $('#rl').innerHTML=items.length?items.slice(0,5).map(x=>`<div class="ri"><i>${ic('ok')}</i><div><b>${x.t}</b><small>${x.s} · ${x.tm}</small></div></div>`).join('')+(items.length>5?`<div class="more">+${items.length-5} more</div>`:''):'<p class="empty">Finished work collects here</p>';
+}
+$('#clr').onclick=()=>{items=[];total=0;draw()};
+draw();
+
+async function deliver(k,T){
+  await pulse(res,1,800);
+  res.el.classList.add('on');setTimeout(()=>res.el.classList.remove('on'),700);
+  items.unshift({t:k.out,s:`${k.name} · ${T.n}`,tm:new Date().toTimeString().slice(0,5)});total++;draw();
+  if(T && T.n !== 'Cognitive Query'){
+    appendLog(k.name, `[DELIVERED] ${k.out} (${T.n}) -> Results Vault`, 'ok', 'System');
+  }
+}
+
+let busy=false,auto=false,ti=0;
+async function run(task){
+  if(busy)return;busy=true;
+  const T=task||TASKS[ti++%TASKS.length];
+  const P=T.p.map(n=>N[n]).filter(Boolean),A=T.a.map(n=>N[n]).filter(Boolean),inv=new Set([...P,...A,res]);
+  document.querySelectorAll('.tk').forEach(b=>b.classList.toggle('cur',b.dataset.n===T.n));
+  
+  // only the involved providers / agents / wires stay lit; everything else dims
+  conns.forEach(k=>{const d=!inv.has(k);k.el.classList.toggle('dim',d);k.w.classList.toggle('dim',d)});
+  
+  setS(`${T.n} · fetching`,1);
+  appendLog('Orchestrator', `Task "${T.n}" initiated. Contacting providers: ${T.p.join(', ')}`, 'started', 'System');
+  
+  await Promise.all(P.map((k,i)=>sl(i*120).then(async()=>{k.el.classList.add('on');await pulse(k,1,700);await pulse(k,0,800)})));
+  flare();
+  setS(`${T.n} · ${A.length} agent${A.length>1?'s':''} working`,1);
+  appendLog('Orchestrator', `Providers synced. Dispatching to ${A.length} worker agents.`, '', 'System');
+  
+  await Promise.all(A.map((k,i)=>sl(i*150).then(async()=>{
+    k.el.classList.add('on');
+    appendLog(k.name, `> Processing directive for "${T.n}"...`, '', k.name);
+    await pulse(k,1,900);
+    await sl(RM?300:900+Math.random()*1200);
+    await pulse(k,0,800);
+    k.el.classList.remove('on');
+    await deliver(k,T);
+  })));
+  
+  P.forEach(k=>k.el.classList.remove('on'));
+  conns.forEach(k=>{k.el.classList.remove('dim');k.w.classList.remove('dim')});
+  document.querySelectorAll('.tk').forEach(b=>b.classList.remove('cur'));
+  setS('Idle');busy=false;
+  if(auto)setTimeout(()=>{if(auto&&!busy)run()},1400);
+}
+
+TASKS.forEach(T=>{
+  const b=document.createElement('button');b.className='tk';b.dataset.n=T.n;
+  b.innerHTML=`${T.n}<small>${T.p.length}P · ${T.a.length}A</small>`;
+  b.onclick=()=>run(T);
+  $('#tasks').append(b);
+});
+
+$('#run').onclick=()=>run();
+const ab=$('#auto');ab.setAttribute('aria-pressed',auto);
+ab.onclick=()=>{auto=!auto;ab.setAttribute('aria-pressed',auto);if(auto&&!busy)run()};
+
+const themeToggle=$('#themeToggle');
+if(themeToggle){
+  themeToggle.onclick=()=>{
+    const cur=document.documentElement.getAttribute('data-theme');
+    document.documentElement.setAttribute('data-theme',cur==='dark'?'light':'dark');
+  };
+}
+
+layout();new ResizeObserver(layout).observe(stage);
+if(document.fonts)document.fonts.ready.then(layout);
+// if(auto)setTimeout(run,700);
+
+// ================================================================
+// AGENT CONSOLE & SSE TELEMETRY STREAM
+// ================================================================
+const logEl=$('#brainLog');const chatEl=$('#bcChat');let scrollLock=false;
+const TS=()=>new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function appendLog(agentLabel,msg,kind='',agentKey='System'){
+  if(!logEl)return;
+  const line=document.createElement('div');
+  line.className='bc-line'+(kind?' '+kind:'');
+  line.dataset.agent=agentKey;
+  line.innerHTML=`<span class="bc-ts">${TS()}</span><span class="bc-ag">[${esc(agentLabel)}]</span><span class="bc-msg">${esc(msg)}</span>`;
+  logEl.appendChild(line);
+  if(logEl.children.length>300)logEl.removeChild(logEl.children[0]);
+  if(!scrollLock)logEl.scrollTop=logEl.scrollHeight;
+}
+
+// --- Chat bubble helpers ---
+function addUserBubble(text){
+  if(!chatEl)return;
+  const b=document.createElement('div');
+  b.className='bc-bubble user';
+  b.textContent=text;
+  chatEl.appendChild(b);
+  chatEl.scrollTop=chatEl.scrollHeight;
+}
+let _typingEl=null;
+function showTyping(){
+  if(!chatEl)return;
+  _typingEl=document.createElement('div');
+  _typingEl.className='bc-typing';
+  _typingEl.innerHTML='<span></span><span></span><span></span>';
+  chatEl.appendChild(_typingEl);
+  chatEl.scrollTop=chatEl.scrollHeight;
+}
+function hideTyping(){if(_typingEl){_typingEl.remove();_typingEl=null;}}
+function addAIBubble(text,isError=false){
+  hideTyping();
+  if(!chatEl)return;
+  const b=document.createElement('div');
+  b.className='bc-bubble ai'+(isError?' err':'');
+  b.textContent=text;
+  chatEl.appendChild(b);
+  chatEl.scrollTop=chatEl.scrollHeight;
+}
+
+$('#bcClear').onclick=()=>{logEl.innerHTML='';appendLog('Console','Console cleared.','sys','System')};
+$('#bcScrollBtn').onclick=()=>{
+  scrollLock=!scrollLock;
+  $('#bcScrollBtn').setAttribute('aria-pressed',String(!scrollLock));
+  if(!scrollLock)logEl.scrollTop=logEl.scrollHeight;
+};
+logEl.addEventListener('scroll',()=>{
+  const atBottom=logEl.scrollHeight-logEl.scrollTop-logEl.clientHeight<40;
+  if(!atBottom&&!scrollLock){scrollLock=true;$('#bcScrollBtn').setAttribute('aria-pressed','false')}
+  else if(atBottom&&scrollLock){scrollLock=false;$('#bcScrollBtn').setAttribute('aria-pressed','true')}
+});
+
+// SSE event mapper
+const STEP_INFO={
+  trend_discovery:{agent:'TrendHunter',key:'TrendHunter'},
+  fact_check:{agent:'FactChecker',key:'FactChecker'},
+  strategy:{agent:'Strategist',key:'Strategist'},
+  script_forging:{agent:'ScriptForge',key:'ScriptForge'},
+  seo_optimization:{agent:'SEOOptimizer',key:'SEOOptimizer'},
+  fetching_page:{agent:'FB Agent',key:'FB Agent'},
+  analyzing_growth:{agent:'FB Agent',key:'FB Agent'},
+  topic_selection:{agent:'FB Agent',key:'FB Agent'},
+  fact_checking:{agent:'FactChecker',key:'FactChecker'},
+  generating_content_and_images:{agent:'FB Agent',key:'FB Agent'},
+  publishing_to_facebook:{agent:'FB Agent',key:'FB Agent'}
+};
+const STEP_RUNNING={
+  trend_discovery:()=>'Sweeping Google Trends, Reddit, YouTube & News RSS for breakout topics...',
+  fact_check:t=>`Extracting testable claims from "${t||'topic'}" - cross-referencing web consensus...`,
+  strategy:t=>`Formulating editorial angle, emotional hook & format for "${t||'topic'}"...`,
+  script_forging:()=>'Generating high-retention script: timed segments, B-roll cues & CTAs...',
+  seo_optimization:()=>'Building SEO bundle - primary title + 4 A/B variants, description & hashtags...',
+  fetching_page:()=>'Fetching Facebook Page profile, follower count & post engagement data...',
+  analyzing_growth:()=>'Running growth analysis: monetization milestones & audience sentiment...',
+  topic_selection:()=>'Selecting optimal Facebook content topic from trend radar...',
+  fact_checking:t=>`Fact-checking Facebook content for "${t||'topic'}"...`,
+  generating_content_and_images:()=>'Generating Facebook post copy, Story slides & AI artwork...',
+  publishing_to_facebook:()=>'Publishing content & media assets to Facebook Page...'
+};
+const STEP_DONE={
+  trend_discovery:n=>`Found ${n} trends - deduplication & relevance scoring complete.`,
+  fact_check:n=>`Verified ${n} claims with confidence scores & evidence citations.`,
+  strategy:a=>`Strategy locked - content angle: "${a}"`,
+  script_forging:id=>`Script ready (ID: ${id}) - segments, visual cues & CTAs written.`,
+  seo_optimization:id=>`SEO bundle complete (ID: ${id}) - discoverability score calculated.`
+};
+
+function handleSSEEvent(raw){
+  try{
+    const {type,payload}=JSON.parse(raw);
+    if(type==='pipeline_started'){
+      appendLog('Orchestrator',`PIPELINE STARTED | run: ${payload.run_id} | trigger: ${payload.trigger}`,'started','System');
+      setS('Pipeline running',1);flare();return;
+    }
+    if(type==='pipeline_completed'){
+      appendLog('Orchestrator',`PIPELINE COMPLETE | script_id: ${payload.script_id}`,'done','System');
+      setS('Idle');
+      items.unshift({t:`Pipeline Complete (Script #${payload.script_id})`,s:'Autonomous Engine',tm:new Date().toTimeString().slice(0,5)});
+      total++;draw();
+      return;
+    }
+    if(type==='pipeline_failed'){
+      appendLog('Orchestrator',`PIPELINE FAILED | ${payload.error}`,'failed','System');
+      setS('Error');return;
+    }
+    if(type==='pipeline_progress'||type==='facebook_audit_progress'||type==='facebook_content_progress'){
+      const step=payload.step,status=payload.status,info=STEP_INFO[step];
+      if(!info)return;
+      if(status==='running'){
+        const fn=STEP_RUNNING[step];const msg=fn?fn(payload.topic||payload.claim||''):step+' - working...';
+        appendLog(info.agent,'> '+msg,'',info.key);
+      }else if(status==='completed'){
+        const fn=STEP_DONE[step];const arg=payload.count??payload.claims_count??payload.angle??payload.script_id??payload.seo_id??'done';
+        appendLog(info.agent,(fn?fn(arg):step+' - complete.'),'ok',info.key);
+        items.unshift({t:`${info.agent}: ${step}`,s:'Live Agent',tm:new Date().toTimeString().slice(0,5)});
+        total++;draw();
+      }
+      return;
+    }
+    if(type==='facebook_audit_completed'){
+      appendLog('FB Agent',`Audit complete | followers: ${payload.follower_count||'?'} | monetization: ${payload.monetization_ready?'READY':'in progress'}`,'done','FB Agent');
+      return;
+    }
+    if(type==='facebook_content_completed'){
+      appendLog('FB Agent',`Content cycle done | published: ${payload.published?'YES':'NO'} | topic: ${payload.topic||''}`,'done','FB Agent');
+      return;
+    }
+    if(type==='facebook_item_published'){
+      appendLog('FB Agent',`Published | type: ${payload.post_type||'post'} | post_id: ${payload.post_id||'sandbox'}`,'ok','FB Agent');
+      items.unshift({t:`FB Published: ${payload.post_type||'post'}`,s:'Meta Graph API',tm:new Date().toTimeString().slice(0,5)});
+      total++;draw();
+      return;
+    }
+    if(type==='messenger_message_received'){
+      const sid=payload.sender_id?payload.sender_id.slice(-6):'User';
+      appendLog('FB Agent',`💬 Inbound Messenger [ID: ...${sid}]: "${payload.text}"`,'started','FB Agent');
+      appendLog('Google Gemini',`Analyzing inquiry & synthesizing natural teacher response...`,'','Google Gemini');
+      setS('FB Agent · Responding to Messenger',1);
+      const fbN=N['FB Agent'];const gemN=N['Google Gemini'];
+      if(fbN){fbN.el.classList.add('on');pulse(fbN,1,600);}
+      if(gemN){gemN.el.classList.add('on');pulse(gemN,1,600);}
+      flare();
+      return;
+    }
+    if(type==='messenger_message_sent'){
+      const sid=payload.sender_id?payload.sender_id.slice(-6):'User';
+      appendLog('FB Agent',`✉️ Kenji Replied: "${payload.reply}"`,'ok','FB Agent');
+      appendLog('Google Gemini',`Delivered reply to Meta Graph API`,'done','Google Gemini');
+      const fbN=N['FB Agent'];const gemN=N['Google Gemini'];
+      if(fbN){pulse(fbN,0,600);fbN.el.classList.remove('on');}
+      if(gemN){pulse(gemN,0,600);gemN.el.classList.remove('on');}
+      if(res){pulse(res,1,700);res.el.classList.add('on');setTimeout(()=>res.el.classList.remove('on'),700);}
+      setS('Idle');
+      const sin=(payload.text||'').slice(0,25);
+      const sout=(payload.reply||'').slice(0,25);
+      items.unshift({t:`Messenger: "${sin}..." → "${sout}..."`,s:'FB Agent · Kenji Sensei',tm:new Date().toTimeString().slice(0,5)});
+      total++;draw();
+      return;
+    }
+    appendLog('SSE',JSON.stringify(payload),'','System');
+  }catch{appendLog('SSE',String(raw),'','System')}
+}
+
+let sseRetry=null;
+function connectSSE(){
+  appendLog('System','Connecting to live agent event stream...','sys','System');
+  try{
+    const es=new EventSource('/api/events');
+    es.onopen=()=>appendLog('System','Live stream connected - watching all autonomous agents.','ok','System');
+    es.onmessage=e=>handleSSEEvent(e.data);
+    es.onerror=()=>{
+      appendLog('System','Stream disconnected. Reconnecting in 5s...','warn','System');
+      es.close();clearTimeout(sseRetry);sseRetry=setTimeout(connectSSE,5000);
+    };
+  }catch(err){appendLog('System','SSE init error: '+err.message,'err','System')}
+}
+
+    const CMDS = {
+      help: () => appendLog('Console', 'Commands:\n  help        -- list directory\n  status      -- server health\n  stats       -- row counts\n  hunt        -- trigger trend sweep\n  pipeline    -- run autonomous pipeline\n  clear       -- clear console screen\n  clear-data  -- wipe server data records\n  <prompt>    -- ask connected AI brain directly', 'sys', 'System'),
+      clear: () => {
+        if (logEl) logEl.innerHTML = '';
+        appendLog('Console', 'Console cleared.', 'sys', 'System');
+      },
+      status: async () => {
+        appendLog('Console', 'Pinging health...', 'sys', 'System');
+        try {
+          const d = await fetch('/health').then(r => r.json());
+          appendLog('Orchestrator', 'Status: ' + d.status + ' | LLM: ' + (d.llm_available ? 'ONLINE' : 'OFFLINE') + ' | Trends: ' + (d.stats ? d.stats.trends : 0) + ' | Scripts: ' + (d.stats ? d.stats.scripts : 0) + ' | Claims: ' + (d.stats ? d.stats.claims : 0), d.status === 'healthy' ? 'ok' : 'warn', 'System');
+        } catch (e) {
+          appendLog('System', 'Cannot reach server: ' + e.message, 'err', 'System');
+        }
+      },
+      stats: async () => {
+        appendLog('Console', 'Fetching stats...', 'sys', 'System');
+        try {
+          const d = await fetch('/api/stats').then(r => r.json());
+          appendLog('Database', 'Counts:\n' + Object.entries(d).map(([k, v]) => '  ' + k + ': ' + v).join('\n'), 'ok', 'System');
+        } catch (e) {
+          appendLog('System', 'Error: ' + e.message, 'err', 'System');
+        }
+      },
+      hunt: async () => {
+        appendLog('TrendHunter', 'Triggering trend radar sweep...', 'sys', 'TrendHunter');
+        try {
+          const d = await fetch('/api/trends/hunt', { method: 'POST' }).then(r => r.json());
+          appendLog('TrendHunter', d.message || 'Trend sweep dispatched.', 'ok', 'TrendHunter');
+        } catch (e) {
+          appendLog('TrendHunter', 'Error: ' + e.message, 'err', 'TrendHunter');
+        }
+      },
+      pipeline: async () => {
+        appendLog('Orchestrator', 'Triggering autonomous pipeline...', 'sys', 'System');
+        try {
+          const d = await fetch('/api/pipeline/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }).then(r => r.json());
+          appendLog('Orchestrator', d.message || 'Pipeline launched.', 'ok', 'System');
+        } catch (e) {
+          appendLog('Orchestrator', 'Error: ' + e.message, 'err', 'System');
+        }
+      },
+      'clear-data': async () => {
+        if (confirm('Clear all database records?')) {
+          appendLog('System', 'Clearing data records...', 'warn', 'System');
+          try {
+            const d = await fetch('/api/data/clear', { method: 'DELETE' }).then(r => r.json());
+            appendLog('Database', 'Cleared! ' + d.total_rows_deleted + ' rows wiped across ' + Object.keys(d.tables).length + ' tables.', 'ok', 'System');
+          } catch (e) {
+            appendLog('System', 'Failed: ' + e.message, 'err', 'System');
+          }
+        }
+      }
+    };
+
+async function handleCmd(raw){
+  const trimmed = (raw || '').trim();
+  if (!trimmed) return;
+  const cmd = trimmed.toLowerCase();
+
+  if (CMDS[cmd]) {
+    appendLog('$', '> ' + trimmed, 'cmd', 'System');
+    await CMDS[cmd]();
+    return;
+  }
+
+  // --- AI Chat path: show in chat bubble panel ---
+  addUserBubble(trimmed);
+  appendLog('Neural Engine', `Routing query to AI provider...`, 'sys', 'System');
+  setS('Synthesizing...', 1);
+  flare();
+  showTyping();
+
+  const prov = N['Google Gemini'] || N['OmniRoute'] || N['OpenRouter'] || Object.values(N).find(x => x && x.side === 'left');
+  if (prov) { prov.el.classList.add('on'); pulse(prov, 1, 700); }
+
+  try {
+    const resp = await fetch('/api/brain/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: trimmed, mode: 'deep_reasoning' })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    if (prov) { await pulse(prov, 0, 700); prov.el.classList.remove('on'); }
+    flare();
+    addAIBubble(data.response || 'No response returned.');
+  } catch (err) {
+    if (prov) prov.el.classList.remove('on');
+    hideTyping();
+    addAIBubble(`Error: ${err.message}`, true);
+  } finally {
+    setS('Idle');
+  }
+}
+
+const cmdInput=$('#bcCmd'),cmdSend=$('#bcCmdSend');
+if(cmdSend&&cmdInput){
+  cmdSend.onclick=()=>{const v=cmdInput.value;cmdInput.value='';handleCmd(v)};
+  cmdInput.addEventListener('keydown',e=>{if(e.key==='Enter'){const v=cmdInput.value;cmdInput.value='';handleCmd(v)}});
+}
+
+appendLog('System','Hyper Motion AI Brain model active.','sys','System');
+appendLog('System','Finished work delivers live to Results card. Ready for tasks.','ok','System');
+connectSSE();
+</script>
+</body>
+</html>
