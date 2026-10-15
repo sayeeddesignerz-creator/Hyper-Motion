@@ -1,155 +1,175 @@
-# ⚡ Hyper Motion (Mission Control)
+<div align="center">
 
-**Hyper Motion** is a multi-agent autonomous content and social growth engine combining trend intelligence, factual verification, viral scriptwriting, and Facebook monetization automation. 
+# ⚡ Hyper Motion
 
-Designed specifically for **high-leverage content research, factual verification, strategic scriptwriting, and viral SEO growth** without the friction or overhead of local video rendering or direct YouTube OAuth publishing.
+**Multi-Agent Autonomous Content Research · Scriptwriting · SEO · Facebook Growth Engine**
 
----
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111%2B-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-Hyper--Motion-181717?style=for-the-badge&logo=github)](https://github.com/sayeeddesignerz-creator/Hyper-Motion)
 
-## 🚀 Key Weaponry & Capabilities
-
-1. **Multi-Source Trend Radar**
-   - Automatically monitors **Google Trends (daily momentum)**, **Google News RSS**, **Reddit Hot Posts**, and **YouTube Trending topics**.
-   - Intelligent fuzzy deduplication using `rapidfuzz`.
-
-2. **Rigorous Fact-Checking Lab**
-   - Extracts discrete testable claims from breakout topics.
-   - Cross-references facts against web consensus with confidence scoring (`verified`, `debunked`, `partially_true`).
-   - Produces detailed evidence citations.
-
-3. **Content Strategy & Evergreen Engine**
-   - Automatically formulates the editorial angle, target emotional hook, and optimal format (`shorts` vs `long_form`).
-   - Built-in evergreen topic generator for days when news cycles are quiet.
-
-4. **Script Forge & Production Timeline**
-   - Generates high-retention scripts broken down by seconds.
-   - Provides concrete **visual cues (B-roll, graphic overlays)**, **on-screen text**, **audio tags**, and **conversion-focused CTAs**.
-
-5. **SEO & Growth Matrix**
-   - Generates an optimal primary title + **4 distinct A/B testing title variants** (Intrigue, Question, Statistic, Contrarian).
-   - Generates full 200+ word YouTube descriptions with chapter timestamps, tags, hashtags, and a discoverability score.
-
-6. **Audience Engagement & Idea Vault**
-   - Analyzes viewer comment feedback and sentiment.
-   - Mines viewer questions and extracts future video ideas.
-   - Drafts high-engagement AI responses.
-
-7. **Multi-Provider LLM Gateway with Fallback**
-   - Supports **Google Gemini** (`gemini-2.5-flash`), **OpenAI** (`gpt-4o-mini`), and **OpenRouter**.
-   - Automatic fallback to secondary provider if primary key or model encounters rate limits.
-
-8. **Autonomous 24/7 Scheduler**
-   - Background scheduler sweeps for trends, runs fact-checks, and drafts full production scripts on configurable intervals.
-
-9. **Facebook Page Growth & Monetization Engine (Meta Graph API)**
-   - **Deep Page Analysis & Audit**: Evaluates profile health, past post engagement, audience sentiment, and viral retention.
-   - **Monetization Milestone Tracking**: Real-time progress meters for Facebook In-Stream Ads & Stars requirements (5,000 followers, 60,000 watch minutes, 5 active pieces, policy compliance).
-   - **Viral Content Generation**: Automatically writes hook-optimized **Feed Posts**, interactive 3-slide **Stories**, and 60s **Reels scripts**.
-   - **Automated AI Visuals**: Generates high-converting 1:1 post artwork and 9:16 vertical full-bleed story backgrounds.
-   - **Live Publishing & Scheduling**: Directly publishes text, photos, and stories to your Facebook Page, or schedules them for automated release.
-   - **Authentic Sandbox Mode**: Includes fully functional simulation mode so you can preview, test, and iterate even before adding live Meta API tokens.
-
-10. **Live Mission Control Dashboard**
-    - High-end dark mode Glassmorphic web UI accessible at `http://localhost:8500`.
-    - Dedicated Facebook Growth Studio with live mockups, monetization gauges, and direct one-click publishing.
-    - Real-time Server-Sent Events (SSE) telemetry feed.
+</div>
 
 ---
 
-## 🛠️ Quickstart
+## 🚀 Install in One Command
 
-### 1. Install Dependencies
 ```bash
-pip install -r requirements.txt
+pip install hypermotion
 ```
 
-### 2. Configure Environment (`.env`)
-The `.env` file comes pre-configured with your active Gemini & YouTube API keys:
+> Requires **Python 3.10+**. A virtual environment is strongly recommended.
+
+---
+
+## ⚙️ Quick Start
+
+### 1 — Install
+
+```bash
+pip install hypermotion
+```
+
+### 2 — Initialize a fresh workspace
+
+```bash
+# Creates .env template + empty data/output dirs — nothing from anyone else
+hypermotion init
+```
+
+Or into a specific folder:
+
+```bash
+hypermotion init ./my-hypermotion
+cd my-hypermotion
+```
+
+### 3 — Add your API keys
+
+Edit the generated `.env` file:
+
 ```env
-LLM_PROVIDER=gemini
-GEMINI_API_KEY=your-gemini-key
-PORT=8500
-AUTONOMOUS_ENABLED=true
-AUTONOMOUS_INTERVAL_MINUTES=60
+# Minimum required — pick at least one LLM provider
+GEMINI_API_KEY=your-gemini-key-here
 
-# Facebook Page & Monetization Settings (Optional - Sandbox mode works without keys)
-FACEBOOK_PAGE_ID=your-page-id
-FACEBOOK_PAGE_ACCESS_TOKEN=your-meta-page-access-token
-FACEBOOK_SIMULATION_MODE=false
+# Optional extras (adds fallback & image generation)
+OPENAI_API_KEY=
+OPENROUTER_API_KEY=
+
+# Facebook Growth Engine (sandbox mode works without these)
+FACEBOOK_PAGE_ID=
+FACEBOOK_PAGE_ACCESS_TOKEN=
 ```
 
-### 3. Run the Agent
+> 🔒 `.env` is listed in `.gitignore` — it is **never** committed or shared.
+
+### 4 — Start the server
+
 ```bash
-python -m app.main
+hypermotion start
 ```
-Open **[http://localhost:8500](http://localhost:8500)** in your browser to access Mission Control.
 
-### 4. Run Tests
+Open **[http://localhost:8500](http://localhost:8500)** — Mission Control loads instantly.
+
+---
+
+## 🧩 CLI Reference
+
+| Command | Description |
+|---|---|
+| `hypermotion init` | Scaffold a clean workspace (fresh `.env`, empty dirs) |
+| `hypermotion init ./path --force` | Re-scaffold, overwriting existing files |
+| `hypermotion start` | Start the FastAPI server |
+| `hypermotion start --dir ./path` | Start from a specific project directory |
+| `hypermotion version` | Print version |
+
+---
+
+## 🛡️ Fresh Install Guarantee
+
+Every `hypermotion init` creates:
+
+```
+your-project/
+├── .env                ← YOUR keys only (generated from template)
+├── .gitignore          ← Secrets & output excluded automatically
+├── data/               ← Empty — YOUR runtime DB only
+├── output/             ← Empty — YOUR generated media only
+│   ├── facebook_media/
+│   └── quizzes/
+├── .cache/             ← Empty — YOUR cache only
+└── config/             ← Empty — YOUR YAML config only
+```
+
+**No API keys, images, databases, or any data from other users is ever included.**
+
+---
+
+## 🔋 What's Inside
+
+| Capability | Details |
+|---|---|
+| **Trend Radar** | Google Trends · Google News RSS · Reddit Hot · YouTube Trending |
+| **Fact-Checking Lab** | Claim extraction · Web consensus scoring · Evidence citations |
+| **Script Forge** | Second-by-second scripts · B-roll cues · CTAs |
+| **SEO Matrix** | 4 A/B title variants · 200+ word descriptions · Tags & hashtags |
+| **Facebook Engine** | Feed posts · Stories · Reels · AI visuals · Live publishing |
+| **LLM Gateway** | Gemini → OmniRoute → OpenAI → OpenRouter (auto-fallback) |
+| **Autonomous Scheduler** | Runs every N minutes, hands-free 24/7 |
+| **Mission Control UI** | Dark glassmorphic dashboard at `localhost:8500` |
+
+---
+
+## 🔌 Optional: OmniRoute (Local AI Proxy)
+
+Pool multiple API keys and route them intelligently:
+
+```bash
+npm install -g omniroute
+omniroute
+```
+
+Then in `.env`:
+
+```env
+OMNIROUTE_BASE_URL=http://localhost:20128/v1
+OMNIROUTE_API_KEY=your-omniroute-key
+OMNIROUTE_MODEL=auto
+```
+
+---
+
+## 🛠️ Manual / Development Setup
+
+```bash
+git clone https://github.com/sayeeddesignerz-creator/Hyper-Motion.git
+cd Hyper-Motion
+python -m venv .venv
+.venv\Scripts\activate          # Windows
+# source .venv/bin/activate     # macOS/Linux
+pip install -e ".[dev]"
+hypermotion init
+hypermotion start
+```
+
+Run tests:
+
 ```bash
 pytest tests/ -v
 ```
 
 ---
 
-## 🔌 OmniRoute — Local AI Proxy & Provider Hub
+## ⚠️ Security
 
-**OmniRoute** is an open-source local proxy that sits between this agent and your LLM providers. It lets you pool keys, set per-provider rate limits, and route traffic — all from a local dashboard. The agent uses it as a high-priority fallback after Gemini and before OpenAI/OpenRouter.
-
-### Install
-
-OmniRoute is distributed as an npm package from the official repo at [github.com/diegosouzapw/OmniRoute](https://github.com/diegosouzapw/OmniRoute):
-
-```bash
-npm install -g omniroute
-```
-
-### Run
-
-```bash
-omniroute
-```
-
-The proxy starts on **port 20128** by default.
-
-### Open the Dashboard
-
-Navigate to **[http://localhost:20128](http://localhost:20128)** in your browser.
-
-1. Connect your providers (Gemini, OpenAI, Groq, etc.) from the dashboard.
-2. Generate an API key in the **API Keys** section.
-3. Copy it — you'll need it in the next step.
-
-> ⚠️ **Terms Notice**: You must review and comply with each connected provider's Terms of Service before routing traffic through OmniRoute. The agent itself does not modify provider terms.
-
-### Fill `.env`
-
-```env
-OMNIROUTE_BASE_URL=http://localhost:20128/v1
-OMNIROUTE_API_KEY=your-omniroute-api-key-here
-OMNIROUTE_MODEL=auto
-```
-
-- `OMNIROUTE_BASE_URL` — defaults to `http://localhost:20128/v1`. If you point this at a remote host, the gateway logs a startup warning.
-- `OMNIROUTE_API_KEY` — required when OmniRoute's auth is enabled.
-- `OMNIROUTE_MODEL` — use `auto` to let OmniRoute pick the best available model, or specify one explicitly (e.g. `gemini-2.5-flash`).
-
-### How fallback works
-
-| Priority | Provider | Condition |
-|----------|----------|-----------|
-| 1 | Gemini | Primary — used unless rate-limited or circuit open |
-| 2 | OmniRoute | Fallback — local proxy, always attempted |
-| 3 | OpenAI | If `OPENAI_API_KEY` is set |
-| 4 | OpenRouter | If `OPENROUTER_API_KEY` is set |
-
-Fact-critical agents (`fact_checker`, `script_forge`, `strategist`) on a fallback model produce responses tagged `model_tier: "fallback"` and will have the **FALLBACK MODEL** badge in the dashboard.
-
-### Provider Health API
-
-```
-GET /api/providers
-```
-
-Returns per-provider status, call counts, token counts (today UTC), and circuit-breaker state. **API keys are never included in the response.**
+- **Never commit `.env`** — it is excluded by `.gitignore`
+- All output (`data/`, `output/`) is local to your machine
+- Facebook tokens are stored only in your `.env` — not logged or transmitted anywhere except the Meta Graph API
+- Rotate any API key that was accidentally exposed
 
 ---
+
+## 📄 License
+
+MIT © [sayeeddesignerz-creator](https://github.com/sayeeddesignerz-creator)
