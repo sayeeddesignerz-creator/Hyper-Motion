@@ -127,6 +127,17 @@ Hyper-Motion/
 
 > Newest first. Format: `### YYYY-MM-DD — title ✅` + bullets (what changed, follow-ups).
 
+### 2026-10-15 — Brain → `🧠 Orchestration` flow: premium redesign + fully live wiring ✅
+**Goal:** make the Orchestration sub-panel premium and functional (it was hardcoded: fake provider pings, no toolbar, no route info).
+- 🧰 **Sticky premium toolbar** (`.orch-toolbar`): title + subtitle, live stat chips (**providers · agents · live routes**), last-sync timestamp, and actions — **⟳ Sync** (re-reads the backend), **✨ Simulate** (animates the next workflow; restores the old task-chip behaviour), **▶ Run Pipeline** (real trigger).
+- 🔌 **Provider column is now LIVE:** rendered from `GET /api/omniroute/providers` (per-type icon, model count, green dot when enabled); clicking a provider fires a **real** `POST /api/omniroute/test-provider` ping and logs latency + reply to the Agent Console. Built-in rows are used only if the backend is unreachable.
+- 🛣️ **Agent nodes show live routing:** each agent card gets a route chip resolved with the gateway's exact → fuzzy order (`/api/agents` + `/api/omniroute/routes`); green chip = custom live route (shows model + route name), slate chip = static/default handle; ⚠ marks fact-critical agents; clicking the chip opens the Route Tester.
+- 🩺 **Live pipeline on the graph:** SSE `pipeline_progress` lights up the matching agent card + status pill, `pipeline_completed/failed` clears highlights; `routes_changed` SSE now also silently re-syncs the orchestration flow (via `brainSyncLive(true)`).
+- ⏱️ **Robust pings:** `/api/omniroute/test-provider` is bounded with `asyncio.wait_for(…, 20s)` — a slow Gemini 503-fallback chain previously hung >60s; the dashboard also aborts the fetch at 25s with a friendly timeout log.
+- 🎨 **Premium visuals:** layered gradient stage + dot grid, hover-lift cards, gradient-accented section labels, route chips, restyled status pill, drifting dashed wires (disabled under `prefers-reduced-motion`), clickable core chip = simulate next task.
+- ✅ **Verified:** inline JS passes `node --check`; served page contains every new block; `/api/agents` / providers / routes / live-routes shapes confirmed against the live server; real ping returned `pong` in 6.8s; `python -m pytest tests/ -q` → **16 passed**.
+- ⏭️ **Follow-ups (user):** rotate FB credentials (§5 #1). Note: DB seed model `gemini-3.8-flash` currently returns 503 from Gemini — the gateway falls back automatically, but you may want to update that model in the node graph.
+
 ### 2026-10-15 — "AI Command Center" renamed to "Brain" + premium panel redesign ✅
 **Goal:** rename the panel to **Brain** and make it feel premium and user-friendly.
 - 🏷️ **Renamed** everywhere user-facing: sidebar nav item, page title (`AI Command Center` → `Brain`, badge now `NODE GRAPH + ORCHESTRATION`), subtitle, code comments; nav badge corrected (`7 Agents` → `10 Agents`). Historical task-log entries keep the old name (history).

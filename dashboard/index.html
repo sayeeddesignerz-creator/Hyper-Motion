@@ -3377,6 +3377,240 @@
       text-align: center;
       pointer-events: none;
     }
+
+    /* ══════════════════════════════════════════════════════════════
+       ORCHESTRATION FLOW — premium toolbar, stage, cards & wires
+       ══════════════════════════════════════════════════════════════ */
+    #brainPanelOrch .orch-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding: 11px 16px;
+      background: linear-gradient(180deg, #1c2330, #141922);
+      border-bottom: 1px solid #21262d;
+      box-shadow: 0 10px 24px -18px rgba(9, 12, 18, 0.6);
+    }
+    .orch-title-ico {
+      flex: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5 55%, #0ea5e9);
+      box-shadow: 0 6px 18px rgba(109, 40, 217, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+    .orch-title-block {
+      min-width: 0;
+      margin-right: auto;
+    }
+    .orch-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #e6edf3;
+      letter-spacing: 0.2px;
+    }
+    .orch-sub {
+      font-size: 11px;
+      color: #8b949e;
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 44vw;
+    }
+    .orch-stats {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .orch-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px;
+      border-radius: 20px;
+      background: rgba(148, 163, 184, 0.08);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      font-size: 11px;
+      color: #93a1b5;
+      white-space: nowrap;
+    }
+    .orch-stat b {
+      color: #e6edf3;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .orch-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .orch-sync-ts {
+      font-size: 10px;
+      color: #6e7b8f;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .orch-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      min-height: 30px;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      background: rgba(255, 255, 255, 0.04);
+      color: #c9d1d9;
+      font-size: 11.5px;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease, color 0.15s ease;
+    }
+    .orch-btn:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: #4b5563;
+      transform: translateY(-1px);
+    }
+    .orch-btn.primary {
+      border-color: rgba(56, 189, 248, 0.5);
+      color: #38bdf8;
+      background: linear-gradient(180deg, rgba(56, 189, 248, 0.14), rgba(56, 189, 248, 0.05));
+    }
+    .orch-btn.primary:hover {
+      background: linear-gradient(180deg, rgba(56, 189, 248, 0.22), rgba(56, 189, 248, 0.08));
+    }
+    #brainPanelOrch .brain-wrap {
+      padding: 14px 16px 18px !important;
+    }
+    #tab-brain .stage {
+      background:
+        radial-gradient(820px 340px at 50% 42%, rgba(99, 102, 241, 0.08), transparent 62%),
+        radial-gradient(620px 280px at 50% 46%, rgba(14, 165, 233, 0.07), transparent 60%),
+        #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      overflow: hidden;
+    }
+    #tab-brain .stage::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background-image: radial-gradient(rgba(15, 23, 42, 0.055) 1.1px, transparent 1.1px);
+      background-size: 22px 22px;
+      pointer-events: none;
+    }
+    #tab-brain .lab::before {
+      content: '';
+      display: inline-block;
+      width: 16px;
+      height: 3px;
+      border-radius: 3px;
+      margin-right: 8px;
+      vertical-align: middle;
+      background: linear-gradient(90deg, #6366f1, #0ea5e9);
+      opacity: 0.75;
+    }
+    #tab-brain .card {
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 14px 30px -22px rgba(15, 23, 42, 0.45);
+      transition: transform 0.18s ease, border-color 0.25s ease, box-shadow 0.3s ease, opacity 0.3s;
+    }
+    #tab-brain .card:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--ac) 42%, #e2e8f0);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 20px 38px -22px color-mix(in srgb, var(--ac) 45%, transparent);
+    }
+    #tab-brain .agent .aroute {
+      margin-top: 9px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      max-width: 100%;
+      padding: 3px 9px;
+      border-radius: 8px;
+      background: rgba(100, 116, 139, 0.08);
+      border: 1px solid rgba(100, 116, 139, 0.2);
+      color: #64748b;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.1px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    #tab-brain .agent .aroute:hover {
+      border-color: rgba(88, 166, 255, 0.5);
+      color: #3b82f6;
+    }
+    #tab-brain .agent .aroute.live {
+      background: rgba(16, 185, 129, 0.09);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #0e9f6e;
+    }
+    #tab-brain .agent .aroute.live:hover {
+      border-color: rgba(16, 185, 129, 0.6);
+    }
+    #tab-brain .prov .pcol {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    #tab-brain .prov .pcol b {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #tab-brain .prov .pcol small {
+      font-size: 10.5px;
+      color: var(--mu);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    #tab-brain .dot.en {
+      background: var(--ok);
+      opacity: 1;
+      box-shadow: 0 0 6px color-mix(in srgb, var(--ok) 70%, transparent);
+    }
+    #tab-brain .st {
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: rgba(100, 116, 139, 0.08);
+      border: 1px solid rgba(100, 116, 139, 0.18);
+    }
+    #tab-brain .st.busy {
+      background: color-mix(in srgb, var(--ok) 10%, transparent);
+      border-color: color-mix(in srgb, var(--ok) 35%, transparent);
+      color: var(--ok);
+    }
+    #tab-brain .chip {
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    #tab-brain .chip:hover {
+      transform: translateY(-2px);
+    }
+    #tab-brain .core {
+      box-shadow: 0 8px 22px -10px color-mix(in srgb, var(--ac) 70%, transparent);
+      transition: box-shadow 0.25s ease;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      #tab-brain .w {
+        stroke-dasharray: 2 8;
+        stroke-linecap: round;
+        animation: wiredash 4.2s linear infinite;
+      }
+    }
+    @keyframes wiredash { to { stroke-dashoffset: -20; } }
   </style>
 </head>
 
@@ -5600,13 +5834,34 @@
 
               <!-- Sub-panel: Orchestration Flow -->
               <div id="brainPanelOrch" style="flex:1;overflow:auto;background:var(--bg,#f5f6fa);display:flex;flex-direction:column;">
+                <!-- Orchestration toolbar (live stats + actions) -->
+                <div class="orch-toolbar">
+                  <div class="orch-title-ico">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M19.1 4.9l-2.8 2.8M7.7 16.3l-2.8 2.8"/></svg>
+                  </div>
+                  <div class="orch-title-block">
+                    <div class="orch-title">Orchestration Flow</div>
+                    <div class="orch-sub">Providers → Hyper Motion core → agents · click any node or the core to interact</div>
+                  </div>
+                  <div class="orch-stats">
+                    <span class="orch-stat" title="Providers wired into the left column (live from the backend)"><b id="orchStatProviders">0</b> providers</span>
+                    <span class="orch-stat" title="Worker agents on the graph"><b id="orchStatAgents">8</b> agents</span>
+                    <span class="orch-stat" title="Routes currently live in the gateway"><b id="orchStatRoutes">0</b> live routes</span>
+                  </div>
+                  <div class="orch-actions">
+                    <span class="orch-sync-ts" id="orchSyncTime" title="Last live sync">loading…</span>
+                    <button class="orch-btn" onclick="brainSyncLive(false)" title="Re-read providers, agents and routes from the backend">⟳ Sync</button>
+                    <button class="orch-btn" onclick="runBrainTask()" title="Animate the next workflow through the graph (visual simulation)">✨ Simulate</button>
+                    <button class="orch-btn primary" onclick="handleBrainCmd('pipeline')" title="Trigger the real autonomous pipeline">▶ Run Pipeline</button>
+                  </div>
+                </div>
                 <div class="brain-wrap" style="max-width:none;padding:0;">
                   <div class="stage" id="stage" style="min-height:240px;">
                     <svg id="wires" aria-hidden="true"></svg>
                     <div class="grid">
                       <section class="t"><p class="lab">Research &amp; Strategy Agents</p><div class="row" id="top"></div></section>
                       <section class="l"><p class="lab">Providers</p><div class="col" id="left"></div></section>
-                      <section class="c"><div class="chip" id="chip">
+                      <section class="c"><div class="chip" id="chip" title="Click the core to simulate the next orchestration task">
                         <div class="core" id="core"></div>
                         <h2>Hyper Motion</h2>
                         <p>V3 · Orchestrate · Process</p>
@@ -6623,6 +6878,8 @@
               if (cnt && msg.payload && msg.payload.total !== undefined)
                 cnt.textContent = `${msg.payload.total} active`;
               reloadNodeStudio();
+              // Keep the orchestration flow in sync with route/provider changes
+              if (!brainBusy && brainStage) brainSyncLive(true);
             }
           } catch (_) {}
         };
@@ -8757,7 +9014,7 @@
     };
     const brainIc = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${brainIcons[n]||brainIcons.cpu}</svg>`;
 
-    // [icon, name, result text, default provider, role subtitle]
+    // [icon, name, result text, default provider, role subtitle, backend agent key]
     const brainD = {
       left: [
         ['zap', 'Google Gemini'],
@@ -8766,16 +9023,16 @@
         ['sync', 'Dynamic Fallback']
       ],
       top: [
-        ['trending', 'TrendHunter', 'Breakout trends discovered', 'Google Gemini', 'Trend Radar'],
-        ['shield', 'FactChecker', 'Claims verified with citations', 'Google Gemini', 'Truth Verification'],
-        ['target', 'Strategist', 'Content angle & hooks locked', 'Google Gemini', 'Strategy & Angle'],
-        ['user', 'AudienceMiner', 'Retention & sentiment mapped', 'OpenRouter', 'Audience Mining']
+        ['trending', 'TrendHunter', 'Breakout trends discovered', 'Google Gemini', 'Trend Radar', 'trend_hunter'],
+        ['shield', 'FactChecker', 'Claims verified with citations', 'Google Gemini', 'Truth Verification', 'fact_checker'],
+        ['target', 'Strategist', 'Content angle & hooks locked', 'Google Gemini', 'Strategy & Angle', 'strategist'],
+        ['user', 'AudienceMiner', 'Retention & sentiment mapped', 'OpenRouter', 'Audience Mining', 'audience_miner']
       ],
       bottom: [
-        ['edit', 'ScriptForge', 'High-retention script forged', 'Google Gemini', 'Script Forge'],
-        ['bar', 'SEOOptimizer', 'Viral SEO bundle assembled', 'OpenRouter', 'SEO & Metadata'],
-        ['fb', 'FB Agent', 'Facebook post & media ready', 'Google Gemini', 'Facebook Studio'],
-        ['sync', 'Learner', 'Knowledge graph updated', 'OpenAI (GPT-4o)', 'Neural Memory']
+        ['edit', 'ScriptForge', 'High-retention script forged', 'Google Gemini', 'Script Forge', 'script_forge'],
+        ['bar', 'SEOOptimizer', 'Viral SEO bundle assembled', 'OpenRouter', 'SEO & Metadata', 'seo_optimizer'],
+        ['fb', 'FB Agent', 'Facebook post & media ready', 'Google Gemini', 'Facebook Studio', 'facebook_content'],
+        ['sync', 'Learner', 'Knowledge graph updated', 'OpenAI (GPT-4o)', 'Neural Memory', 'learner']
       ]
     };
 
@@ -8791,8 +9048,106 @@
     let brainStage, brainChip, brainWires, brainConns = [], brainN = {}, brainRes = null;
     let brainBusy = false, brainAuto = false, brainTi = 0;
     let brainItems = [], brainTotal = 0;
+    // Live backend state for the orchestration flow (providers / agents / routes)
+    let brainLive = { providers: [], agents: [], routes: [], liveRoutes: {}, syncedAt: null };
+    let brainProvKeys = [], brainAgentKeys = [];
     const brainSleep = ms => new Promise(r => setTimeout(r, ms));
     const brainReducedMotion = matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+    // Map a provider_type to a graph icon
+    const brainProvIcon = t => ({
+      gemini: 'zap', groq: 'cpu', openrouter: 'globe', openai: 'bot',
+      anthropic: 'bot', local: 'plug', offline: 'plug'
+    }[String(t || '').toLowerCase()] || 'cloud');
+
+    // Resolve an agent's *specific* live route (same order as the gateway: exact → fuzzy)
+    function brainRouteFor(agentKey) {
+      const routes = brainLive.routes || [];
+      if (!agentKey || !routes.length) return null;
+      let r = routes.find(x => x.route_name === agentKey);
+      if (!r) {
+        r = routes.find(x => x.route_name && x.route_name !== 'default' &&
+          (String(agentKey).indexOf(x.route_name) !== -1 || String(x.route_name).indexOf(agentKey) !== -1));
+      }
+      return r || null;
+    }
+
+    function updateOrchStats() {
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      set('orchStatProviders', String(brainProvKeys.length));
+      set('orchStatAgents', String(brainAgentKeys.length));
+      set('orchStatRoutes', String(Object.keys(brainLive.liveRoutes || {}).length));
+      const ts = document.getElementById('orchSyncTime');
+      if (ts) {
+        ts.textContent = brainLive.syncedAt
+          ? 'synced ' + brainLive.syncedAt.toLocaleTimeString('en-US', { hour12: false })
+          : 'offline data';
+      }
+    }
+
+    // Pull providers / agents / routes from the backend and re-render the flow
+    async function brainSyncLive(quiet) {
+      try {
+        const [provs, roster, routes, live] = await Promise.all([
+          fetch('/api/omniroute/providers').then(r => r.ok ? r.json() : []),
+          fetch('/api/agents').then(r => r.ok ? r.json() : []),
+          fetch('/api/omniroute/routes').then(r => r.ok ? r.json() : []),
+          fetch('/api/omniroute/live-routes').then(r => r.ok ? r.json() : {})
+        ]);
+        brainLive.providers = Array.isArray(provs) ? provs : [];
+        brainLive.agents = Array.isArray(roster) ? roster : [];
+        brainLive.routes = Array.isArray(routes) ? routes : [];
+        brainLive.liveRoutes = (live && typeof live === 'object' && live.routes && typeof live.routes === 'object') ? live.routes : {};
+        brainLive.syncedAt = new Date();
+        if (!quiet) {
+          appendBrainLog('System', `Orchestration synced — ${brainLive.providers.length} providers · ${brainLive.agents.length} agents · ${Object.keys(brainLive.liveRoutes).length} live routes.`, 'ok', 'System');
+        }
+      } catch (e) {
+        if (!quiet) appendBrainLog('System', 'Live sync failed: ' + e.message, 'warn', 'System');
+      }
+      try { initBrainSystem(true); updateOrchStats(); } catch (e) { console.warn('brain re-render failed:', e); }
+    }
+
+    // Click a provider node → real gateway ping (tiny live request), straight into the console log
+    async function brainPingProvider(el, k, item) {
+      el.classList.add('on');
+      appendBrainLog(item.name, item.raw && item.raw.id ? 'Live ping — sending a tiny test request through the gateway...' : 'Pinging provider...', 'sys', 'System');
+      await brainPulse(k, 1, 650);
+      try {
+        if (item.raw && item.raw.id) {
+          const ctrl = new AbortController();
+          const tid = setTimeout(() => ctrl.abort(), 25000);
+          let d;
+          try {
+            d = await fetch('/api/omniroute/test-provider', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: ctrl.signal,
+              body: JSON.stringify({
+                provider_id: item.raw.id,
+                provider_type: item.raw.provider_type || '',
+                model: (item.raw.models || [])[0] || ''
+              })
+            }).then(r => r.json());
+          } finally {
+            clearTimeout(tid);
+          }
+          if (d.status === 'success') {
+            appendBrainLog(item.name, `Ping OK — ${d.latency_ms}ms${d.response ? ' · "' + String(d.response).slice(0, 36) + '"' : ''}`, 'ok', 'System');
+          } else {
+            appendBrainLog(item.name, `Ping failed after ${d.latency_ms != null ? d.latency_ms + 'ms' : '?'} — ${d.error || 'unknown error'}`, 'warn', 'System');
+          }
+        } else {
+          await brainSleep(450);
+          appendBrainLog(item.name, 'Connected & active (built-in fallback row).', 'ok', 'System');
+        }
+      } catch (e) {
+        const timedOut = e && (e.name === 'AbortError' || String(e.message || '').toLowerCase().includes('abort'));
+        appendBrainLog(item.name, timedOut ? 'Ping timed out after 25s — provider is not responding.' : 'Ping error: ' + e.message, timedOut ? 'warn' : 'err', 'System');
+      }
+      await brainPulse(k, 0, 750);
+      el.classList.remove('on');
+    }
 
     function mkBrainWire(el, k) {
       const w = document.createElementNS(brainNS, 'path'), g = document.createElementNS(brainNS, 'path');
@@ -8800,7 +9155,7 @@
       return Object.assign(k, { el, w, g, len: 0, h: false });
     }
 
-    function initBrainSystem() {
+    function initBrainSystem(skipLive) {
       brainStage = document.getElementById('stage');
       brainChip = document.getElementById('chip');
       brainWires = document.getElementById('wires');
@@ -8812,38 +9167,77 @@
       brainN = {};
       brainWires.innerHTML = '';
 
-      // Populate D nodes
-      for (const side in brainD) {
+      // Build the node set — left column uses LIVE backend providers when available
+      const liveProvs = (brainLive.providers || []).filter(p => p && p.name);
+      const sideItems = {
+        left: liveProvs.length
+          ? liveProvs.map(p => {
+              const models = p.models || [];
+              return {
+                icon: brainProvIcon(p.provider_type),
+                name: p.name,
+                meta: `${p.provider_type || 'provider'} · ${models.length} model${models.length === 1 ? '' : 's'}${p.enabled === false ? ' · disabled' : ''}`,
+                enabled: p.enabled !== false,
+                raw: p
+              };
+            })
+          : brainD.left.map(([i, t]) => ({ icon: i, name: t, meta: 'built-in fallback', enabled: true, raw: null })),
+        top: brainD.top.map(([icon, name, out, need, role, key]) => ({ icon, name, out, need, role, key })),
+        bottom: brainD.bottom.map(([icon, name, out, need, role, key]) => ({ icon, name, out, need, role, key }))
+      };
+
+      brainProvKeys = [];
+      brainAgentKeys = [];
+
+      ['left', 'top', 'bottom'].forEach(side => {
         const host = document.getElementById(side);
-        if (!host) continue;
+        if (!host) return;
         host.innerHTML = '';
-        const n = brainD[side].length, ag = side !== 'left';
-        brainD[side].forEach(([i, t, out, need, role], j) => {
+        const items = sideItems[side];
+        const n = items.length, ag = side !== 'left';
+        items.forEach((it, j) => {
           const el = document.createElement('div');
           el.className = 'card ' + (ag ? 'agent' : 'prov');
-          el.innerHTML = ag
-            ? `<i class="dot"></i><div class="ico">${brainIc(i)}</div><b>${t}</b><span>${role || ('Agent ' + (j + 1))}</span>`
-            : `<div class="ico">${brainIc(i)}</div><b>${t}</b><i class="dot"></i>`;
-          host.append(el);
-          const k = mkBrainWire(el, { side, ag, name: t, out, need, off: (j - (n - 1) / 2) * (ag ? 18 : 16) });
-          brainConns.push(k);
-          brainN[t] = k;
+
           if (ag) {
-            el.onclick = () => runBrainTask({ n: t, p: [need], a: [t] });
+            const info = (brainLive.agents || []).find(a => a && a.name === it.key);
+            const route = brainRouteFor(it.key);
+            const fcWarn = (info && info.fact_critical) ? ' ⚠' : '';
+            const fcTitle = (info && info.fact_critical) ? ' · ⚠ fact-critical (verified claims only)' : '';
+            let chip;
+            if (route) {
+              chip = `<div class="aroute live" title="Live route '${brainEsc(route.route_name)}' → ${brainEsc(route.primary_provider_id || '?')} · ${brainEsc(route.primary_model || '?')}${fcTitle}">${brainEsc(route.primary_model || 'custom')} · ${brainEsc(route.route_name)}${fcWarn}</div>`;
+            } else if (info) {
+              chip = `<div class="aroute" title="Static routing — provider handle '${brainEsc(info.primary || 'default')}' (no pipeline override)${fcTitle}">via ${brainEsc(info.primary || 'default')} · default${fcWarn}</div>`;
+            } else {
+              chip = `<div class="aroute" title="Static default routing${fcTitle}">default routing${fcWarn}</div>`;
+            }
+            el.innerHTML = `<i class="dot"></i><div class="ico">${brainIc(it.icon)}</div><b>${brainEsc(it.name)}</b><span>${brainEsc(it.role || ('Agent ' + (j + 1)))}</span>${chip}`;
           } else {
+            el.innerHTML = `<div class="ico">${brainIc(it.icon)}</div><div class="pcol"><b title="${brainEsc(it.name)}">${brainEsc(it.name)}</b><small>${brainEsc(it.meta)}</small></div><i class="dot${it.enabled ? ' en' : ''}"></i>`;
+          }
+
+          host.append(el);
+          const k = mkBrainWire(el, { side, ag, name: it.name, out: it.out, need: it.need, off: (j - (n - 1) / 2) * (ag ? 18 : 16) });
+          brainConns.push(k);
+          brainN[it.name] = k;
+
+          if (ag) {
+            brainAgentKeys.push(it.name);
+            el.onclick = () => runBrainTask({ n: it.name, p: [it.need], a: [it.name] });
+            const chipEl = el.querySelector('.aroute');
+            if (chipEl) {
+              chipEl.title += ' — click to open the Route Tester';
+              chipEl.onclick = ev => { ev.stopPropagation(); switchBrainSubTab('routes'); };
+            }
+          } else {
+            brainProvKeys.push(it.name);
             el.style.cursor = 'pointer';
-            el.onclick = () => {
-              appendBrainLog('Provider', `Pinging provider: ${t}...`, 'sys', 'System');
-              el.classList.add('on');
-              brainPulse(k, 1, 700).then(() => {
-                brainPulse(k, 0, 800);
-                el.classList.remove('on');
-                appendBrainLog(t, `Connected & active. Route status: 200 OK`, 'ok', 'System');
-              });
-            };
+            el.title = it.raw && it.raw.id ? 'Click to ping this provider (one tiny live request)' : 'Click to ping this provider';
+            el.onclick = () => brainPingProvider(el, k, it);
           }
         });
-      }
+      });
 
       // Results card
       const resEl = document.getElementById('res');
@@ -8869,9 +9263,19 @@
         if (document.fonts) document.fonts.ready.then(brainLayout);
       }
 
+      // The core chip doubles as "simulate next task"
+      if (brainChip) {
+        brainChip.onclick = () => { if (!brainBusy) runBrainTask(); };
+      }
+
+      updateOrchStats();
+
       // Auto-run disabled by default: only runs when commanded
       // if (brainAuto) setTimeout(() => { if (brainAuto && !brainBusy) runBrainTask(); }, 800);
       initBrainConsole();
+
+      // First render uses fallbacks; immediately pull the real backend state (silent)
+      if (!skipLive) brainSyncLive(true);
     }
 
     function brainRect(e) {
@@ -8972,7 +9376,8 @@
       if (brainBusy || brainConns.length === 0) return;
       brainBusy = true;
       const T = task || brainTasksList[brainTi++ % brainTasksList.length];
-      const P = T.p.map(n => brainN[n]).filter(Boolean);
+      let P = (T.p || []).map(n => brainN[n]).filter(Boolean);
+      if (!P.length) P = brainProvKeys.map(n => brainN[n]).filter(Boolean).slice(0, 2);
       const A = T.a.map(n => brainN[n]).filter(Boolean);
       const inv = new Set([...P, ...A, brainRes].filter(Boolean));
 
@@ -9103,6 +9508,7 @@
         if (type === 'pipeline_completed') {
           appendBrainLog('Orchestrator', `PIPELINE COMPLETE | script_id: ${payload.script_id}`, 'done', 'System');
           setBrainStatus('Idle', false);
+          Object.values(brainN).forEach(k => { if (k && k.el) k.el.classList.remove('on'); });
           brainItems.unshift({ t: `Pipeline Complete (Script #${payload.script_id})`, s: 'Autonomous Engine', tm: new Date().toTimeString().slice(0, 5) });
           brainTotal++;
           drawBrainResults();
@@ -9111,6 +9517,7 @@
         if (type === 'pipeline_failed') {
           appendBrainLog('Orchestrator', `PIPELINE FAILED | ${payload.error}`, 'failed', 'System');
           setBrainStatus('Error', false);
+          Object.values(brainN).forEach(k => { if (k && k.el) k.el.classList.remove('on'); });
           return;
         }
         if (type === 'pipeline_progress' || type === 'facebook_audit_progress' || type === 'facebook_content_progress') {
@@ -9120,10 +9527,15 @@
             const fn = BRAIN_STEP_RUNNING[step];
             const msg = fn ? fn(payload.topic || payload.claim || '') : step + ' - working...';
             appendBrainLog(info.agent, '> ' + msg, '', info.key);
+            // Light up the matching agent node on the orchestration graph
+            const hk = brainN[info.agent];
+            if (hk) { hk.el.classList.add('on'); setBrainStatus(info.agent + ' · working', true); }
           } else if (status === 'completed') {
             const fn = BRAIN_STEP_DONE[step];
             const arg = payload.count ?? payload.claims_count ?? payload.angle ?? payload.script_id ?? payload.seo_id ?? 'done';
             appendBrainLog(info.agent, (fn ? fn(arg) : step + ' - complete.'), 'ok', info.key);
+            const hk = brainN[info.agent];
+            if (hk) { hk.el.classList.remove('on'); brainPulse(hk, 0, 700); setBrainStatus(info.agent + ' · done', true); }
             brainItems.unshift({ t: `${info.agent}: ${step}`, s: 'Live Agent', tm: new Date().toTimeString().slice(0, 5) });
             brainTotal++;
             drawBrainResults();

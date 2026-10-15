@@ -298,6 +298,7 @@ async def delete_omniroute_provider(provider_id: str) -> Dict[str, str]:
 
 @router.post("/api/omniroute/test-provider")
 async def test_omniroute_provider(req: TestProviderRequest) -> Dict[str, Any]:
+    import asyncio
     import time
     api_key = req.api_key or ""
     base_url = req.base_url or ""
@@ -312,17 +313,22 @@ async def test_omniroute_provider(req: TestProviderRequest) -> Dict[str, Any]:
     if not model:
         model = "gpt-4o-mini"
     start = time.time()
+    # Ping must never hang the UI — bound the tiny test call
+    PING_TIMEOUT_SECONDS = 20
     try:
         if req.provider_type == "gemini":
             from app.llm.gemini_provider import GeminiProvider
             p = GeminiProvider(api_key=api_key, model_name=model)
-            res = await p.generate_text("Reply with 'pong'")
+            res = await asyncio.wait_for(p.generate_text("Reply with 'pong'"), timeout=PING_TIMEOUT_SECONDS)
         else:
             from app.llm.openai_provider import OpenAIProvider
             p = OpenAIProvider(api_key=api_key, model_name=model, base_url=base_url or None)
-            res = await p.generate_text("Reply with 'pong'")
+            res = await asyncio.wait_for(p.generate_text("Reply with 'pong'"), timeout=PING_TIMEOUT_SECONDS)
         latency_ms = int((time.time() - start) * 1000)
         return {"status": "success", "latency_ms": latency_ms, "response": res[:100]}
+    except asyncio.TimeoutError:
+        latency_ms = int((time.time() - start) * 1000)
+        return {"status": "error", "latency_ms": latency_ms, "error": f"provider did not respond within {PING_TIMEOUT_SECONDS}s"}
     except Exception as e:
         latency_ms = int((time.time() - start) * 1000)
         return {"status": "error", "latency_ms": latency_ms, "error": str(e)}
