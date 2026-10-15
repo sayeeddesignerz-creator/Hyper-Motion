@@ -2850,8 +2850,8 @@
     .node-system-viewport {
       position: relative;
       width: 100%;
-      height: 640px;
-      min-height: 520px;
+      height: 760px;
+      min-height: 600px;
       background: #0d1117;
       border: 1px solid #21262d;
       border-radius: 16px;
@@ -3003,6 +3003,10 @@
       background: linear-gradient(180deg, #8957e5 0%, #6e40c9 100%);
       color: #ffffff;
     }
+    .node-color-agent {
+      background: linear-gradient(180deg, #d97706 0%, #b45309 100%);
+      color: #ffffff;
+    }
 
     .dv-node-body {
       padding: 10px 12px;
@@ -3100,6 +3104,25 @@
       height: 8px;
       border-radius: 50%;
     }
+    /* Brain Sub-Tab bar buttons */
+    .brain-subtab {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font: 600 12px/1 'Plus Jakarta Sans', sans-serif;
+      padding: 10px 18px;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .brain-subtab:hover {
+      color: #e6edf3 !important;
+      border-color: rgba(88,166,255,0.4) !important;
+    }
+    .brain-subtab.active-subtab {
+      color: #58a6ff !important;
+      border-bottom-color: #58a6ff !important;
+    }
   </style>
 </head>
 
@@ -3152,12 +3175,10 @@
                 <div class="nav-item-content">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.2"
                     stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                      d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z" />
-                    <path
-                      d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z" />
+                    <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z" />
+                    <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z" />
                   </svg>
-                  <span>AI Brain</span>
+                  <span>AI Command Center</span>
                 </div>
                 <span class="nav-badge" id="brainBadge" style="background:#8b5cf6;color:white;">7 Agents</span>
               </button>
@@ -3242,28 +3263,7 @@
           </ul>
         </div>
 
-        <!-- Section: AI GATEWAY -->
-        <div class="nav-section">
-          <div class="nav-section-title">AI Gateway</div>
-          <ul class="nav-menu">
-            <li class="nav-item" id="nav-providers">
-              <button onclick="switchTab('providers')">
-                <div class="nav-item-content">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="3" width="7" height="6" rx="1.5" />
-                    <rect x="15" y="3" width="7" height="6" rx="1.5" />
-                    <rect x="8" y="15" width="8" height="6" rx="1.5" />
-                    <path d="M5.5 9v3a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V9" />
-                    <path d="M12 14v1" />
-                  </svg>
-                  <span>Node Graph (Studio)</span>
-                </div>
-                <span class="nav-badge" style="background:#238636;">NODES</span>
-              </button>
-            </li>
-          </ul>
-        </div>
+        <!-- Section: AI GATEWAY (merged into AI Command Center) -->
 
         <!-- Section: SYSTEM -->
         <div class="nav-section">
@@ -4022,11 +4022,8 @@
         </div>
 
         <!-- MERGED TAB: DAVINCI & BLENDER NODE SYSTEM STUDIO -->
-        <div id="tab-providers" class="view-panel">
-          <div class="page-title-row">
-            <div>
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-                <h1 class="page-title">AI Node Graph Studio</h1>
+        <!-- tab-providers is now merged into tab-brain (AI Command Center) -->
+        <div id="tab-providers" class="view-panel" style="display:none!important;">
                 <span class="badge" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;font-size:10px;padding:3px 8px;border-radius:12px;font-family:'JetBrains Mono',monospace;">DAVINCI / BLENDER ENGINE</span>
                 <span id="routeSyncBadge" title="Real-time sync status" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);font-size:11px;font-weight:600;color:#10b981;">
                   <span id="routeSyncDot" style="width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981;"></span>
@@ -5318,81 +5315,209 @@
         <!-- =============================================================== -->
         <!-- TAB 9: AI BRAIN & NEURAL CORTEX PANEL (BLACK & WHITE HOLOGRAM)   -->
         <!-- =============================================================== -->
-        <div id="tab-brain" class="view-panel">
+        <!-- ============================================================= -->
+        <!-- UNIFIED: AI COMMAND CENTER (Node Graph + AI Brain + Console)  -->
+        <!-- ============================================================= -->
+        <div id="tab-brain" class="view-panel" style="padding:0;overflow:hidden;">
 
-          <div class="brain-wrap">
-            <header class="brain-header">
+          <!-- ── Top title bar ── -->
+          <div class="page-title-row" style="margin-bottom:12px;padding:20px 24px 0;">
+            <div style="display:flex;align-items:center;gap:12px;">
               <div>
-                <h1 class="brain-heading">AI Brain<small>Hyper Motion · orchestration flow</small></h1>
-              </div>
-            </header>
-
-            <div class="stage" id="stage">
-              <svg id="wires" aria-hidden="true"></svg>
-              <div class="grid">
-                <section class="t"><p class="lab">Research & Strategy Agents</p><div class="row" id="top"></div></section>
-                <section class="l"><p class="lab">Providers</p><div class="col" id="left"></div></section>
-                <section class="c"><div class="chip" id="chip">
-                  <div class="core" id="core"></div>
-                  <h2>Hyper Motion Chip</h2>
-                  <p>V3 · Orchestrate · Process · Accelerate</p>
-                  <div class="st" id="st"><i></i><span>Idle</span></div>
-                </div></section>
-                <section class="r"><p class="lab">Results</p>
-                  <div class="card res" id="res"><div class="rh"><b>Finished work</b><div><span class="cnt" id="cnt">0</span><button id="clr">Clear</button></div></div><div id="rl"></div></div>
-                </section>
-                <section class="b"><p class="lab">Production & Delivery Agents</p><div class="row" id="bottom"></div></section>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+                  <h1 class="page-title" style="margin:0;">AI Command Center</h1>
+                  <span style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;font-size:10px;padding:3px 8px;border-radius:12px;font-family:'JetBrains Mono',monospace;">NODE GRAPH + BRAIN</span>
+                  <span id="routeSyncBadge" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);font-size:11px;font-weight:600;color:#10b981;">
+                    <span id="routeSyncDot" style="width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981;"></span>
+                    <span id="routeSyncLabel">LIVE SYNC</span>
+                  </span>
+                  <span id="liveRouteCount" style="padding:3px 9px;border-radius:12px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);font-size:11px;font-weight:700;color:#8b5cf6;">0 active</span>
+                </div>
+                <p class="page-subtitle" style="margin:0;">Visual node graph · AI orchestration flow · live agent console — all in one workspace.</p>
               </div>
             </div>
-
-            <!-- Agent Console Section -->
-            <div class="bc-section" id="brainConsoleSection">
-              <div class="bc-header">
-                <div class="bc-title">
-                  <div class="bc-traffic"><span class="bc-t-red"></span><span class="bc-t-yellow"></span><span class="bc-t-green"></span></div>
-                  <h3>Agent Console</h3>
-                  <span class="bc-live-pill"><span class="bc-live-dot"></span> LIVE TELEMETRY</span>
-                </div>
-                <div class="bc-toolbar">
-                  <button class="brain-btn" onclick="handleBrainCmd('pipeline')" style="font-size:11px;padding:4px 10px;min-height:28px;border-color:var(--ac2);color:var(--ac2);">Run Pipeline</button>
-                  <button class="brain-btn" onclick="handleBrainCmd('hunt')" style="font-size:11px;padding:4px 10px;min-height:28px;border-color:var(--ac);color:var(--ac);">Hunt Trends</button>
-                  <button class="brain-btn" id="bcClear" style="font-size:11px;padding:4px 10px;min-height:28px;">Clear</button>
-                  <button class="brain-btn" id="bcScrollBtn" aria-pressed="true" style="font-size:11px;padding:4px 10px;min-height:28px;">Auto-scroll</button>
-                </div>
-              </div>
-              <div class="bc-box">
-                <div class="bc-split">
-                  <!-- LEFT: Live Agent Log -->
-                  <div class="bc-panel">
-                    <div class="bc-panel-header">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                      <span class="bc-panel-title">Live Agent Log</span>
-                    </div>
-                    <div id="brainLog"></div>
-                  </div>
-                  <!-- DIVIDER -->
-                  <div class="bc-split-divider"></div>
-                  <!-- RIGHT: AI Chat -->
-                  <div class="bc-panel">
-                    <div class="bc-panel-header">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                      <span class="bc-panel-title">AI Assistant</span>
-                    </div>
-                    <div class="bc-chat" id="bcChat"></div>
-                    <div class="bc-input-row" style="border-top:1px solid rgba(255,255,255,.07);">
-                      <span class="bc-prompt">&#9654;&nbsp;</span>
-                      <input id="bcCmd" type="text" placeholder="Ask anything..." autocomplete="off" spellcheck="false">
-                      <button id="bcCmdSend" title="Send"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg></button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button class="btn-pill-secondary" onclick="openAddProviderModal()">+ Provider Node</button>
+              <button class="btn-pill-primary" onclick="openAddRouteModal()">+ Route Node</button>
+              <button class="btn-pill-secondary" onclick="handleBrainCmd('pipeline')" style="border-color:#0ea5e9;color:#0ea5e9;">▶ Run Pipeline</button>
             </div>
-
           </div>
 
+          <!-- ── Main two-row flex layout ── -->
+          <div style="display:flex;flex-direction:column;gap:0;height:calc(100vh - 160px);min-height:600px;padding:0 24px 20px;">
+
+            <!-- ── TOP: Node Graph Studio ── -->
+            <div id="cmdCenterNodeSection" style="flex:0 0 auto;height:420px;min-height:220px;position:relative;resize:vertical;overflow:auto;">
+              <div class="node-system-viewport" id="nodeViewport" style="height:100%;border-radius:14px 14px 0 0;min-height:220px;">
+                <div class="node-canvas-grid"></div>
+                <svg id="nodeSvgWires">
+                  <defs>
+                    <linearGradient id="primaryWireGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#58a6ff" />
+                      <stop offset="100%" stop-color="#3fb950" />
+                    </linearGradient>
+                    <linearGradient id="fallbackWireGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#bc8cff" />
+                      <stop offset="100%" stop-color="#f0883e" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="node-system-toolbar">
+                  <div class="node-toolbar-left">
+                    <span style="font-size:11px;font-weight:700;color:#58a6ff;letter-spacing:0.5px;">NODE GRAPH</span>
+                    <div style="width:1px;height:14px;background:#30363d;"></div>
+                    <button class="node-pill-btn" onclick="autoLayoutNodes()">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                      Clean Layout
+                    </button>
+                    <button class="node-pill-btn" onclick="reloadNodeStudio();setTimeout(drawNodeWires,80);">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                      Sync Graph
+                    </button>
+                  </div>
+                  <div class="node-toolbar-right">
+                    <div class="node-legend-item"><span class="node-legend-dot" style="background:#58a6ff;"></span><span>Provider Out</span></div>
+                    <div class="node-legend-item"><span class="node-legend-dot" style="background:#2ea043;"></span><span>Primary Route</span></div>
+                    <div class="node-legend-item"><span class="node-legend-dot" style="background:#bc8cff;"></span><span>Fallback</span></div>
+                    <div style="width:1px;height:14px;background:#30363d;"></div>
+                    <button class="node-pill-btn" onclick="toggleNodeHeight()" title="Expand/Collapse" id="nodeResizeBtn">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 15 12 20 17 15"/><polyline points="7 9 12 4 17 9"/></svg>
+                      Resize
+                    </button>
+                  </div>
+                </div>
+                <div id="nodesContainer" style="position:absolute;inset:0;pointer-events:none;"></div>
+              </div>
+              <!-- Drag resize divider -->
+              <div id="nodeResizeHandle" onclick="toggleNodeHeight()" style="height:10px;background:linear-gradient(90deg,#1f6feb22,#8957e544,#1f6feb22);cursor:ns-resize;display:flex;align-items:center;justify-content:center;border:1px solid #21262d;border-top:none;border-radius:0 0 10px 10px;" title="Click to collapse / expand node graph">
+                <svg width="20" height="8" viewBox="0 0 20 8" fill="none"><path d="M2 2.5h16M2 5.5h16" stroke="#8b949e" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </div>
+
+            <!-- ── BOTTOM: AI Brain + Console ── -->
+            <div style="flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg,#f5f6fa);border:1px solid #21262d;border-top:none;border-radius:0 0 14px 14px;overflow:hidden;">
+
+              <!-- Sub-tab bar (dark, Blender-style) -->
+              <div id="brainSubTabBar" style="display:flex;align-items:center;gap:0;background:#161b22;border-bottom:1px solid #30363d;padding:0 16px;flex-shrink:0;">
+                <button id="brainSubTabOrch" onclick="switchBrainSubTab('orch')" class="brain-subtab active-subtab" style="border-bottom:2px solid #58a6ff;color:#58a6ff;">🧠 Orchestration</button>
+                <button id="brainSubTabConsole" onclick="switchBrainSubTab('console')" class="brain-subtab" style="border-bottom:2px solid transparent;color:#8b949e;">⚡ Agent Console</button>
+                <button id="brainSubTabRoutes" onclick="switchBrainSubTab('routes')" class="brain-subtab" style="border-bottom:2px solid transparent;color:#8b949e;">🔗 Route Tester</button>
+                <div style="flex:1;"></div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#3fb950;padding:0 6px;">
+                  <span style="width:5px;height:5px;border-radius:50%;background:#3fb950;box-shadow:0 0 4px #3fb950;animation:bl 1s infinite;"></span>
+                  <span>Live</span>
+                </div>
+              </div>
+
+              <!-- Sub-panel: Orchestration Flow -->
+              <div id="brainPanelOrch" style="flex:1;overflow:auto;background:var(--bg,#f5f6fa);display:flex;flex-direction:column;">
+                <div class="brain-wrap" style="max-width:none;padding:0;">
+                  <div class="stage" id="stage" style="min-height:240px;">
+                    <svg id="wires" aria-hidden="true"></svg>
+                    <div class="grid">
+                      <section class="t"><p class="lab">Research &amp; Strategy Agents</p><div class="row" id="top"></div></section>
+                      <section class="l"><p class="lab">Providers</p><div class="col" id="left"></div></section>
+                      <section class="c"><div class="chip" id="chip">
+                        <div class="core" id="core"></div>
+                        <h2>Hyper Motion</h2>
+                        <p>V3 · Orchestrate · Process</p>
+                        <div class="st" id="st"><i></i><span>Idle</span></div>
+                      </div></section>
+                      <section class="r"><p class="lab">Results</p>
+                        <div class="card res" id="res"><div class="rh"><b>Finished work</b><div><span class="cnt" id="cnt">0</span><button id="clr">Clear</button></div></div><div id="rl"></div></div>
+                      </section>
+                      <section class="b"><p class="lab">Production &amp; Delivery Agents</p><div class="row" id="bottom"></div></section>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sub-panel: Agent Console + AI Chat -->
+              <div id="brainPanelConsole" style="flex:1;overflow:hidden;display:none;">
+                <div class="bc-section" id="brainConsoleSection" style="height:100%;border-radius:0;border:none;margin:0;">
+                  <div class="bc-header">
+                    <div class="bc-title">
+                      <div class="bc-traffic"><span class="bc-t-red"></span><span class="bc-t-yellow"></span><span class="bc-t-green"></span></div>
+                      <h3>Agent Console</h3>
+                      <span class="bc-live-pill"><span class="bc-live-dot"></span> LIVE TELEMETRY</span>
+                    </div>
+                    <div class="bc-toolbar">
+                      <button class="brain-btn" onclick="handleBrainCmd('pipeline')" style="font-size:11px;padding:4px 10px;min-height:28px;border-color:var(--ac2);color:var(--ac2);">Run Pipeline</button>
+                      <button class="brain-btn" onclick="handleBrainCmd('hunt')" style="font-size:11px;padding:4px 10px;min-height:28px;border-color:var(--ac);color:var(--ac);">Hunt Trends</button>
+                      <button class="brain-btn" id="bcClear" style="font-size:11px;padding:4px 10px;min-height:28px;">Clear</button>
+                      <button class="brain-btn" id="bcScrollBtn" aria-pressed="true" style="font-size:11px;padding:4px 10px;min-height:28px;">Auto-scroll</button>
+                    </div>
+                  </div>
+                  <div class="bc-box" style="height:calc(100% - 54px);">
+                    <div class="bc-split">
+                      <div class="bc-panel">
+                        <div class="bc-panel-header">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                          <span class="bc-panel-title">Live Agent Log</span>
+                        </div>
+                        <div id="brainLog"></div>
+                      </div>
+                      <div class="bc-split-divider"></div>
+                      <div class="bc-panel">
+                        <div class="bc-panel-header">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                          <span class="bc-panel-title">AI Assistant</span>
+                        </div>
+                        <div class="bc-chat" id="bcChat"></div>
+                        <div class="bc-input-row" style="border-top:1px solid rgba(255,255,255,.07);">
+                          <span class="bc-prompt">&#9654;&nbsp;</span>
+                          <input id="bcCmd" type="text" placeholder="Ask anything..." autocomplete="off" spellcheck="false">
+                          <button id="bcCmdSend" title="Send"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sub-panel: Route Tester -->
+              <div id="brainPanelRoutes" style="flex:1;overflow:auto;padding:16px;display:none;background:var(--bg,#f5f6fa);">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                  <div class="donezo-card">
+                    <div class="donezo-card-header">
+                      <div style="display:flex;align-items:center;gap:8px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2ea043" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        <span class="donezo-card-title">Live Route Tester &amp; Latency Monitor</span>
+                      </div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-bottom:12px;">
+                      <select id="testRouteSelect" class="form-select" style="max-width:170px;">
+                        <option value="default">Route: default</option>
+                        <option value="fact_check">Route: fact_check</option>
+                        <option value="script_writing">Route: script_writing</option>
+                      </select>
+                      <input type="text" id="testPromptInput" class="form-input" value="Explain quantum computing simply.">
+                      <button class="btn-pill-primary" onclick="runRouteTest()" style="white-space:nowrap;">Test Route</button>
+                    </div>
+                    <div id="testRouteOutput" style="background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#7ee787;min-height:80px;max-height:180px;overflow-y:auto;">Awaiting route test execution...</div>
+                  </div>
+                  <div class="donezo-card">
+                    <div class="donezo-card-header">
+                      <div style="display:flex;align-items:center;gap:8px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                        <span class="donezo-card-title">Active Node Connections</span>
+                      </div>
+                      <span id="nodeTotalSummary" style="font-size:11px;font-weight:700;color:var(--text-muted);">Loading nodes...</span>
+                    </div>
+                    <div id="quickNodeList" style="display:flex;flex-direction:column;gap:8px;max-height:180px;overflow-y:auto;padding-right:4px;"></div>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- end bottom section -->
+          </div><!-- end two-row layout -->
+
+          <!-- Hidden fallback containers so legacy queries don't break -->
+          <div id="providersGrid" style="display:none;"></div>
+          <div id="routesContainer" style="display:none;"></div>
+
           <!-- Compatibility anchors for background telemetry scripts -->
-          <div style="display: none;" aria-hidden="true">
+          <div style="display:none;" aria-hidden="true">
             <span id="chipBusSpeed">BUS: 18.4 GB/s</span>
             <span id="brainPrecisionHero">98.8%</span>
             <span id="brainMemoryCount">84</span>
@@ -5566,6 +5691,9 @@
   <script>
     // Tab switching
     function switchTab(tabId) {
+      // Redirect providers/routes to the unified brain panel
+      if (tabId === 'providers' || tabId === 'routes') tabId = 'brain';
+
       document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
@@ -5582,18 +5710,50 @@
       if (tabId === 'facts') loadClaims();
       if (tabId === 'scripts') loadScripts();
       if (tabId === 'audience') loadAudience();
-      if (tabId === 'providers' || tabId === 'routes') {
-        reloadNodeStudio();
-        setTimeout(drawNodeWires, 80);
-      }
       if (tabId === 'facebook') loadFacebookStudio();
       if (tabId === 'youtube') loadYouTubeStudio();
       if (tabId === 'brain') {
+        // Initialize both node graph studio and brain orchestration
+        reloadNodeStudio();
+        setTimeout(drawNodeWires, 120);
         loadBrainStudio();
         initBrainSystem();
-        setTimeout(brainLayout, 50);
+        setTimeout(brainLayout, 80);
       }
     }
+
+    /* ── Sub-tab switcher for the AI Command Center bottom panel ── */
+    function switchBrainSubTab(tab) {
+      const panels = { orch: 'brainPanelOrch', console: 'brainPanelConsole', routes: 'brainPanelRoutes' };
+      const btns   = { orch: 'brainSubTabOrch', console: 'brainSubTabConsole', routes: 'brainSubTabRoutes' };
+      Object.values(panels).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      Object.values(btns).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.style.borderBottomColor = 'transparent'; el.style.color = '#8b949e'; el.classList.remove('active-subtab'); }
+      });
+      const activePanel = document.getElementById(panels[tab]);
+      if (activePanel) activePanel.style.display = tab === 'orch' ? 'flex' : (tab === 'console' ? 'flex' : 'block');
+      const activeBtn = document.getElementById(btns[tab]);
+      if (activeBtn) { activeBtn.style.borderBottomColor = '#58a6ff'; activeBtn.style.color = '#58a6ff'; activeBtn.classList.add('active-subtab'); }
+      if (tab === 'routes') { reloadNodeStudio(); setTimeout(drawNodeWires, 80); }
+    }
+
+    /* ── Toggle node graph section height ── */
+    let _nodeExpanded = true;
+    function toggleNodeHeight() {
+      const sec = document.getElementById('cmdCenterNodeSection');
+      if (!sec) return;
+      _nodeExpanded = !_nodeExpanded;
+      sec.style.height = _nodeExpanded ? '420px' : '56px';
+      sec.style.minHeight = _nodeExpanded ? '220px' : '56px';
+      const btn = document.getElementById('nodeResizeBtn');
+      if (btn) btn.title = _nodeExpanded ? 'Collapse node graph' : 'Expand node graph';
+      if (_nodeExpanded) setTimeout(drawNodeWires, 80);
+    }
+
 
     // Timer clock simulation
     let seconds = 5048;
