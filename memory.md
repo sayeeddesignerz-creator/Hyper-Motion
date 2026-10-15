@@ -39,7 +39,7 @@ pip install -e ".[dev]"        # editable install with dev deps
 
 | URL | What |
 |---|---|
-| http://localhost:8500/ | Mission Control dashboard + AI Command Center (`dashboard/index.html`) |
+| http://localhost:8500/ | Mission Control dashboard + **Brain** panel (node graph + orchestration + console) (`dashboard/index.html`) |
 | http://localhost:8500/docs | OpenAPI docs |
 | /api/webhook/facebook | Meta Graph webhook (verify token in `.env`) |
 
@@ -67,7 +67,7 @@ Hyper-Motion/
 │   └── tools/            # trends, news, reddit, youtube_search, webfetch,
 │                         #   facebook, image_generator, quiz_generator,
 │                         #   cache, conversation_library
-├── dashboard/            # index.html = Mission Control + AI Command Center
+├── dashboard/            # index.html = Mission Control + Brain panel
 ├── data/                 # ultimate.db (app state) · gateway_state.db (LLM state) — gitignored
 ├── output/               # facebook_media/ · quizzes/ — generated media — gitignored
 ├── config/               # YAML channel config (optional)
@@ -119,13 +119,22 @@ Hyper-Motion/
 
 - Branch: `main` (tracks `origin/main`). All commits so far dated 2026-10-15.
 - ✅ **History rewrite PUBLISHED 2026-10-15:** `git filter-repo` purge of `exchange_token.py` was force-pushed (`--force-with-lease`) to `origin/main` — remote branch now `e533462`; old branch history replaced. Note: pre-rewrite commits can still be fetched from GitHub by exact SHA until GitHub GCs its dangling objects.
-- Recent work direction: unifying dashboard into "AI Command Center" — brain orchestration (top) + fully interactive node-graph studio (bottom, connect/disconnect/right-click, every change synced to the backend), LLM router resilience, Facebook growth engine, backlog completion session.
+- Recent work direction: the "Brain" panel (former "AI Command Center") — brain orchestration (top) + fully interactive node-graph studio (bottom, connect/disconnect/right-click, every change synced to the backend), LLM router resilience, Facebook growth engine, backlog completion session.
 
 ---
 
 ## 8. Task Log
 
 > Newest first. Format: `### YYYY-MM-DD — title ✅` + bullets (what changed, follow-ups).
+
+### 2026-10-15 — "AI Command Center" renamed to "Brain" + premium panel redesign ✅
+**Goal:** rename the panel to **Brain** and make it feel premium and user-friendly.
+- 🏷️ **Renamed** everywhere user-facing: sidebar nav item, page title (`AI Command Center` → `Brain`, badge now `NODE GRAPH + ORCHESTRATION`), subtitle, code comments; nav badge corrected (`7 Agents` → `10 Agents`). Historical task-log entries keep the old name (history).
+- ✨ **Premium hero header:** dark gradient banner with layered radial glows, gradient brain-icon tile, gradient-text "Brain" title, premium chip/pills, and a grouped button bar (+ Provider / + Agent / + Engine / + Route) plus a glowing `▶ Run Pipeline` CTA — all buttons have tooltips.
+- 🗂️ **Sub-tab bar polish:** gradient bar background, hover/active states with soft glow underline; each sub-tab now has a descriptive tooltip.
+- 🛟 **Friendlier graph UX:** toolbar hint restyled as a "💡" tip pill; new friendly **empty-state overlay** ("Your brain is empty") with quick-add buttons, shown only when the whole graph has 0 nodes.
+- 📝 **memory.md** references updated to the new name.
+- ⏭️ **Follow-ups (user):** rotate FB credentials (§5 #1).
 
 ### 2026-10-15 — GitHub push: history rewrite published + latest work live ✅
 **Goal:** push all local changes to `github.com/sayeeddesignerz-creator/Hyper-Motion`.
