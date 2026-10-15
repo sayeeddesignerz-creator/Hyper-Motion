@@ -79,6 +79,8 @@ _PROVIDER_ID_TO_HANDLE: Dict[str, str] = {
     "openrouter":        "openrouter",
     "openai_cloud":      "openai",
     "openai":            "openai",
+    "groq_fast":         "groq",
+    "groq":              "groq",
 }
 
 # ---------------------------------------------------------------------------
@@ -420,6 +422,9 @@ class LLMGateway:
         self.settings = get_settings()
         self._db = GatewayDB()
         self._handles: Dict[str, ProviderHandle] = {}
+        # provider_id → gateway handle key. Starts from the static aliases and
+        # is extended by sync_providers_from_db() for dashboard-managed providers.
+        self._provider_map: Dict[str, str] = dict(_PROVIDER_ID_TO_HANDLE)
         # Live routing table — overrides AGENT_ROUTING when populated from DB.
         # Updated atomically by reload_from_db_routes(); never written directly.
         self._live_routes: Dict[str, Dict[str, Any]] = {}
@@ -461,9 +466,90 @@ class LLMGateway:
             if p_or.is_configured():
                 self._handles["openrouter"] = ProviderHandle("openrouter", p_or, "OpenRouter")
 
+        # --- Groq (OpenAI-compatible, free & fast tier) ---
+        groq_key = os.getenv("GROQ_API_KEY") or ""
+        if groq_key:
+            p_groq = OpenAIProvider(
+                api_key=groq_key,
+                model_name=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+                base_url="https://api.groq.com/openai/v1",
+            )
+            if p_groq.is_configured():
+                self._handles["groq"] = ProviderHandle("groq", p_groq, "Groq")
+
         logger.info(
             "LLMGateway initialised with providers: %s",
             list(self._handles.keys()),
+        )
+
+    # ------------------------------------------------------------------
+    # Dashboard-managed providers (DB) → live routing handles
+    # ------------------------------------------------------------------
+
+    async def sync_providers_from_db(self, db) -> None:
+        """
+        Rebuild the provider handles from (a) environment configuration and
+        (b) the dashboard-managed ``omni_providers`` table.
+
+        Called at startup and after every provider save/delete so the node
+        graph in the dashboard is not cosmetic — saved providers actually
+        become routable handles.  Providers without an API key or disabled
+        rows are skipped; env-configured handles remain as the baseline.
+        """
+        from app.llm.gemini_provider import GeminiProvider
+        from app.llm.openai_provider import OpenAIProvider
+
+        # 1. Env baseline (also clears any deleted DB providers)
+        self._handles.clear()
+        self._build_handles()
+        self._provider_map = dict(_PROVIDER_ID_TO_HANDLE)
+
+        # 2. Overlay DB providers
+        try:
+            rows = await db.get_omni_providers()
+        except Exception as exc:
+            logger.warning("[ProviderSync] Could not read providers from DB: %s", exc)
+            return
+
+        registered = 0
+        for row in rows:
+            pid = (row.get("id") or "").strip()
+            if not pid or not row.get("enabled", True):
+                continue
+            api_key = row.get("api_key") or ""
+            if not api_key:
+                continue
+
+            ptype = (row.get("provider_type") or "").lower()
+            models = row.get("models") or []
+            model = models[0] if models else None
+            base_url = row.get("base_url") or None
+            label = row.get("name") or pid
+
+            try:
+                if ptype == "gemini":
+                    p = GeminiProvider(api_key=api_key, model_name=model)
+                else:
+                    # OpenAI, OpenRouter, Groq and any custom OpenAI-compatible endpoints
+                    p = OpenAIProvider(
+                        api_key=api_key,
+                        model_name=model or "gpt-4o-mini",
+                        base_url=base_url,
+                    )
+                if not p.is_configured():
+                    continue
+            except Exception as exc:
+                logger.warning("[ProviderSync] Skipping provider '%s': %s", pid, exc)
+                continue
+
+            self._handles[pid] = ProviderHandle(pid, p, label)
+            self._provider_map[pid] = pid
+            registered += 1
+
+        logger.info(
+            "[ProviderSync] Live handles after sync: %s (DB providers registered: %d)",
+            list(self._handles.keys()),
+            registered,
         )
 
     # ------------------------------------------------------------------
@@ -496,15 +582,23 @@ class LLMGateway:
             if not route_name:
                 continue
 
-            primary_key = _PROVIDER_ID_TO_HANDLE.get(
-                r.get("primary_provider_id", ""), "gemini"
-            )
+            provider_map = getattr(self, "_provider_map", _PROVIDER_ID_TO_HANDLE)
+
+            raw_primary = (r.get("primary_provider_id") or "").strip()
+            primary_key = provider_map.get(raw_primary)
+            if not primary_key:
+                logger.warning(
+                    "[RouteSync] Route '%s' references unknown provider '%s' — "
+                    "using the 'gemini' handle as primary.",
+                    route_name, raw_primary,
+                )
+                primary_key = "gemini"
 
             # Build ordered fallback list starting from primary
             fb_keys: List[str] = [primary_key]
             for step in (r.get("fallback_chain") or []):
                 pid  = step.get("provider_id", "")
-                hkey = _PROVIDER_ID_TO_HANDLE.get(pid, pid)
+                hkey = provider_map.get(pid, pid)
                 if hkey and hkey not in fb_keys:
                     fb_keys.append(hkey)
             # Append global defaults as last-resort

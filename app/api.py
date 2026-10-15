@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
 import re
-from app.config import MEDIA_DIR, PROJECT_ROOT, reload_settings
+from app.config import MEDIA_DIR, PROJECT_ROOT, get_app_version, reload_settings
 from app.db import Database
 from app.events import events
 from app.orchestrator import ContentOrchestrator
@@ -71,7 +71,7 @@ async def health_check() -> Dict[str, Any]:
     stats = await db.get_stats()
     return {
         "status": "healthy",
-        "agent": "Hyper Motion v1.0.0",
+        "agent": f"Hyper Motion v{get_app_version()}",
         "llm_available": orchestrator.gateway.is_available(),
         "stats": stats
     }
@@ -121,6 +121,11 @@ async def get_script_detail(script_id: str) -> Dict[str, Any]:
     seo = await db.get_seo_for_script(script_id)
     return {"script": script, "seo": seo}
 
+@router.get("/api/seo/bundles")
+async def get_seo_bundles(limit: int = 20) -> List[Dict[str, Any]]:
+    """Recent SEO bundles (titles, descriptions, tags) for the SEO Matrix tab."""
+    return await db.get_recent_seo_bundles(limit=limit)
+
 @router.post("/api/pipeline/run")
 async def trigger_pipeline(req: RunPipelineRequest, background_tasks: BackgroundTasks) -> Dict[str, str]:
     background_tasks.add_task(orchestrator.run_full_pipeline, req.topic, "manual_api")
@@ -139,11 +144,6 @@ async def analyze_audience(req: AnalyzeAudienceRequest) -> Dict[str, Any]:
     insight = await orchestrator.audience_miner.analyze_community(req.topic, req.comments)
     await db.save_audience_insight(insight)
     return {"insight": insight.model_dump()}
-
-@router.get("/api/events")
-async def sse_stream():
-    """Server-Sent Events streaming endpoint for live updates."""
-    return EventSourceResponse(events.subscribe())
 
 @router.delete("/api/data/clear")
 async def clear_all_data() -> Dict[str, Any]:
@@ -265,14 +265,17 @@ async def save_omniroute_provider(req: SaveProviderRequest) -> Dict[str, str]:
         models=req.models,
         enabled=req.enabled
     )
-    # Re-initialize endpoints in router
-    if hasattr(orchestrator.gateway, "_router"):
-        orchestrator.gateway._router._build_endpoint_pool()
+    # Push the updated provider set into the live gateway routing handles
+    await orchestrator.gateway.sync_providers_from_db(db)
+    await _sync_routes_to_gateway(action="provider_saved", route_name=req.id)
     return {"message": f"Provider '{req.name}' saved successfully", "id": req.id}
 
 @router.delete("/api/omniroute/providers/{provider_id}")
 async def delete_omniroute_provider(provider_id: str) -> Dict[str, str]:
     await db.delete_omni_provider(provider_id)
+    # Rebuild live handles so routes no longer point at a deleted provider
+    await orchestrator.gateway.sync_providers_from_db(db)
+    await _sync_routes_to_gateway(action="provider_deleted", route_name=provider_id)
     return {"message": f"Provider '{provider_id}' deleted"}
 
 @router.post("/api/omniroute/test-provider")
@@ -808,7 +811,15 @@ async def trigger_engagement_sweep(background_tasks: BackgroundTasks) -> Dict[st
 
 @router.get("/api/facebook/messenger/history")
 async def get_facebook_messenger_history(limit: int = 30) -> List[Dict[str, Any]]:
-    """Return recent Messenger conversation messages for dashboard display."""
+    """Return recent Messenger conversation messages for dashboard display.
+
+    Reads from the local conversation store first (populated by the webhook
+    handler); falls back to a live Meta Graph fetch when the local store is
+    empty and a page token is configured.
+    """
+    stored = await db.get_all_recent_messenger_messages(limit=limit)
+    if stored:
+        return stored
     if not orchestrator.facebook_client.is_configured:
         return []
     try:
@@ -1127,12 +1138,6 @@ async def facebook_webhook_receive(
                 background_tasks.add_task(_handle_page_comment, page_id, from_user, comment)
 
     return {"status": "ok"}
-
-
-@router.get("/api/facebook/messenger/history")
-async def get_facebook_messenger_history(limit: int = 30):
-    """Return recent incoming & outgoing Messenger messages."""
-    return await db.get_all_recent_messenger_messages(limit=limit)
 
 
 async def _handle_messenger_message(page_id: str, sender_id: str, text: str):

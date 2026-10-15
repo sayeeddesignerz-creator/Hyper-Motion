@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hyper Motion — Mission Control</title>
+  <link rel="icon" href="data:,">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -3246,6 +3247,19 @@
                 </div>
               </button>
             </li>
+            <li class="nav-item" id="nav-seo">
+              <button onclick="switchTab('seo')">
+                <div class="nav-item-content">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                    <path d="M2 17l10 5 10-5" />
+                    <path d="M2 12l10 5 10-5" />
+                  </svg>
+                  <span>SEO Matrix</span>
+                </div>
+              </button>
+            </li>
             <li class="nav-item" id="nav-audience">
               <button onclick="switchTab('audience')">
                 <div class="nav-item-content">
@@ -3420,6 +3434,10 @@
             <button class="quick-chip" onclick="switchTab('brain')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"/></svg>
               AI Brain
+            </button>
+            <button class="quick-chip" onclick="switchTab('seo')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              SEO Matrix
             </button>
           </div>
 
@@ -4003,6 +4021,7 @@
               <h1 class="page-title">SEO Matrix</h1>
               <p class="page-subtitle">CTR A/B testing variants, rich descriptions, and tag suites.</p>
             </div>
+            <button class="btn-pill-secondary" onclick="loadSEO()">Refresh Matrix</button>
           </div>
           <div class="donezo-card" id="seoContainer">
             <p style="color: var(--text-muted); font-size: 0.9rem;">Select or forge a script to review SEO variants.</p>
@@ -4021,124 +4040,7 @@
           <div id="audienceContainer"></div>
         </div>
 
-        <!-- MERGED TAB: DAVINCI & BLENDER NODE SYSTEM STUDIO -->
-        <!-- tab-providers is now merged into tab-brain (AI Command Center) -->
-        <div id="tab-providers" class="view-panel" style="display:none!important;">
-                <span class="badge" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;font-size:10px;padding:3px 8px;border-radius:12px;font-family:'JetBrains Mono',monospace;">DAVINCI / BLENDER ENGINE</span>
-                <span id="routeSyncBadge" title="Real-time sync status" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);font-size:11px;font-weight:600;color:#10b981;">
-                  <span id="routeSyncDot" style="width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981;"></span>
-                  <span id="routeSyncLabel">LIVE SYNC</span>
-                </span>
-                <span id="liveRouteCount" style="padding:3px 9px;border-radius:12px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);font-size:11px;font-weight:700;color:#8b5cf6;">0 active</span>
-              </div>
-              <p class="page-subtitle">Interactive visual node graph connecting AI Providers, Dynamic Pipeline Routes, and Failover Cascades.</p>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <button class="btn-pill-secondary" onclick="openAddProviderModal()">+ Add Provider Node</button>
-              <button class="btn-pill-primary" onclick="openAddRouteModal()">+ Add Route Node</button>
-            </div>
-          </div>
-
-          <!-- The Visual Node Viewport -->
-          <div class="node-system-viewport" id="nodeViewport">
-            <!-- Background Grid -->
-            <div class="node-canvas-grid"></div>
-
-            <!-- SVG Wire Connections -->
-            <svg id="nodeSvgWires">
-              <defs>
-                <linearGradient id="primaryWireGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#58a6ff" />
-                  <stop offset="100%" stop-color="#3fb950" />
-                </linearGradient>
-                <linearGradient id="fallbackWireGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#bc8cff" />
-                  <stop offset="100%" stop-color="#f0883e" />
-                </linearGradient>
-              </defs>
-            </svg>
-
-            <!-- Floating Studio HUD Toolbar -->
-            <div class="node-system-toolbar">
-              <div class="node-toolbar-left">
-                <span style="font-size:11px;font-weight:700;color:#58a6ff;letter-spacing:0.5px;">NODE GRAPH</span>
-                <div style="width:1px;height:14px;background:#30363d;"></div>
-                <button class="node-pill-btn" onclick="autoLayoutNodes()" title="Auto-align nodes">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                  Clean Layout
-                </button>
-                <button class="node-pill-btn" onclick="reloadNodeStudio()" title="Refresh nodes from server">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                  Sync Graph
-                </button>
-              </div>
-
-              <div class="node-toolbar-right">
-                <div class="node-legend-item">
-                  <span class="node-legend-dot" style="background:#58a6ff;"></span>
-                  <span>Provider Output</span>
-                </div>
-                <div class="node-legend-item">
-                  <span class="node-legend-dot" style="background:#2ea043;"></span>
-                  <span>Primary Route</span>
-                </div>
-                <div class="node-legend-item">
-                  <span class="node-legend-dot" style="background:#bc8cff;"></span>
-                  <span>Fallback Link</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Node Elements Container -->
-            <div id="nodesContainer" style="position: absolute; inset: 0; pointer-events: none;">
-              <!-- Dynamic nodes populated via JS -->
-            </div>
-          </div>
-
-          <!-- Mini Inspector & Playground underneath -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;">
-            <!-- Interactive Route Playground -->
-            <div class="donezo-card">
-              <div class="donezo-card-header">
-                <div style="display:flex;align-items:center;gap:8px;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2ea043" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                  <span class="donezo-card-title">Live Route Tester & Latency Monitor</span>
-                </div>
-              </div>
-              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                <select id="testRouteSelect" class="form-select" style="max-width: 170px;">
-                  <option value="default">Route: default</option>
-                  <option value="fact_check">Route: fact_check</option>
-                  <option value="script_writing">Route: script_writing</option>
-                </select>
-                <input type="text" id="testPromptInput" class="form-input" value="Explain quantum computing simply.">
-                <button class="btn-pill-primary" onclick="runRouteTest()" style="white-space:nowrap;">Test Route</button>
-              </div>
-              <div id="testRouteOutput"
-                style="background: #0d1117; border: 1px solid #21262d; border-radius: 10px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #7ee787; min-height: 80px; max-height: 140px; overflow-y: auto;">
-                Awaiting node graph route test execution...
-              </div>
-            </div>
-
-            <!-- Quick Node Inventory & Actions -->
-            <div class="donezo-card">
-              <div class="donezo-card-header">
-                <div style="display:flex;align-items:center;gap:8px;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-                  <span class="donezo-card-title">Active Node Connections</span>
-                </div>
-                <span id="nodeTotalSummary" style="font-size:11px;font-weight:700;color:var(--text-muted);">Loading nodes...</span>
-              </div>
-              <div id="quickNodeList" style="display:flex;flex-direction:column;gap:8px;max-height:140px;overflow-y:auto;padding-right:4px;">
-                <!-- Populated dynamically -->
-              </div>
-            </div>
-          </div>
-
-          <!-- Hidden fallback containers so legacy queries don't break -->
-          <div id="providersGrid" style="display:none;"></div>
-          <div id="routesContainer" style="display:none;"></div>
-        </div>
+        <!-- tab-providers removed: merged into tab-brain (AI Command Center) -->
 
         <!-- =============================================================== -->
         <!-- TAB 7: FACEBOOK GROWTH & MONETIZATION STUDIO                    -->
@@ -5706,19 +5608,27 @@
       }
       if (targetNav) targetNav.classList.add('active');
 
+      if (tabId === 'dashboard') {
+        loadStats();
+        loadRecentOutputsDashboard();
+      }
       if (tabId === 'trends') loadTrends();
       if (tabId === 'facts') loadClaims();
       if (tabId === 'scripts') loadScripts();
       if (tabId === 'audience') loadAudience();
       if (tabId === 'facebook') loadFacebookStudio();
       if (tabId === 'youtube') loadYouTubeStudio();
+      if (tabId === 'seo') loadSEO();
       if (tabId === 'brain') {
         // Initialize both node graph studio and brain orchestration
-        reloadNodeStudio();
+        reloadNodeStudio().catch(e => console.warn('reloadNodeStudio failed:', e));
         setTimeout(drawNodeWires, 120);
-        loadBrainStudio();
-        initBrainSystem();
-        setTimeout(brainLayout, 80);
+        loadBrainStudio().catch(e => console.warn('loadBrainStudio failed:', e));
+        // Small delay to ensure DOM is ready for brain system
+        setTimeout(() => {
+          try { initBrainSystem(); } catch (e) { console.error('initBrainSystem failed:', e); }
+          setTimeout(brainLayout, 80);
+        }, 50);
       }
     }
 
@@ -5739,6 +5649,7 @@
       const activeBtn = document.getElementById(btns[tab]);
       if (activeBtn) { activeBtn.style.borderBottomColor = '#58a6ff'; activeBtn.style.color = '#58a6ff'; activeBtn.classList.add('active-subtab'); }
       if (tab === 'routes') { reloadNodeStudio(); setTimeout(drawNodeWires, 80); }
+      if (tab === 'orch') { setTimeout(brainLayout, 50); }
     }
 
     /* ── Toggle node graph section height ── */
@@ -5983,6 +5894,67 @@
           </div>
         `).join('');
       } catch (e) { }
+    }
+
+    // Load SEO Matrix — CTR A/B variants, descriptions, tags & hashtags
+    async function loadSEO() {
+      const container = document.getElementById('seoContainer');
+      if (!container) return;
+      try {
+        const res = await fetch('/api/seo/bundles');
+        const bundles = await res.json();
+        if (!bundles.length) {
+          container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No SEO bundles yet — run a pipeline from the Dashboard and they will appear here.</p>';
+          return;
+        }
+        container.innerHTML = bundles.map(b => {
+          const score = Number(b.discoverability_score) || 0;
+          const scoreColor = score >= 85 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444';
+          const created = b.created_at ? new Date(b.created_at).toLocaleString() : '';
+          const variants = (b.ab_test_titles || []).map((t, i) => `
+            <div style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-left:2px solid #cbd5e1;margin-bottom:6px;">
+              <span style="font-size:0.68rem;font-weight:800;color:var(--forest-primary);min-width:26px;">B${i + 1}</span>
+              <span style="font-size:0.84rem;color:var(--text-main);">${escapeHtml(t)}</span>
+            </div>
+          `).join('');
+          const tags = (b.tags || []).map(t => `<span class="badge" style="background:var(--mint-subtle);color:var(--forest-dark);margin:2px 4px 2px 0;">${escapeHtml(t)}</span>`).join('');
+          const hashtags = (b.hashtags || []).map(h => `<span style="font-size:0.78rem;color:#3b82f6;margin-right:6px;">${escapeHtml(h)}</span>`).join('');
+          return `
+            <div class="donezo-card" style="margin-bottom:14px;">
+              <div class="donezo-card-header">
+                <div style="display:flex;flex-direction:column;gap:2px;">
+                  <h3 style="font-size:1.02rem;font-weight:800;">${escapeHtml(b.primary_title)}</h3>
+                  <span style="font-size:0.72rem;color:var(--text-muted);">
+                    Script: ${escapeHtml(b.script_title || b.script_id || '—')} · ${escapeHtml(created)}
+                  </span>
+                </div>
+                <span class="status-pill" style="background:${scoreColor}22;color:${scoreColor};border:1px solid ${scoreColor}55;">CTR Score ${score}</span>
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:12px;">
+                <button class="btn-pill-secondary" data-copy="${escapeHtml(b.primary_title)}" onclick="copySeoText(this)">Copy Title</button>
+                <button class="btn-pill-secondary" data-copy="${escapeHtml(b.description)}" onclick="copySeoText(this)">Copy Description</button>
+              </div>
+              ${variants ? `<div style="margin-bottom:10px;"><div style="font-size:0.72rem;font-weight:800;color:var(--text-muted);letter-spacing:0.4px;margin-bottom:6px;">A/B TITLE VARIANTS</div>${variants}</div>` : ''}
+              <div style="background:var(--mint-subtle);border-left:3px solid var(--forest-primary);padding:10px 14px;margin-bottom:10px;font-size:0.84rem;color:var(--text-main);border-radius:4px;line-height:1.5;">
+                ${escapeHtml(b.description)}
+              </div>
+              ${tags ? `<div style="margin-bottom:8px;">${tags}</div>` : ''}
+              ${hashtags ? `<div>${hashtags}</div>` : ''}
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Could not load SEO bundles.</p>';
+      }
+    }
+
+    function copySeoText(btn) {
+      const text = btn.getAttribute('data-copy') || '';
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        setTimeout(() => { btn.textContent = original; }, 1200);
+      }).catch(() => {});
     }
 
     // Load Audience
@@ -6404,6 +6376,12 @@
       if (!svg || !viewport) return;
 
       const vRect = viewport.getBoundingClientRect();
+      // If viewport is hidden or has no dimensions, defer
+      if (vRect.width === 0 || vRect.height === 0) {
+        setTimeout(drawNodeWires, 100);
+        return;
+      }
+
       const provs = _nodeGraphData.providers || [];
       const routes = _nodeGraphData.routes || [];
 
@@ -6558,10 +6536,13 @@
         if (profRes.ok) {
           const pData = await profRes.json();
           const prof = pData.profile || {};
-          document.getElementById('fbPageName').textContent = prof.name || 'Facebook Creator Page';
-          document.getElementById('fbMockName').textContent = prof.name || 'Facebook Creator Page';
-          document.getElementById('fbPageMeta').innerHTML = `Category: ${prof.category || 'Creator / Tech'} &bull; ID: <code>${prof.id || 'N/A'}</code>`;
-          document.getElementById('fbPageIdDisplay').textContent = prof.id || 'sim_page';
+          const elFbName = document.getElementById('fbPageName');
+          if (elFbName) elFbName.textContent = prof.name || 'Facebook Creator Page';
+          const elFbMockName = document.getElementById('fbMockName');
+          if (elFbMockName) elFbMockName.textContent = prof.name || 'Facebook Creator Page';
+          // NOTE: this replaces fbPageMeta's children, so the ID element must be re-created inside it
+          const elFbMeta = document.getElementById('fbPageMeta');
+          if (elFbMeta) elFbMeta.innerHTML = `Category: ${prof.category || 'Creator / Tech'} &bull; ID: <code id="fbPageIdDisplay">${prof.id || 'N/A'}</code>`;
           if (prof.picture_url) {
             document.getElementById('fbPageAvatar').src = prof.picture_url;
             document.getElementById('fbMockAvatar').src = prof.picture_url;
@@ -6766,13 +6747,12 @@
               <td style="padding: 12px;">${statusBadge}${linkHtml}</td>
               <td style="padding: 12px;">${mediaHtml}</td>
               <td style="padding: 12px; font-size: 12px; color: var(--text-muted);">${(p.created_at || '').slice(0, 10)}</td>
-                <div style="display: flex; justify-content: flex-end; gap: 6px; align-items: center;">
+                <td style="padding: 12px;"><div style="display: flex; justify-content: flex-end; gap: 6px; align-items: center;">
                   ${p.status !== 'published' ? `<button class="btn-pill-primary" style="padding: 3px 8px; font-size: 11px;" onclick="publishFbItem('${p.id}')">Publish</button>` : ''}
                   ${p.status === 'draft' ? `<button class="btn-pill-secondary" style="padding: 3px 8px; font-size: 11px;" onclick="scheduleFbItem('${p.id}')">Schedule</button>` : ''}
                   <button class="btn-pill-secondary" style="padding: 3px 8px; font-size: 11px;" onclick="previewFbItem('${p.id}')">Preview</button>
                   <button class="btn-pill-secondary" style="padding: 3px 8px; font-size: 11px; color: #ef4444;" onclick="deleteFbItem('${p.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-                </div>
-              </td>
+                </div></td>
             </tr>
           `;
         }).join('');
@@ -8318,15 +8298,17 @@
 
     function initBrainConsole() {
       brainLogEl = document.getElementById('brainLog');
-      if (!brainLogEl) return;
+      // Don't return early - elements exist in DOM even if panel is hidden
+      if (!brainLogEl) {
+        console.warn('brainLog element not found, console initialization deferred');
+        return;
+      }
 
       if (!window._brainConsoleInitialized) {
         window._brainConsoleInitialized = true;
 
         appendBrainLog('System', 'Hyper Motion AI Brain model active.', 'sys', 'System');
         appendBrainLog('System', 'Finished work delivers live to Results card. Ready for tasks.', 'ok', 'System');
-
-        // No filter badges — removed
 
         const scrollBtn = document.getElementById('bcScrollBtn');
         if (scrollBtn) {
@@ -8385,24 +8367,21 @@
           if (statsRes.ok) stats = await statsRes.json();
         } catch (_) {}
 
-        let brainStatus = null;
-        try {
-          const brainRes = await fetch('/api/brain/status');
-          if (brainRes.ok) brainStatus = await brainRes.json();
-        } catch (_) {}
-
         const trendsCount = (stats && stats.trends) || 12;
         const claimsCount = (stats && stats.claims) || 7;
         const scriptsCount = (stats && stats.scripts) || 5;
         const totalVectors = trendsCount + claimsCount + scriptsCount;
 
+        // NOTE: nodeTotalSummary is managed by renderNodeGraph() (providers/routes count)
+
+        // Update legacy elements if they exist (backward compatibility)
         const memCountEl = document.getElementById('brainMemoryCount');
         if (memCountEl) memCountEl.textContent = `${totalVectors} VECTORS`;
 
         const memRatioEl = document.getElementById('brainMemoryRatio');
         if (memRatioEl) memRatioEl.textContent = `${trendsCount} Trends · ${claimsCount} Claims · ${scriptsCount} Scripts`;
 
-        // Render Truth Claims Table in Brain Panel
+        // Render Truth Claims Table if the element exists
         try {
           const claimsRes = await fetch('/api/claims');
           if (claimsRes.ok) {
@@ -8444,7 +8423,7 @@
     // Init
     loadStats();
     loadBrainStudio();
-    initBrainSystem();
+    // initBrainSystem() called on-demand when brain tab is activated (see switchTab)
     loadFacebookStudio();
     loadYouTubeStudio();
     loadRecentOutputsDashboard();

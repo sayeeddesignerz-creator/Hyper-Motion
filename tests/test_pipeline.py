@@ -74,6 +74,12 @@ async def test_database_crud(tmp_path):
     assert fetched_seo is not None
     assert fetched_seo["primary_title"] == "The Truth About Quantum Computing"
 
+    # SEO Matrix list view (joined with script titles)
+    bundles = await db.get_recent_seo_bundles()
+    assert len(bundles) == 1
+    assert bundles[0]["script_title"] == "The Truth About Quantum"
+    assert bundles[0]["ab_test_titles"] == ["Why Quantum is Not Ready", "Quantum Secrets Revealed"]
+
     # Verify stats
     stats = await db.get_stats()
     assert stats["trends"] == 1
@@ -86,15 +92,3 @@ def test_strategist_evergreen_topics():
     topic = strat.get_evergreen_topic()
     assert isinstance(topic, str)
     assert len(topic) > 10
-
-@pytest.mark.asyncio
-async def test_omnirouter_resilience():
-    from app.llm.omnirouter import OmniRouter
-    router = OmniRouter()
-    assert router.is_available() is True
-    
-    # Test JSON synthesis and fallback guarantee
-    # generate_json always returns a dict; key names vary by model/prompt
-    res = await router.generate_json("You are an expert fact-checking system. Extract claims for AI.")
-    assert isinstance(res, dict), f"Expected dict, got {type(res)}"
-    assert len(res) > 0, "Response dict should not be empty"

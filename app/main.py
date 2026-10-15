@@ -15,7 +15,7 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 from app.api import router, orchestrator
-from app.config import get_settings, PROJECT_ROOT, MEDIA_DIR
+from app.config import get_app_version, get_settings, PROJECT_ROOT, MEDIA_DIR
 from app.scheduler import AutonomousScheduler
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -28,8 +28,8 @@ logger = logging.getLogger("HyperMotion")
 
 settings = get_settings()
 scheduler = AutonomousScheduler(orchestrator)
+APP_VERSION = get_app_version()
 DASHBOARD_PATH = PROJECT_ROOT / "dashboard" / "index.html"
-BRAIN_PATH     = PROJECT_ROOT / "dashboard" / "brain.html"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -99,7 +99,7 @@ def _print_banner() -> None:
         tbl.add_column("Key",   style="bold #9333EA", no_wrap=True)
         tbl.add_column("Value", style="#E9D5FF")
 
-        tbl.add_row("Version",     "[bold white]1.0.0[/]")
+        tbl.add_row("Version",     f"[bold white]{APP_VERSION}[/]")
         tbl.add_row("Environment", "[bold cyan]development[/]")
         tbl.add_row("Host",        f"[bold white]{settings.host}:{settings.port}[/]")
         tbl.add_row("Dashboard",   f"[bold #60A5FA]http://localhost:{settings.port}/[/]")
@@ -118,7 +118,7 @@ def _print_banner() -> None:
 
     except Exception:
         # Plain-text fallback — always works
-        print("\n=== Hyper Motion 1.0.0 ===")
+        print(f"\n=== Hyper Motion {APP_VERSION} ===")
         print(f"  Dashboard : http://localhost:{settings.port}/")
         print(f"  API Docs  : http://localhost:{settings.port}/docs")
         print("  Press CTRL+C to stop\n")
@@ -173,7 +173,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Hyper Motion",
     description="Multi-Agent Automated Content Research, Fact-Checking, Scriptwriting, SEO & Facebook Growth Engine",
-    version="1.0.0",
+    version=APP_VERSION,
     lifespan=lifespan,
 )
 
@@ -197,16 +197,6 @@ async def serve_dashboard():
             headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache"},
         )
     return {"status": "Hyper Motion is online", "docs": "/docs", "health": "/health"}
-
-
-@app.get("/brain")
-async def serve_brain():
-    if BRAIN_PATH.exists():
-        return FileResponse(
-            BRAIN_PATH,
-            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache"},
-        )
-    return {"status": "Brain visualization is online", "docs": "/docs"}
 
 
 # ─────────────────────────────────────────────────────────────────────────────

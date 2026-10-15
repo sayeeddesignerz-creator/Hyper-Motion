@@ -34,6 +34,8 @@ def tmp_gateway(tmp_path):
     gw._db = GatewayDB(tmp_path / "gw_test.db")
     gw._handles = {}
     gw._live_routes = {}
+    from app.llm.gateway import _PROVIDER_ID_TO_HANDLE
+    gw._provider_map = dict(_PROVIDER_ID_TO_HANDLE)
     gw.settings = MagicMock()
 
     yield gw
@@ -239,7 +241,79 @@ async def test_cache_hit_skips_provider(tmp_gateway):
 
 
 # ============================================================================
-# 7. API keys never appear in /api/providers response
+# 7. Dashboard-saved providers (DB) become live gateway handles
+# ============================================================================
+
+@pytest.mark.asyncio
+async def test_db_providers_become_live_handles(tmp_path):
+    """Providers saved via the dashboard must register as real routing handles,
+    and routes referencing them must resolve through the provider map."""
+    from app.db import Database
+    from app.llm.gateway import LLMGateway, GatewayDB, _PROVIDER_ID_TO_HANDLE
+
+    gw = object.__new__(LLMGateway)
+    gw._db = GatewayDB(tmp_path / "gw_sync.db")
+    gw._handles = {}
+    gw._live_routes = {}
+    gw._provider_map = dict(_PROVIDER_ID_TO_HANDLE)
+    gw.settings = MagicMock()
+    gw.settings.gemini_api_key = None
+    gw.settings.openai_api_key = None
+    gw.settings.openrouter_api_key = None
+
+    db = Database(tmp_path / "app_test.db")
+    await db.initialize()
+    await db.save_omni_provider(
+        provider_id="groq_fast",
+        provider_type="groq",
+        name="Groq Cloud",
+        api_key="test_key_not_real",
+        base_url="https://api.groq.com/openai/v1",
+        models=["llama-3.3-70b-versatile"],
+        enabled=True,
+    )
+
+    await gw.sync_providers_from_db(db)
+    assert "groq_fast" in gw._handles, "DB provider must become a live handle"
+    assert gw._provider_map["groq_fast"] == "groq_fast"
+
+    route = {
+        "route_name": "default",
+        "primary_provider_id": "groq_fast",
+        "fallback_chain": [{"provider_id": "gemini_primary"}],
+    }
+    gw.reload_from_db_routes([route])
+    assert gw._live_routes["default"]["primary"] == "groq_fast"
+    assert "gemini" in gw._live_routes["default"]["fallback"]
+
+    # Deleting the provider must drop its handle and revert to the alias mapping
+    await db.delete_omni_provider("groq_fast")
+    await gw.sync_providers_from_db(db)
+    assert "groq_fast" not in gw._handles
+    assert gw._provider_map.get("groq_fast") == "groq"
+
+    gw.reload_from_db_routes([route])
+    assert gw._live_routes["default"]["primary"] == "groq"
+
+
+# ============================================================================
+# 8. Route referencing an unknown provider falls back to the gemini handle
+# ============================================================================
+
+@pytest.mark.asyncio
+async def test_unknown_provider_route_falls_back_to_gemini(tmp_gateway):
+    """A route whose provider no longer exists must not break route ingestion."""
+    tmp_gateway._handles = {"gemini": _mock_handle("gemini", "Gemini", text_ret="ok")}
+    tmp_gateway.reload_from_db_routes([{
+        "route_name": "ghost_route",
+        "primary_provider_id": "provider_that_never_existed",
+        "fallback_chain": [],
+    }])
+    assert tmp_gateway._live_routes["ghost_route"]["primary"] == "gemini"
+
+
+# ============================================================================
+# 9. API keys never appear in /api/providers response
 # ============================================================================
 
 @pytest.mark.asyncio

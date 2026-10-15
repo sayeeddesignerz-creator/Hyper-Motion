@@ -251,10 +251,14 @@ def cmd_start(workdir: Path | None = None) -> None:
 
 def cmd_version() -> None:
     try:
-        from importlib.metadata import version
-        v = version("hypermotion")
+        from app.config import get_app_version
+        v = get_app_version()
     except Exception:
-        v = "1.0.0"
+        try:
+            from importlib.metadata import version
+            v = version("hypermotion")
+        except Exception:
+            v = "1.0.2"
     print(f"hypermotion {BOLD(v)}")
 
 

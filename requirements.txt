@@ -1,3 +1,4 @@
+# NOTE: pyproject.toml is the source of truth for dependencies — keep in sync.
 # Core Web & API
 fastapi>=0.111.0,<1.0.0
 uvicorn[standard]>=0.30.0,<1.0.0

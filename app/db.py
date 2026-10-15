@@ -319,6 +319,27 @@ class Database:
             d["hashtags"] = json.loads(d.get("hashtags") or "[]")
             return d
 
+    async def get_recent_seo_bundles(self, limit: int = 20) -> List[Dict[str, Any]]:
+        """Recent SEO bundles joined with their script titles (SEO Matrix view)."""
+        async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row
+            cursor = await db.execute("""
+                SELECT b.*, s.title AS script_title
+                FROM seo_bundles b
+                LEFT JOIN scripts s ON s.id = b.script_id
+                ORDER BY b.created_at DESC
+                LIMIT ?
+            """, (limit,))
+            rows = await cursor.fetchall()
+            res = []
+            for r in rows:
+                d = dict(r)
+                d["ab_test_titles"] = json.loads(d.get("ab_test_titles") or "[]")
+                d["tags"] = json.loads(d.get("tags") or "[]")
+                d["hashtags"] = json.loads(d.get("hashtags") or "[]")
+                res.append(d)
+            return res
+
     async def save_audience_insight(self, insight: AudienceInsight) -> None:
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute("""

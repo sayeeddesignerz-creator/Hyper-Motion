@@ -15,7 +15,12 @@ from app.agents.facebook_content_agent import FacebookContentAgent
 
 @pytest.mark.asyncio
 async def test_facebook_client_simulation():
+    # The client treats `access_token=""` as "unset" and falls back to
+    # settings/env — override after construction so a real token sitting in the
+    # developer's .env can never leak in and turn this into a live API call.
     client = FacebookClient(page_id="test_page", access_token="")
+    client.access_token = ""
+    client.force_simulation = True
     profile = await client.get_page_profile()
     assert profile["simulation_mode"] is True
     assert profile["followers_count"] > 1000

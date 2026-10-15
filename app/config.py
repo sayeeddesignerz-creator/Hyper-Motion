@@ -32,6 +32,24 @@ def _load_dotenv() -> None:
 
 _load_dotenv()
 
+# ---------------------------------------------------------------------------
+# Single-source application version (pyproject.toml is the source of truth).
+# Falls back to the constant when metadata is unavailable (e.g. source-run
+# without an installation).
+# ---------------------------------------------------------------------------
+_APP_VERSION_FALLBACK = "1.0.2"
+
+def get_app_version() -> str:
+    """Return the installed package version, or the bundled fallback."""
+    try:
+        from importlib.metadata import version, PackageNotFoundError
+        try:
+            return version("hypermotion")
+        except PackageNotFoundError:
+            return _APP_VERSION_FALLBACK
+    except Exception:
+        return _APP_VERSION_FALLBACK
+
 class ChannelTone(BaseModel):
     style: str = "Analytical, Punchy, High-Energy, Fact-Based"
     voice: str = "Authoritative yet accessible storyteller"

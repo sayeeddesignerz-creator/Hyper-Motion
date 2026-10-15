@@ -53,6 +53,11 @@ class ContentOrchestrator:
     async def initialize(self) -> None:
         await self.db.initialize()
         logger.info("ContentOrchestrator database initialized.")
+        # Load dashboard-managed providers (DB) into the gateway routing handles
+        try:
+            await self.gateway.sync_providers_from_db(self.db)
+        except Exception as exc:
+            logger.warning("Provider sync from DB skipped: %s", exc)
 
     async def run_discovery(self, limit: int = 15) -> List[TrendItem]:
         await events.broadcast("pipeline_progress", {"step": "trend_discovery", "status": "running"})
@@ -262,7 +267,7 @@ class ContentOrchestrator:
             feed_post.seo_keywords = seo_data.get("seo_keywords", [])
             feed_post.seo_score = seo_data.get("seo_score", 95)
         except Exception as e:
-            self.logger.warning(f"Failed to apply SEO pass to Facebook post: {e}")
+            logger.warning(f"Failed to apply SEO pass to Facebook post: {e}")
 
         # 6. Save items to DB
         await self.db.save_facebook_post(feed_post)
