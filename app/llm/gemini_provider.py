@@ -85,15 +85,25 @@ class GeminiProvider(BaseLLMProvider):
         json_system = (system_instruction or "") + "\nRespond with VALID JSON ONLY. Do not include markdown headers or commentary."
         raw_text = await self.generate_text(prompt, system_instruction=json_system, temperature=temperature, max_tokens=max_tokens)
         
-        # Clean markdown codeblocks
-        cleaned = re.sub(r"^```(?:json)?\s*", "", raw_text.strip(), flags=re.MULTILINE)
-        cleaned = re.sub(r"\s*```$", "", cleaned.strip(), flags=re.MULTILINE)
+        # Clean markdown codeblocks and whitespace
+        cleaned = raw_text.strip()
+        if "```" in cleaned:
+            # Extract content within the first code block if present
+            code_block_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", cleaned)
+            if code_block_match:
+                cleaned = code_block_match.group(1).strip()
+            else:
+                cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
+                cleaned = re.sub(r"\s*```$", "", cleaned)
         
         try:
             return json.loads(cleaned)
-        except json.JSONDecodeError:
-            # Fallback regex match for json object
-            match = re.search(r"(\{.*\}|\[.*\])", cleaned, re.DOTALL)
+        except (json.JSONDecodeError, ValueError):
+            # Fallback greedy regex match for innermost or outermost json object/array
+            match = re.search(r"(\{[\s\S]*\}|\[[\s\S]*\])", cleaned)
             if match:
-                return json.loads(match.group(1))
+                try:
+                    return json.loads(match.group(1))
+                except Exception:
+                    pass
             raise ValueError(f"Could not parse valid JSON from Gemini output: {raw_text[:200]}")
