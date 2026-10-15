@@ -98,7 +98,7 @@ Hyper-Motion/
 
 | # | Severity | Item |
 |---|---|---|
-| 1 | 🔴 **SECURITY** | **Facebook credential rotation — USER ACTION REQUIRED.** `exchange_token.py` (hardcoded user token + app secret) was purged from git history on 2026-10-15 with `git filter-repo` — all commit hashes rewritten locally. **Force-push still pending** (`git push --force-with-lease origin main`). Rotate the FB app secret, user token and page token; regenerate `FACEBOOK_PAGE_ACCESS_TOKEN` in `.env`. |
+| 1 | 🔴 **SECURITY** | **Facebook credential rotation — USER ACTION REQUIRED.** `exchange_token.py` (hardcoded user token + app secret) was purged from git history on 2026-10-15 with `git filter-repo`; the rewritten history was **force-pushed to GitHub on 2026-10-15** (`main` = `e533462`, old history no longer on the branch). ⚠️ Old dangling commits remain retrievable on GitHub by anyone who knows their SHAs until GitHub garbage-collects them. **Rotate the FB app secret, user token and page token NOW; regenerate `FACEBOOK_PAGE_ACCESS_TOKEN` in `.env`.** |
 | 2 | 🟡 | **YouTube Studio endpoints return mock data** (`/api/youtube/*` in `api.py`) — static numbers, not wired to the real YouTube Data API. Deferred by choice on 2026-10-15. |
 | 3 | 🟢 | The on-PATH `hypermotion` command is an npm-folder shim (runs `python -m app.main`), not the pip console script. |
 | 4 | 🟢 | `OmniRoute` API endpoints (`/api/omniroute/*`) power the dashboard **node graph** — providers saved there register as **live gateway handles** (incl. Groq) via `LLMGateway.sync_providers_from_db()`; routes saved there swap the gateway's live routing table (SSE `routes_changed`). |
@@ -118,7 +118,7 @@ Hyper-Motion/
 ## 7. Git Notes
 
 - Branch: `main` (tracks `origin/main`). All commits so far dated 2026-10-15.
-- ⚠️ **History rewritten 2026-10-15** with `git filter-repo` to purge `exchange_token.py` from all commits — local commit hashes changed; the `origin` remote was re-added but **NOT force-pushed yet**.
+- ✅ **History rewrite PUBLISHED 2026-10-15:** `git filter-repo` purge of `exchange_token.py` was force-pushed (`--force-with-lease`) to `origin/main` — remote branch now `e533462`; old branch history replaced. Note: pre-rewrite commits can still be fetched from GitHub by exact SHA until GitHub GCs its dangling objects.
 - Recent work direction: unifying dashboard into "AI Command Center" — brain orchestration (top) + fully interactive node-graph studio (bottom, connect/disconnect/right-click, every change synced to the backend), LLM router resilience, Facebook growth engine, backlog completion session.
 
 ---
@@ -126,6 +126,14 @@ Hyper-Motion/
 ## 8. Task Log
 
 > Newest first. Format: `### YYYY-MM-DD — title ✅` + bullets (what changed, follow-ups).
+
+### 2026-10-15 — GitHub push: history rewrite published + latest work live ✅
+**Goal:** push all local changes to `github.com/sayeeddesignerz-creator/Hyper-Motion`.
+- 🚀 **Force-push done:** `git push --force-with-lease origin main` — remote `main` replaced old history (`8524fc4…` → `e533462`), matching local exactly. Only ref on the remote is `refs/heads/main`.
+- 🧹 **Purge now live on the branch:** `exchange_token.py` no longer exists anywhere in the remote branch tree; browsing the repo shows only the clean rewritten history.
+- ⚠️ **Residual risk:** verified that GitHub still serves the pre-rewrite commits by direct SHA (dangling objects) — normal until GitHub GCs them. **FB credential rotation is still mandatory** (see §5 #1); optionally contact GitHub Support to expedite GC.
+- 📦 **Pushed content:** repo cleanup, backlog completion (SEO Matrix, provider wiring, bug fixes), and the new AI Command Center work (brain-on-top layout + fully interactive, backend-synced node graph with engine nodes).
+- ⏭️ **Follow-ups (user):** rotate FB credentials (§5 #1).
 
 ### 2026-10-15 — AI Command Center: brain on top + fully interactive node graph ✅
 **Goal:** fix brain/node overlap, put the brain system above the node system, and make the node graph behave like a real node editor whose every change reconfigures the backend.
