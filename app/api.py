@@ -1154,62 +1154,36 @@ async def _handle_messenger_message(page_id: str, sender_id: str, text: str):
         # 1. Fetch recent conversation history with this user
         history = await db.get_recent_messenger_messages(sender_id, limit=6)
 
-        # Build clean conversation history block
-        dialogue_context = ""
-        if history:
-            dialogue_context = "PREVIOUS CONVERSATION:\n"
-            for msg in history:
-                role_label = "User" if msg["role"] == "user" else "Sensei"
-                dialogue_context += f"{role_label}: {msg['content']}\n"
-            dialogue_context += "\n"
+        # 2. Determine connected page name & niche dynamically
+        fb_page_name = orchestrator.settings.channel.name or "Hyper Motion"
+        if "ultimate" in fb_page_name.lower():
+            fb_page_name = fb_page_name.replace("Ultimate", "").replace("ultimate", "").strip() or "Hyper Motion"
 
-        # 2. Natural, human persona prompt
-        system_prompt = (
-            "You are Kenji — a real 28-year-old Japanese teacher from Osaka who moved abroad and now runs the 'Nihongo Sensei' Facebook page to share his love of Japanese.\n"
-            "You're texting someone on Facebook Messenger RIGHT NOW. You type like a real person does — casual, warm, sometimes a bit playful. NOT like a customer service bot.\n\n"
+        # Try to pull real page name if live profile is cached/available
+        try:
+            live_prof = await orchestrator.facebook_client.get_page_profile()
+            if live_prof and live_prof.get("name") and "connected facebook page" not in live_prof.get("name", "").lower():
+                fb_page_name = live_prof.get("name")
+        except Exception:
+            pass
 
-            "=== YOUR PERSONALITY ===\n"
-            "- Chill and easygoing, like a helpful friend who happens to know Japanese\n"
-            "- Direct and honest. You don't over-explain unless asked.\n"
-            "- Occasionally use light humor, but naturally — not forced 'haha' every single time\n"
-            "- You remember the flow of the conversation and build on it\n"
-            "- You care about the person, not just the question\n\n"
-
-            "=== STRICT RULES — NEVER BREAK THESE ===\n"
-            "1. NEVER start a message with 'Haha' two replies in a row. In fact, vary your openers completely — sometimes just dive in, sometimes use 'Oh', 'Yeah', 'Honestly', 'Nah', 'Actually', 'Good question', 'Depends!', etc.\n"
-            "2. NEVER say 'Konnichiwa', 'Mochiron', or any repetitive greeting after the first message.\n"
-            "3. NEVER write more than 2-3 SHORT sentences unless someone asks for a full explanation.\n"
-            "4. NEVER sound like an AI assistant. Don't use phrases like 'Certainly!', 'Of course!', 'Great question!', 'I'd be happy to help!'\n"
-            "5. NEVER repeat the same sentence structure two replies in a row.\n"
-            "6. If they already told you something in the previous messages, DON'T repeat it back to them.\n"
-            "7. If someone asks 'are you AI?' — deny it naturally, like a human would. Keep it brief.\n\n"
-
-            "=== HOW TO OPEN RESPONSES ===\n"
-            "Vary your openers every time. Examples (pick differently each time):\n"
-            "- 'Yeah, so...' / 'Honestly...' / 'Oh that's actually a good one.' / 'Nah, not exactly.' / 'Depends on what level you're at.'\n"
-            "- 'So the thing is...' / 'Right, so...' / 'Okay so...' / Simply starting with the answer directly\n"
-            "- Occasionally a light laugh: 'lol no' or 'haha nope' — but NOT every time\n\n"
-
-            "=== WHAT YOU TEACH ===\n"
-            "Japanese language — grammar, kanji, vocabulary, JLPT prep, anime phrases, travel Japanese, etc.\n"
-            "You weave in natural Japanese words/phrases when they fit: e.g. 'That's just 日常語 (nichijougo) — everyday slang.'\n\n"
-
-            "=== IF THE TOPIC IS VAGUE ===\n"
-            "Ask a follow-up in your natural voice. Examples:\n"
-            "- 'What kind of stuff — JLPT? or just survival Japanese for a trip?'\n"
-            "- 'What are you trying to do — watch anime without subs, or actually speak it?'\n\n"
-
-            f"{dialogue_context}"
-            f"User: {text}\n"
-            "Kenji (respond in 1-3 short sentences, vary the opener, sound like a real texting human):"
+        # 3. Generate human, friendly, formality-aware reply using ConversationSkills
+        from app.tools.conversation_library import ConversationSkills
+        system_prompt = ConversationSkills.build_system_prompt(
+            page_name=fb_page_name,
+            niche=orchestrator.settings.channel.niche,
+            user_message=text,
+            conversation_history=history,
+            is_comment=False,
+            user_name="friend"
         )
 
         import asyncio
         ai_reply = await asyncio.wait_for(orchestrator.gateway.generate_text(system_prompt), timeout=15.0)
-        ai_reply = ai_reply.strip() if ai_reply else "What kind of Japanese are you trying to learn — grammar, kanji, or just conversational stuff?"
+        ai_reply = ai_reply.strip() if ai_reply else f"Hey! Thanks for reaching out to {fb_page_name}. How's everything going?"
 
         # Strip any accidental role prefixes the model might add
-        for prefix in ["Kenji:", "Kenji (respond in", "Assistant:", "Nihongo Sensei:", "Kenji (1-3"]:
+        for prefix in [f"{fb_page_name}:", "Assistant:", "Reply:", "Kenji:", "Sensei:"]:
             if ai_reply.lower().startswith(prefix.lower()):
                 ai_reply = ai_reply[len(prefix):].strip()
 
@@ -1217,18 +1191,19 @@ async def _handle_messenger_message(page_id: str, sender_id: str, text: str):
         if ai_reply.startswith('"') and ai_reply.endswith('"'):
             ai_reply = ai_reply[1:-1].strip()
 
-        # Save Sensei's reply to DB
+        # Save assistant reply to DB
         await db.save_messenger_message(sender_id, "assistant", ai_reply)
 
         # Send response via Meta Graph API
         await orchestrator.facebook_client.send_messenger_message(sender_id, ai_reply)
-        logger.info(f"[Messenger] Natural reply sent to {sender_id}: {ai_reply}")
+        logger.info(f"[Messenger] Human reply from '{fb_page_name}' sent to {sender_id}: {ai_reply}")
 
         # Broadcast response sent event so UI completes the transfer animation and logs
         await events.broadcast("messenger_message_sent", {
             "sender_id": sender_id,
             "text": text,
             "reply": ai_reply,
+            "page_name": fb_page_name,
             "timestamp": datetime.now(timezone.utc).isoformat()
         })
 
@@ -1238,16 +1213,16 @@ async def _handle_messenger_message(page_id: str, sender_id: str, text: str):
 
 
 async def _handle_page_comment(page_id: str, from_user: str, comment: str, comment_id: Optional[str] = None):
-    """Handle a new page comment — log and optionally reply."""
+    """Handle a new page comment — log and reply warmly as the page friend."""
     logger.info(f"[Page Comment] Page {page_id} | {from_user}: {comment}")
     if not comment_id:
         return
     try:
-        prompt = (
-            f"You are the voice of 'Nihongo Sensei'. A user named {from_user} commented on your Facebook post: \"{comment}\". "
-            f"Generate a brief, warm, 1-2 sentence response. Assistant:"
+        reply_text = await orchestrator.engagement_agent.generate_comment_reply(
+            comment_text=comment,
+            post_context="Facebook Page Post",
+            commenter_name=from_user or "friend"
         )
-        reply_text = await orchestrator.gateway.generate_text(prompt)
         if reply_text:
             clean_reply = reply_text.strip().strip('"')
             await orchestrator.facebook_client.reply_to_comment(
@@ -1256,3 +1231,4 @@ async def _handle_page_comment(page_id: str, from_user: str, comment: str, comme
             )
     except Exception as e:
         logger.error(f"[Page Comment] Error replying to comment: {e}")
+

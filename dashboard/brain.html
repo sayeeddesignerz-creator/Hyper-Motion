@@ -566,7 +566,8 @@ function handleSSEEvent(raw){
     }
     if(type==='messenger_message_sent'){
       const sid=payload.sender_id?payload.sender_id.slice(-6):'User';
-      appendLog('FB Agent',`✉️ Kenji Replied: "${payload.reply}"`,'ok','FB Agent');
+      const pName = payload.page_name || 'Page Friend';
+      appendLog('FB Agent',`✉️ ${pName} Replied: "${payload.reply}"`,'ok','FB Agent');
       appendLog('Google Gemini',`Delivered reply to Meta Graph API`,'done','Google Gemini');
       const fbN=N['FB Agent'];const gemN=N['Google Gemini'];
       if(fbN){pulse(fbN,0,600);fbN.el.classList.remove('on');}
@@ -575,7 +576,7 @@ function handleSSEEvent(raw){
       setS('Idle');
       const sin=(payload.text||'').slice(0,25);
       const sout=(payload.reply||'').slice(0,25);
-      items.unshift({t:`Messenger: "${sin}..." → "${sout}..."`,s:'FB Agent · Kenji Sensei',tm:new Date().toTimeString().slice(0,5)});
+      items.unshift({t:`Messenger: "${sin}..." → "${sout}..."`,s:`FB Agent · ${pName}`,tm:new Date().toTimeString().slice(0,5)});
       total++;draw();
       return;
     }

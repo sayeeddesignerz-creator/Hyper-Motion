@@ -6536,9 +6536,10 @@
 
         tbody.innerHTML = messages.map(m => {
           const isUser = m.role === 'user';
+          const pName = document.getElementById('fbPageName')?.textContent?.trim() || 'Page Rep';
           const roleBadge = isUser
-            ? '<span class="badge" style="background:#dbeafe;color:#1e40af;font-weight:700;">STUDENT</span>'
-            : '<span class="badge badge-emerald" style="font-weight:700;">KENJI SENSEI (AI)</span>';
+            ? '<span class="badge" style="background:#dbeafe;color:#1e40af;font-weight:700;">USER</span>'
+            : `<span class="badge badge-emerald" style="font-weight:700;">${escapeHtml(pName.toUpperCase())}</span>`;
           const shortSender = m.sender_id ? (m.sender_id.length > 8 ? '...' + m.sender_id.slice(-6) : m.sender_id) : 'User';
           const timeStr = m.created_at ? new Date(m.created_at).toLocaleTimeString() : 'Just now';
           const statusBadge = isUser
@@ -7962,10 +7963,11 @@
         }
         if (type === 'messenger_message_sent') {
           const shortId = payload.sender_id ? (payload.sender_id.length > 8 ? '...' + payload.sender_id.slice(-6) : payload.sender_id) : 'User';
-          appendBrainLog('FB Agent', `✉️ Kenji Replied: "${payload.reply}"`, 'ok', 'FB Agent');
+          const pName = payload.page_name || 'Page Friend';
+          appendBrainLog('FB Agent', `✉️ ${pName} Replied: "${payload.reply}"`, 'ok', 'FB Agent');
           appendBrainLog('Google Gemini', `Conversational reply delivered to Meta Messenger API`, 'done', 'Google Gemini');
           if (typeof addTelemetryLine === 'function') {
-            addTelemetryLine(`[FB Messenger] Kenji Replied: "${payload.reply}"`, '#10b981');
+            addTelemetryLine(`[FB Messenger] ${pName} Replied: "${payload.reply}"`, '#10b981');
           }
           const fbNode = brainN['FB Agent'];
           const geminiNode = brainN['Google Gemini'];
